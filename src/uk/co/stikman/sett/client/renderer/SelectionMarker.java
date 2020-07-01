@@ -5,6 +5,7 @@ import uk.co.stikman.sett.MarkerType;
 import uk.co.stikman.sett.game.TerrainNode;
 import uk.co.stikman.sett.gfx.Shader;
 import uk.co.stikman.utils.math.Matrix3;
+import uk.co.stikman.utils.math.Matrix4;
 import uk.co.stikman.utils.math.Vector2i;
 import uk.co.stikman.utils.math.Vector3;
 
@@ -19,8 +20,11 @@ public class SelectionMarker {
 	private VoxelMesh	bighouse;
 	private VoxelMesh	house;
 	private MarkerType	markerType;
+	private Matrix4		tm			= new Matrix4();
+	private GameView	gameview;
 
 	public SelectionMarker(GameView gameview, VoxelMesh caret, VoxelMesh caret2, VoxelMesh small, VoxelMesh large, VoxelMesh flag) {
+		this.gameview = gameview;
 		this.caret = caret;
 		this.caret2 = caret2;
 		this.house = small;
@@ -32,7 +36,6 @@ public class SelectionMarker {
 	}
 
 	public void render(Shader shd, Matrix3 skew) {
-		shd.getUniform("offset").bindVec3(skew.multiply(positions[0], tv));
 		MarkerType mt = markerType;
 		if (mt == null)
 			mt = MarkerType.NONE;
@@ -50,13 +53,19 @@ public class SelectionMarker {
 			m = house;
 			break;
 		}
+
+		//
+		// rotate it back so it always faces the user, ish
+		//
+		tm.makeRotation(0, 0, 1, -gameview.getRotation().x);
+		shd.getUniform("model").bindMat4(tm);
+		shd.getUniform("offset").bindVec3(skew.multiply(positions[0], tv));
 		m.render();
 
 		for (int i = 1; i < 7; ++i) {
 			shd.getUniform("offset").bindVec3(skew.multiply(tv2.copy(positions[i]), tv));
 			caret2.render();
 		}
-
 	}
 
 	public void setPosition(Vector2i pos) {

@@ -1,5 +1,7 @@
 package uk.co.stikman.sett.client.renderer;
 
+import static uk.co.stikman.sett.SettApp.CHUNK_SIZE;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,10 +17,7 @@ import uk.co.stikman.sett.FileSourceBatchClose;
 import uk.co.stikman.sett.SettApp;
 import uk.co.stikman.sett.VoxelModel;
 import uk.co.stikman.sett.game.IsNodeObject;
-import uk.co.stikman.sett.game.SceneryType;
 import uk.co.stikman.sett.game.Terrain;
-import uk.co.stikman.sett.game.Tri;
-import uk.co.stikman.sett.game.VoxelModelParams;
 import uk.co.stikman.sett.game.World;
 import uk.co.stikman.sett.gfx.Image;
 import uk.co.stikman.sett.gfx.RenderTarget;
@@ -40,7 +39,7 @@ public class GameView {
 	private static final StikLog			LOGGER				= StikLog.getLogger(GameView.class);
 	private static final float				ROOT3_2				= (float) (Math.sqrt(3.0) / 2.0);
 	private static final int				MAX_SHADOWMAP_SIZE	= 4096;
-	private static final int				PIXEL_SCALE			= 1;
+	private static final int				PIXEL_SCALE			= 3;
 
 	private Window3D						window;
 	private ClientGame						game;
@@ -63,6 +62,7 @@ public class GameView {
 	private Vector2							tv3					= new Vector2();
 	private Vector2							tv4					= new Vector2();
 	private Vector4							tv5					= new Vector4();
+	private Vector4							tv6					= new Vector4();
 
 	private Map<ChunkKey, TerrainChunkMesh>	terrainChunks		= Collections.synchronizedMap(new HashMap<>());
 	private Map<Object, SceneObject>		sceneObjects		= new HashMap<>();
@@ -97,7 +97,7 @@ public class GameView {
 	}
 
 	public void init() {
-		
+
 		try {
 			window.setUseLinearTextures(true);
 			viewOffset.set(0, 0, 0);
@@ -118,7 +118,7 @@ public class GameView {
 				scale /= 2;
 			shadowmapbuf = new FrameBufferNative(game.getWorld().getWidth() * scale, game.getWorld().getHeight() * scale, ColourModel.GRAYSCALE, true);
 			renderbuf = new FrameBufferNative(512, 512, ColourModel.RGBA_DEPTH, false);
-			
+
 			VoxelMesh vm1 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret").getVoxelModelInfo()));
 			VoxelMesh vm2 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret-outer").getVoxelModelInfo()));
 			VoxelMesh vm3 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("house1").getVoxelModelInfo()));
@@ -131,8 +131,8 @@ public class GameView {
 			//
 			LOGGER.info("Generating initial terrain chunks...");
 			ExecutorService exec = Executors.newFixedThreadPool(8);
-			int cx = game.getWorld().getWidth() / SettApp.CHUNK_SIZE;
-			int cy = game.getWorld().getHeight() / SettApp.CHUNK_SIZE;
+			int cx = game.getWorld().getWidth() / CHUNK_SIZE;
+			int cy = game.getWorld().getHeight() / CHUNK_SIZE;
 			for (int y = 0; y < cy; ++y) {
 				for (int x = 0; x < cx; ++x) {
 					ChunkKey key = new ChunkKey();
@@ -160,7 +160,7 @@ public class GameView {
 		window.clear();
 
 		if (needShadowMapUpdate)
-			renderTerrainShadowMap();
+			renderTerrainLightMap();
 
 		mProj.makePerspective(40, (float) viewport.x / (float) viewport.y, 1.0f, 10000f);
 		mView.makeTranslation(0, 0, -viewDist.get());
@@ -206,7 +206,7 @@ public class GameView {
 				}
 			}
 		}
-		
+
 		selectionMarker.render(objectShader, skew);
 
 		if (debugRay != null)
@@ -227,7 +227,7 @@ public class GameView {
 		return waterPlane;
 	}
 
-	private void renderTerrainShadowMap() {
+	private void renderTerrainLightMap() {
 		//
 		// render world from above, all in black, from infinity (no perspective)
 		//
@@ -256,7 +256,7 @@ public class GameView {
 			}
 		}
 		window.setRenderTarget(old);
-		//		needShadowMapUpdate = false;
+		needShadowMapUpdate = false;
 	}
 
 	private SceneObject findSceneObjectFor(IsNodeObject obj) {
@@ -299,25 +299,62 @@ public class GameView {
 		//
 		// split this up into chunks 
 		//
+		Vector3[] corners = new Vector3[8];
+		for (int i = 0; i < 8; ++i)
+			corners[i] = new Vector3();
 		Matrix3 skew = SettApp.skewMatrix(new Matrix3());
 		ChunkKey key = new ChunkKey();
-		int cx = terrain.getWidth() / SettApp.CHUNK_SIZE;
-		int cy = terrain.getHeight() / SettApp.CHUNK_SIZE;
+		int cx = terrain.getWidth() / CHUNK_SIZE;
+		int cy = terrain.getHeight() / CHUNK_SIZE;
+		int counter =0;
 		for (int y = 0; y < cy; ++y) {
 			key.cy = y;
 			for (int x = 0; x < cx; ++x) {
+				//
+				// test for visibility
+				//
+				corners[0].set(x, y, 0);
+				corners[1].set(x + 1, y, 0);
+				corners[2].set(x + 1, y + 1, 0);
+				corners[3].set(x, y + 1, 0);
+				corners[4].set(x, y, 10); // TODO: is 10 high enough?
+				corners[5].set(x + 1, y, 10);
+				corners[6].set(x + 1, y + 1, 10);
+				corners[7].set(x, y + 1, 10);
+				boolean b = false;
+				for (int i = 0; i < 8; ++i) {
+					corners[i].x *= CHUNK_SIZE;
+					corners[i].y *= CHUNK_SIZE;
+					skew.multiply(corners[i], tv1);
+					mView.multiply(tv5.set(tv1), tv6);
+					mProj.multiply(tv6, tv5);
+					tv5.x /= tv5.w;
+					tv5.y /= tv5.w;
+					tv5.z /= tv5.w;
+					if (tv5.x >= -1 && tv5.x <= 1 && tv5.y >= -1 && tv5.y <= 1) {
+						b = true;
+						break;
+					}
+				}
+				
+				if (!b)
+					continue; // not visible
+
+				++counter;
 				key.cx = x;
 				TerrainChunkMesh mesh = terrainChunks.get(key);
 				if (mesh == null)
 					mesh = generateTerrainChunk(terrain, key);
 
 				tv1.set(x, y, 0);
-				tv1.multiply(SettApp.CHUNK_SIZE);
+				tv1.multiply(CHUNK_SIZE);
 				tv1 = skew.multiply(tv1, tv2);
 				uoff.bindVec3(tv1);
 				mesh.render();
 			}
 		}
+		
+		System.out.println("Drawing " + counter + " chunks");
 	}
 
 	private void bindStandardUniforms(Shader s) {
@@ -332,7 +369,7 @@ public class GameView {
 
 	private TerrainChunkMesh generateTerrainChunk(Terrain terrain, ChunkKey key) {
 		TerrainChunkMesh mesh = new TerrainChunkMesh(new ChunkKey(key), window);
-		mesh.generate(terrain, key.cx, key.cy, SettApp.CHUNK_SIZE, SettApp.CHUNK_SIZE);
+		mesh.generate(terrain, key.cx, key.cy, CHUNK_SIZE, CHUNK_SIZE);
 		terrainChunks.put(mesh.getKey(), mesh);
 		return mesh;
 	}
@@ -409,7 +446,7 @@ public class GameView {
 		if (pos != null) {
 			LOGGER.info("Clicked on node: " + pos);
 			Vector2i v = new Vector2i(Math.round(pos.x), Math.round(pos.y));
-			selectionMarker.setPosition(v); 
+			selectionMarker.setPosition(v);
 		}
 	}
 
@@ -473,6 +510,10 @@ public class GameView {
 
 	public Window3D getWindow() {
 		return window;
+	}
+
+	public Vector2 getRotation() {
+		return rotation;
 	}
 
 }

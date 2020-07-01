@@ -66,7 +66,7 @@ public class SettApp {
 			ClientGame game = new ClientGame(this);
 			game.setWorld(new World());
 			game.loadResources();
-			WorldParameters params = new WorldParameters(16);
+			WorldParameters params = new WorldParameters(96);
 			game.getWorld().generate(params);
 			view = new GameView(window, game);
 			view.init();

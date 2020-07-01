@@ -218,7 +218,7 @@ public class Terrain {
 					n.setObject(new Tree(world.getScenaryDef("pinetree1" + rots[rng.nextInt(4)])));
 					break;
 				case 4:
-					n.setObject(new Tree(world.getScenaryDef("rock1" + rots[rng.nextInt(4)])));
+					n.setObject(new Rock(world.getScenaryDef("rock1" + rots[rng.nextInt(4)])));
 					break;
 				}
 			}

@@ -28,11 +28,11 @@ public class BaseGame {
 		TerrainNode[] n = world.getTerrain().getNeighbours(x, y);
 
 		//
-		// if there's anything else at our neighbours then 
+		// if there's anything else that blocks all at our neighbours then 
 		// you can't build here at all
 		//
 		for (int i = 1; i < n.length; ++i)
-			if (n[i].getObject() != null)
+			if (n[i].getObject() != null && n[i].getObject().getObstructionType() == ObstructionType.ALL)
 				return MarkerType.NONE;
 
 		IsNodeObject no = n[0].getObject();
@@ -45,16 +45,17 @@ public class BaseGame {
 		// find angle of groud at centre
 		//
 		float f = n[0].getNormal().dot(UP);
+		System.out.println("dotprod = " + f);
 		if (n[0].getType() == BaseGame.TERRAIN_GRASS) {
-			if (f > 0.9f)
+			if (f > 0.99f)
 				return MarkerType.LARGE_HOUSE;
-			if (f >= 0.7f)
+			if (f >= 0.98f)
 				return MarkerType.SMALL_HOUSE;
 			return MarkerType.FLAG;
 		} else if (n[0].getType() == BaseGame.TERRAIN_DESERT) {
 			return MarkerType.FLAG;
 		} else if (n[0].getType() == BaseGame.TERRAIN_MOUNTAIN) {
-			if (f >= 0.4f)
+			if (f >= 0.8f)
 				return MarkerType.MINE;
 			return MarkerType.NONE;
 		}

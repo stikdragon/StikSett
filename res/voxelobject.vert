@@ -1,7 +1,6 @@
 //ATTRIB:vertexPosition,vertexColour,vertexNormal
 #version 460 core
 
-
 uniform mat4 view;
 uniform mat4 model;
 uniform mat4 proj;

@@ -17,8 +17,8 @@ public class WorldParameters {
 	}
 
 	public void setSize(int size) {
-		if (size < 1 || size > 64)
-			throw new IllegalArgumentException("World Size must be between 1 and 64");
+		if (size < 1 || size > 96)
+			throw new IllegalArgumentException("World Size must be between 1 and 96");
 		this.size = size;
 	}
 
