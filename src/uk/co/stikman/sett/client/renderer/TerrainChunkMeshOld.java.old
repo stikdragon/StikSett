@@ -1,0 +1,456 @@
+package uk.co.stikman.sett.client.renderer;
+
+import java.util.Random;
+
+import uk.co.stikman.log.StikLog;
+import uk.co.stikman.sett.SettApp;
+import uk.co.stikman.sett.game.Terrain;
+import uk.co.stikman.sett.gfx.PolyMesh;
+import uk.co.stikman.sett.gfx.Window3D;
+import uk.co.stikman.utils.math.Matrix3;
+import uk.co.stikman.utils.math.Vector2;
+import uk.co.stikman.utils.math.Vector4;
+
+public class TerrainChunkMeshOld {
+	private static final StikLog	LOGGER		= StikLog.getLogger(TerrainChunkMeshOld.class);
+	private static final float		ROOT3_2		= (float) (Math.sqrt(3.0) / 2.0);
+	private int						chunkX;
+	private int						chunkY;
+	private ChunkKey				key;
+	private PolyMesh				mesh;
+	private Window3D				window;
+	private Vector4					tv4			= new Vector4();
+
+	private Vector4					c1			= new Vector4();
+	private Vector4					c2			= new Vector4();
+	private Vector4					c3			= new Vector4();
+	private Vector4					c4			= new Vector4();
+	private Vector4					c5			= new Vector4();
+	private Random					rng			= new Random();
+	private float[]					tempFloat	= null;
+	private int[]					tempInt		= null;
+
+	public TerrainChunkMeshOld(ChunkKey key, Window3D window) {
+		this.key = key;
+		this.chunkX = key.cx;
+		this.chunkY = key.cy;
+		this.window = window;
+	}
+
+	public int getChunkX() {
+		return chunkX;
+	}
+
+	public int getChunkY() {
+		return chunkY;
+	}
+
+	public ChunkKey getKey() {
+		return key;
+	}
+
+	public void generate(Terrain terr, int cx, int cy, int sz, int sy) {
+		if (mesh != null)
+			mesh.destroy();
+		mesh = window.createPolyMesh();
+		// TODO: estimate prealloc better
+		// chunksize*chunksize*scale*scale*20*9 = 
+		int n = SettApp.CHUNK_SIZE * SettApp.CHUNK_SIZE * SettApp.TRI_SIZE * SettApp.TRI_SIZE * 20 * 9;
+		mesh.prealloc(n, n);
+
+		LOGGER.info("Generating chunk " + key);
+
+		TerrainNode node1 = new TerrainNode();
+		TerrainNode node2 = new TerrainNode();
+		TerrainNode node3 = new TerrainNode();
+		TerrainNode node4 = new TerrainNode();
+
+		Vector2 v1 = new Vector2();
+		Vector2 v2 = new Vector2();
+		Vector2 v3 = new Vector2();
+		Vector2 v4 = new Vector2();
+		Vector2 tv = new Vector2();
+
+		Matrix3 xfm = new Matrix3();
+		xfm.makeIdentity();
+		xfm.scale(1.0f, ROOT3_2);
+		xfm.skew(0, -0.5f);
+		xfm.scale(SettApp.TRI_SIZE);
+		xfm.inverse();
+
+		int ox = key.cx * SettApp.CHUNK_SIZE;
+		int oy = key.cy * SettApp.CHUNK_SIZE;
+		for (int y = 0; y < SettApp.CHUNK_SIZE; ++y) {
+			for (int x = 0; x < SettApp.CHUNK_SIZE; ++x) {
+				//
+				// work out what it is frmo the terrain
+				//
+				v1.set(ox + x, oy + y);
+				int tx = (int) v1.x;
+				int ty = (int) v1.y;
+
+				terr.get(tx, ty, node1);
+				terr.get(tx + 1, ty, node2);
+				terr.get(tx + 1, ty + 1, node3);
+				terr.get(tx, ty + 1, node4);
+
+				//
+				// create two triangles, transform them, then output
+				// a bunch of voxels for each one
+				// 
+				v1.set(x, y);
+				v2.set(x + 1, y);
+				v3.set(x + 1, y + 1);
+				v4.set(x, y + 1);
+
+				//
+				// simple squares
+				//
+				tv4.set(rng.nextFloat(), rng.nextFloat(), rng.nextFloat(), 1);
+				for (int ay = 0; ay < SettApp.TRI_SIZE; ++ay) {
+					for (int ax = 0; ax < SettApp.TRI_SIZE; ++ax) {
+						//
+						// interpolate 
+						//
+						float fx = (float) ax / SettApp.TRI_SIZE;
+						float fy = (float) ay / SettApp.TRI_SIZE;
+						float a = node1.altitude + (node2.altitude - node1.altitude) * fx;
+						float b = node4.altitude + (node3.altitude - node4.altitude) * fx;
+						float mu = a + (b - a) * fy;
+						
+						addCube(x * SettApp.TRI_SIZE + ax, y * SettApp.TRI_SIZE + ay, Math.round(mu), tv4);
+					}
+				}
+
+			}
+		}
+
+	}
+
+	public void generate2(Terrain terr, int cx, int cy, int sz, int sy) {
+		if (mesh != null)
+			mesh.destroy();
+		mesh = window.createPolyMesh();
+		// TODO: estimate prealloc better
+		// chunksize*chunksize*scale*scale*20*9 = 
+		int n = SettApp.CHUNK_SIZE * SettApp.CHUNK_SIZE * SettApp.TRI_SIZE * SettApp.TRI_SIZE * 20 * 9;
+		mesh.prealloc(n, n);
+
+		LOGGER.info("Generating chunk " + key);
+
+		TerrainNode node1 = new TerrainNode();
+		TerrainNode node2 = new TerrainNode();
+		TerrainNode node3 = new TerrainNode();
+		TerrainNode node4 = new TerrainNode();
+
+		Vector2 v1 = new Vector2();
+		Vector2 v2 = new Vector2();
+		Vector2 v3 = new Vector2();
+		Vector2 v4 = new Vector2();
+		Vector2 tv = new Vector2();
+
+		Matrix3 xfm = new Matrix3();
+		xfm.makeIdentity();
+		xfm.scale(1.0f, ROOT3_2);
+		xfm.skew(0, -0.5f);
+		xfm.scale(SettApp.TRI_SIZE);
+
+		int ox = key.cx * SettApp.CHUNK_SIZE;
+		int oy = key.cy * SettApp.CHUNK_SIZE;
+		for (int y = 0; y < SettApp.CHUNK_SIZE; ++y) {
+			for (int x = 0; x < SettApp.CHUNK_SIZE; ++x) {
+				terr.get(ox + x, oy + y, node1);
+				terr.get(ox + x + 1, oy + y, node2);
+				terr.get(ox + x + 1, oy + y + 1, node3);
+				terr.get(ox + x, oy + y + 1, node4);
+
+				//
+				// create two triangles, transform them, then output
+				// a bunch of voxels for each one
+				// 
+				v1.set(x, y);
+				v2.set(x + 1, y);
+				v3.set(x + 1, y + 1);
+				v4.set(x, y + 1);
+
+				v1 = xfm.multiply(tv.copy(v1), v1);
+				v2 = xfm.multiply(tv.copy(v2), v2);
+				v3 = xfm.multiply(tv.copy(v3), v3);
+				v4 = xfm.multiply(tv.copy(v4), v4);
+
+				//
+				// because we don't rotate and only skew in the X axis
+				// we know the top and bottom edges are all Y == 0 so
+				// we can do a simple rasterisation trick as a parallelogram
+				//
+				tv4.set(rng.nextFloat(), rng.nextFloat(), rng.nextFloat(), 1);
+				float dydx = (v4.x - v1.x) / (v4.y - v1.y);
+				float x0 = v1.x;
+				for (int scanline = (int) v1.y; scanline < (int) v4.y; ++scanline) {
+					float fy = (scanline - v1.y) / (v4.y - v1.y);
+					int x1 = (int) (x0 + dydx * (scanline - v1.y));
+					for (int px = 0; px < SettApp.TRI_SIZE; ++px) {
+						float dx = (float) px / SettApp.TRI_SIZE;
+						addCube(x1 + px, scanline, node1.altitude, tv4);
+					}
+				}
+			}
+		}
+
+	}
+
+	private void addCube(int x, int y, int z, Vector4 colour) {
+
+		//		if (tempFloat == null)
+		//			tempFloat = new float[9 * 5 * 4];
+		//		float[] verts = tempFloat;
+		//
+		//		int n = mesh.getCurrentVertIndex();
+		//		int idx = -1;
+		//		verts[++idx] = x + 0;
+		//		verts[++idx] = y + 0;
+		//		verts[++idx] = z + 1;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 1;
+		//		verts[++idx] = y + 0;
+		//		verts[++idx] = z + 1;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 1;
+		//		verts[++idx] = y + 1;
+		//		verts[++idx] = z + 1;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 0;
+		//		verts[++idx] = y + 1;
+		//		verts[++idx] = z + 1;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 0;
+		//		verts[++idx] = y + 0;
+		//		verts[++idx] = z + 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 0;
+		//		verts[++idx] = y + 0;
+		//		verts[++idx] = z + 1;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 0;
+		//		verts[++idx] = y + 1;
+		//		verts[++idx] = z + 1;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 0;
+		//		verts[++idx] = y + 1;
+		//		verts[++idx] = z + 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 1;
+		//		verts[++idx] = y + 0;
+		//		verts[++idx] = z + 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 1;
+		//		verts[++idx] = y + 0;
+		//		verts[++idx] = z + 1;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 1;
+		//		verts[++idx] = y + 1;
+		//		verts[++idx] = z + 1;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 1;
+		//		verts[++idx] = y + 1;
+		//		verts[++idx] = z + 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 0;
+		//		verts[++idx] = y + 0;
+		//		verts[++idx] = z + 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 0;
+		//		verts[++idx] = y + 0;
+		//		verts[++idx] = z + 1;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 1;
+		//		verts[++idx] = y + 0;
+		//		verts[++idx] = z + 1;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 1;
+		//		verts[++idx] = y + 0;
+		//		verts[++idx] = z + 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 0;
+		//		verts[++idx] = y + 1;
+		//		verts[++idx] = z + 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 0;
+		//		verts[++idx] = y + 1;
+		//		verts[++idx] = z + 1;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 1;
+		//		verts[++idx] = y + 1;
+		//		verts[++idx] = z + 1;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//		verts[++idx] = x + 1;
+		//		verts[++idx] = y + 1;
+		//		verts[++idx] = z + 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = 0;
+		//		verts[++idx] = c.x;
+		//		verts[++idx] = c.y;
+		//		verts[++idx] = c.z;
+		//		verts[++idx] = c.w;
+		//
+		//		if (tempInt == null)
+		//			tempInt = new int[6 * 5];
+		//		int[] tris = tempInt;
+		//
+		//		idx = -1;
+		//		for (int i = 0; i < 5; ++i) {
+		//			tris[++idx] = n;
+		//			tris[++idx] = n + 1;
+		//			tris[++idx] = n + 2;
+		//			tris[++idx] = n;
+		//			tris[++idx] = n + 2;
+		//			tris[++idx] = n + 3;
+		//			n += 4;
+		//		}
+		//
+		//		mesh.addVertArray(verts, 0, verts.length);
+		//		mesh.addTriArray(tris, 0, tris.length);
+
+		int n1, n2, n3, n4;
+
+		c1.copy(colour);
+		c2.copy(colour).multiply(0.6f).w = 1;
+		c3.copy(colour).multiply(0.4f).w = 1;
+		c4.copy(colour).multiply(0.9f).w = 1;
+		c5.copy(colour).multiply(0.4f).w = 1;
+
+		n1 = mesh.addVert(x + 0, y + 0, z + 1, 0, 0, c1);
+		n2 = mesh.addVert(x + 1, y + 0, z + 1, 0, 0, c1);
+		n3 = mesh.addVert(x + 1, y + 1, z + 1, 0, 0, c1);
+		n4 = mesh.addVert(x + 0, y + 1, z + 1, 0, 0, c1);
+		mesh.addTri(n1, n2, n3);
+		mesh.addTri(n1, n3, n4);
+
+		n1 = mesh.addVert(x + 0, y + 0, z + 0, 0, 0, c2);
+		n2 = mesh.addVert(x + 0, y + 0, z + 1, 0, 0, c2);
+		n3 = mesh.addVert(x + 0, y + 1, z + 1, 0, 0, c2);
+		n4 = mesh.addVert(x + 0, y + 1, z + 0, 0, 0, c2);
+		mesh.addTri(n1, n2, n3);
+		mesh.addTri(n1, n3, n4);
+
+		n1 = mesh.addVert(x + 1, y + 0, z + 0, 0, 0, c3);
+		n2 = mesh.addVert(x + 1, y + 0, z + 1, 0, 0, c3);
+		n3 = mesh.addVert(x + 1, y + 1, z + 1, 0, 0, c3);
+		n4 = mesh.addVert(x + 1, y + 1, z + 0, 0, 0, c3);
+		mesh.addTri(n1, n2, n3);
+		mesh.addTri(n1, n3, n4);
+
+		n1 = mesh.addVert(x + 0, y + 0, z + 0, 0, 0, c4);
+		n2 = mesh.addVert(x + 0, y + 0, z + 1, 0, 0, c4);
+		n3 = mesh.addVert(x + 1, y + 0, z + 1, 0, 0, c4);
+		n4 = mesh.addVert(x + 1, y + 0, z + 0, 0, 0, c4);
+		mesh.addTri(n1, n2, n3);
+		mesh.addTri(n1, n3, n4);
+
+		n1 = mesh.addVert(x + 0, y + 1, z + 0, 0, 0, c5);
+		n2 = mesh.addVert(x + 0, y + 1, z + 1, 0, 0, c5);
+		n3 = mesh.addVert(x + 1, y + 1, z + 1, 0, 0, c5);
+		n4 = mesh.addVert(x + 1, y + 1, z + 0, 0, 0, c5);
+		mesh.addTri(n1, n2, n3);
+		mesh.addTri(n1, n3, n4);
+	}
+
+	public void render() {
+		mesh.render(0);
+	}
+}

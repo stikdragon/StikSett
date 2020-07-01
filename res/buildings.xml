@@ -1,0 +1,13 @@
+<BuildingDefs>
+
+	<Building id="woodcutter" display="Woodcutter">
+		<Model>grp1-*-chopper.vox</Model>
+		<Description>Cuts trees and produces Logs</Description>
+	</Building>
+
+	<Building id="knighthut" display="Knight Hut">
+		<Model>grp1-*-nitehut1.vox</Model>
+		<Description>Protects and extends your borders</Description>
+	</Building>
+
+</BuildingDefs>

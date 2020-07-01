@@ -1,0 +1,18 @@
+<SceneryDefs>
+	<!-- if createRotations is set true then it'll generate 4 versions of each model, replacing ? in the ID with N,W,S,E -->
+	<Scenery id="oaktree1.?" createRotations="true">
+		<Model>scenery-*-oak1.vox</Model>
+	</Scenery>
+
+	<Scenery id="pinetree1.?" createRotations="true">
+		<Model>scenery-*-pine1.vox</Model>
+	</Scenery>
+
+	<Scenery id="rock1.?" createRotations="true">
+		<Model>scenery-*-rock1.vox</Model>
+	</Scenery>
+	
+	<Scenery id="caret">
+		<Model>scenery-*-caret.vox</Model>
+	</Scenery>
+</SceneryDefs>
