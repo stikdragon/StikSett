@@ -34,4 +34,9 @@ public class Flag implements HasId, IsNodeObject {
 		return vmp;
 	}
 
+	@Override
+	public ObstructionType getObstructionType() {
+		return ObstructionType.ALL;
+	}
+
 }

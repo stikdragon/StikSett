@@ -369,4 +369,25 @@ public class Terrain {
 		return null;
 	}
 
+	/**
+	 * returns 7 elements, [0] is the requested node, then [1-6] are the
+	 * neighbours. Will not return <code>null</code>, but will clamp to the
+	 * edges instead, so some nodes will be repeated if you ask for an edge
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public TerrainNode[] getNeighbours(int x, int y) {
+		TerrainNode[] arr = new TerrainNode[7];
+		arr[0] = get(x, y);
+		arr[1] = get(x, y + 1);
+		arr[2] = get(x + 1, y + 1);
+		arr[3] = get(x + 1, y);
+		arr[4] = get(x, y - 1);
+		arr[5] = get(x - 1, y - 1);
+		arr[6] = get(x - 1, y);
+		return arr;
+	}
+
 }

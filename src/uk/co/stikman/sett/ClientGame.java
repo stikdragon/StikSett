@@ -3,10 +3,8 @@ package uk.co.stikman.sett;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,15 +16,13 @@ import uk.co.stikman.log.StikLog;
 import uk.co.stikman.sett.game.BuildingType;
 import uk.co.stikman.sett.game.SceneryType;
 import uk.co.stikman.sett.game.VoxelModelParams;
-import uk.co.stikman.sett.game.World;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
 import uk.co.stikman.sett.res.Resources;
 import uk.co.stikman.sett.util.SettUtil;
 
-public class ClientGame {
+public class ClientGame extends BaseGame {
 	private static final StikLog				LOGGER	= StikLog.getLogger(ClientGame.class);
 	private SettApp								app;
-	private World								world;
 	private FileSource							files;
 	private Map<VoxelModelParams, VoxelModel>	models	= new HashMap<>();
 	private VoxelPalette						palette;
@@ -34,14 +30,6 @@ public class ClientGame {
 	public ClientGame(SettApp sett) {
 		this.app = sett;
 		files = Resources::getFileWild;
-	}
-
-	public void setWorld(World world) {
-		this.world = world;
-	}
-
-	public World getWorld() {
-		return world;
 	}
 
 	public void loadResources() throws ResourceLoadError {

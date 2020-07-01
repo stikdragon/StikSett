@@ -38,6 +38,11 @@ public class Building implements HasId, HasFlag, IsNodeObject {
 	public VoxelModelParams getVoxelModelInfo() {
 		return type.getVoxelModelInfo();
 	}
+
+	@Override
+	public ObstructionType getObstructionType() {
+		return ObstructionType.ALL;
+	}
 	
 
 }

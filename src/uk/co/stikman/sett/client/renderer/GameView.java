@@ -118,7 +118,12 @@ public class GameView {
 				scale /= 2;
 			shadowmapbuf = new FrameBufferNative(game.getWorld().getWidth() * scale, game.getWorld().getHeight() * scale, ColourModel.GRAYSCALE, true);
 			renderbuf = new FrameBufferNative(512, 512, ColourModel.RGBA_DEPTH, false);
-			selectionMarker = new SelectionMarker(this, new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret").getVoxelModelInfo())));
+			
+			VoxelMesh vm1 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret").getVoxelModelInfo()));
+			VoxelMesh vm2 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret-outer").getVoxelModelInfo()));
+			VoxelMesh vm3 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("house1").getVoxelModelInfo()));
+			VoxelMesh vm5 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("flag").getVoxelModelInfo()));
+			selectionMarker = new SelectionMarker(this, vm1, vm2, vm3, vm3, vm5);
 
 			//
 			// pre-generate all the chunks in parallel.  calling generate 
@@ -394,25 +399,17 @@ public class GameView {
 		x /= PIXEL_SCALE;
 		y /= PIXEL_SCALE;
 		Ray ray = castWorld(new Vector2(x, viewport.y - y), new Ray());
-//
-//				if (debugRay != null)
-//					debugRay.destroy();
-//				debugRay = new DebugRay(window);
-//				debugRay.setOrigin(ray.point);
-//				debugRay.setVector(ray.direction);
-				
-//				System.out.println(ray);
 
 		SettApp.skewMatrix(tm1).inverse(tm2);
 		tm2.multiply(tv1.copy(ray.point), ray.point);
 		tm2.multiply(tv1.copy(ray.direction), ray.direction).normalize();
 
 		Vector3 pos = game.getWorld().getTerrain().intersectRay(ray);
-		LOGGER.info("Click: " + pos);
 
 		if (pos != null) {
+			LOGGER.info("Clicked on node: " + pos);
 			Vector2i v = new Vector2i(Math.round(pos.x), Math.round(pos.y));
-			selectionMarker.setPosition(tv1.set(v.x, v.y, game.getWorld().getTerrain().get(v).getHeight()));
+			selectionMarker.setPosition(v); 
 		}
 	}
 

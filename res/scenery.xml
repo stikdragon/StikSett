@@ -11,8 +11,20 @@
 	<Scenery id="rock1.?" createRotations="true">
 		<Model>scenery-*-rock1.vox</Model>
 	</Scenery>
-	
+
 	<Scenery id="caret">
 		<Model>scenery-*-caret.vox</Model>
+	</Scenery>
+
+	<Scenery id="caret-outer">
+		<Model>scenery-*-caret2.vox</Model>
+	</Scenery>
+
+	<Scenery id="house1">
+		<Model>scenery-*-house1.vox</Model>
+	</Scenery>
+
+	<Scenery id="flag">
+		<Model>scenery-*-flag.vox</Model>
 	</Scenery>
 </SceneryDefs>

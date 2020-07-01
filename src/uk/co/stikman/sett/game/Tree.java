@@ -22,5 +22,10 @@ public class Tree implements IsNodeObject {
 		return "Tree: " + type;
 	}
 
+	@Override
+	public ObstructionType getObstructionType() {
+		return ObstructionType.BUILDINGS;
+	}
+
 
 }
