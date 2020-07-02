@@ -5,8 +5,10 @@ import static uk.co.stikman.sett.SettApp.CHUNK_SIZE;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +30,7 @@ import uk.co.stikman.sett.gfx.lwjgl.FrameBufferNative;
 import uk.co.stikman.sett.gfx.lwjgl.FrameBufferNative.ColourModel;
 import uk.co.stikman.sett.gfx.ui.EasingFloat;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
+import uk.co.stikman.sett.util.ScanlineConverter;
 import uk.co.stikman.utils.math.Matrix3;
 import uk.co.stikman.utils.math.Matrix4;
 import uk.co.stikman.utils.math.Vector2;
@@ -39,7 +42,7 @@ public class GameView {
 	private static final StikLog			LOGGER				= StikLog.getLogger(GameView.class);
 	private static final float				ROOT3_2				= (float) (Math.sqrt(3.0) / 2.0);
 	private static final int				MAX_SHADOWMAP_SIZE	= 4096;
-	private static final int				PIXEL_SCALE			= 3;
+	private static final int				PIXEL_SCALE			= 1;
 
 	private Window3D						window;
 	private ClientGame						game;
@@ -57,6 +60,7 @@ public class GameView {
 
 	private Matrix3							tm1					= new Matrix3();
 	private Matrix3							tm2					= new Matrix3();
+	private Matrix4							tm3					= new Matrix4();
 	private Vector3							tv1					= new Vector3();
 	private Vector3							tv2					= new Vector3();
 	private Vector2							tv3					= new Vector2();
@@ -72,6 +76,7 @@ public class GameView {
 	private int								lastX;
 	private int								dragbutton;
 	private Image							imageTerrain;
+	private Set<Vector2i>					visible				= new HashSet<>();
 
 	private int								framecount			= 0;
 
@@ -89,6 +94,10 @@ public class GameView {
 	private SelectionMarker					selectionMarker;
 
 	private DebugRay						debugRay;
+	private Ray								tray				= new Ray();
+	private static final Plane				BASELINE_PLANE		= new Plane(new Vector3(0, 0, 1), new Vector3(0, 0, 0));
+	private final ScanlineConverter			scanconverter		= new ScanlineConverter();
+	private boolean							FORCE_CHUNK_TEST	= true;
 
 	public GameView(Window3D window, ClientGame game) {
 		this.window = window;
@@ -122,8 +131,9 @@ public class GameView {
 			VoxelMesh vm1 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret").getVoxelModelInfo()));
 			VoxelMesh vm2 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret-outer").getVoxelModelInfo()));
 			VoxelMesh vm3 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("house1").getVoxelModelInfo()));
+			VoxelMesh vm4 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("castle").getVoxelModelInfo()));
 			VoxelMesh vm5 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("flag").getVoxelModelInfo()));
-			selectionMarker = new SelectionMarker(this, vm1, vm2, vm3, vm3, vm5);
+			selectionMarker = new SelectionMarker(this, vm1, vm2, vm3, vm4, vm5);
 
 			//
 			// pre-generate all the chunks in parallel.  calling generate 
@@ -170,6 +180,11 @@ public class GameView {
 		mModel.makeIdentity();
 
 		//
+		// work out what's visible
+		//
+		determineVisibleSet();
+
+		//
 		// Terrain first
 		//
 		long dt = System.currentTimeMillis();
@@ -193,16 +208,23 @@ public class GameView {
 		Matrix3 skew = SettApp.skewMatrix(new Matrix3());
 
 		World world = game.getWorld();
-		for (int y = 0; y < world.getHeight(); ++y) {
-			for (int x = 0; x < world.getWidth(); ++x) {
-				IsNodeObject obj = world.getObjectAt(x, y);
-				if (obj != null) {
-					SceneObject m = findSceneObjectFor(obj);
-					float h = world.getTerrain().get(x, y).getHeight();
-					tv3.set(x, y);
-					skew.multiply(tv3, tv4);
-					uoff.bindVec3(tv4.x, tv4.y, h);
-					m.render();
+		for (Vector2i v : visible) {
+			int x0 = v.x * CHUNK_SIZE;
+			int x1 = x0 + CHUNK_SIZE;
+			int y0 = v.y * CHUNK_SIZE;
+			int y1 = y0 + CHUNK_SIZE;
+			for (int y = y0; y < y1; ++y) {
+				for (int x = x0; x < x1; ++x) {
+					IsNodeObject obj = world.getObjectAt(x, y);
+					if (obj != null) {
+						SceneObject m = findSceneObjectFor(obj);
+						float h = world.getTerrain().get(x, y).getHeight();
+						tv3.set(x, y);
+						skew.multiply(tv3, tv4);
+						uoff.bindVec3(tv4.x, tv4.y, h);
+						m.render();
+					}
+
 				}
 			}
 		}
@@ -219,6 +241,108 @@ public class GameView {
 		if (framecount++ == 0)
 			LOGGER.info("Time to generate first frame: " + (System.currentTimeMillis() - dt) + "ms");
 
+	}
+
+	private void determineVisibleSet() {
+		visible.clear();
+		int w = viewport.x;
+		int h = viewport.y;
+		Vector2i a = null;
+		Vector2i b = null;
+		Vector2i c = null;
+		Vector2i d = null;
+
+		if (!FORCE_CHUNK_TEST) {
+			Matrix3 skew = SettApp.skewMatrix(tm1).inverse();
+
+			float extra = w * 0.15f;
+			castWorld(tv3.set(-extra, -extra * 2), tray);
+			if (BASELINE_PLANE.intersect(tray, tv1) != null) {
+				skew.multiply(tv1, tv2);
+				a = new Vector2i((int) tv2.x, (int) tv2.y);
+			}
+			castWorld(tv3.set(w + extra, -extra * 2), tray);
+			if (BASELINE_PLANE.intersect(tray, tv1) != null) {
+				skew.multiply(tv1, tv2);
+				b = new Vector2i((int) tv2.x, (int) tv2.y);
+			}
+			castWorld(tv3.set(w + extra, h + extra), tray);
+			if (BASELINE_PLANE.intersect(tray, tv1) != null) {
+				skew.multiply(tv1, tv2);
+				c = new Vector2i((int) tv2.x, (int) tv2.y);
+			}
+			castWorld(tv3.set(-extra, h + extra), tray);
+			if (BASELINE_PLANE.intersect(tray, tv1) != null) {
+				skew.multiply(tv1, tv2);
+				d = new Vector2i((int) tv2.x, (int) tv2.y);
+			}
+		}
+
+		if (a != null && b != null && c != null && d != null) {
+			a.x = a.x / CHUNK_SIZE;
+			a.y = a.y / CHUNK_SIZE;
+			b.x = b.x / CHUNK_SIZE;
+			b.y = b.y / CHUNK_SIZE;
+			c.x = c.x / CHUNK_SIZE;
+			c.y = c.y / CHUNK_SIZE;
+			d.x = d.x / CHUNK_SIZE;
+			d.y = d.y / CHUNK_SIZE;
+
+			int ww = game.getWorld().getWidth() / CHUNK_SIZE;
+			int wh = game.getWorld().getHeight() / CHUNK_SIZE;
+			scanconverter.convert((x, y) -> {
+				if (x < 0 || y < 0 || x >= ww || y >= wh)
+					return;
+				visible.add(new Vector2i(x, y));
+			}, a, b, c, d);
+		} else {
+			// 
+			// fall back to testing every chunk instead
+			//
+			Matrix3 skew = SettApp.skewMatrix(tm1);
+			Vector3[] corners = new Vector3[8];
+			for (int i = 0; i < 8; ++i)
+				corners[i] = new Vector3();
+			ChunkKey key = new ChunkKey();
+			int cx = game.getWorld().getTerrain().getWidth() / CHUNK_SIZE;
+			int cy = game.getWorld().getTerrain().getHeight() / CHUNK_SIZE;
+			Matrix4 m = tm3.copy(mProj).multiply(mView);
+			for (int y = 0; y < cy; ++y) {
+				key.cy = y;
+				for (int x = 0; x < cx; ++x) {
+					//
+					// test for visibility
+					//
+					corners[0].set(x, y, 0);
+					corners[1].set(x + 1, y, 0);
+					corners[2].set(x + 1, y + 1, 0);
+					corners[3].set(x, y + 1, 0);
+					corners[4].set(x, y, 10); // TODO: is 10 high enough?
+					corners[5].set(x + 1, y, 10);
+					corners[6].set(x + 1, y + 1, 10);
+					corners[7].set(x, y + 1, 10);
+					boolean pass = false;
+					for (int i = 0; i < 8; ++i) {
+						corners[i].x *= CHUNK_SIZE;
+						corners[i].y *= CHUNK_SIZE;
+						skew.multiply(corners[i], tv1);
+						m.multiply(tv6.set(tv1), tv5);
+						tv5.x /= tv5.w;
+						tv5.y /= tv5.w;
+						tv5.z /= tv5.w;
+						if (tv5.x >= -1 && tv5.x <= 1 && tv5.y >= -1 && tv5.y <= 1) {
+							pass = true;
+							break;
+						}
+					}
+
+					if (!pass)
+						continue; // not visible
+
+					visible.add(new Vector2i(x, y));
+				}
+			}
+		}
 	}
 
 	private WaterPlane getWaterPlane() {
@@ -296,65 +420,29 @@ public class GameView {
 		Terrain terrain = game.getWorld().getTerrain();
 
 		imageTerrain.getTexture().bind(0);
+
 		//
 		// split this up into chunks 
 		//
-		Vector3[] corners = new Vector3[8];
-		for (int i = 0; i < 8; ++i)
-			corners[i] = new Vector3();
 		Matrix3 skew = SettApp.skewMatrix(new Matrix3());
 		ChunkKey key = new ChunkKey();
 		int cx = terrain.getWidth() / CHUNK_SIZE;
 		int cy = terrain.getHeight() / CHUNK_SIZE;
-		int counter =0;
-		for (int y = 0; y < cy; ++y) {
-			key.cy = y;
-			for (int x = 0; x < cx; ++x) {
-				//
-				// test for visibility
-				//
-				corners[0].set(x, y, 0);
-				corners[1].set(x + 1, y, 0);
-				corners[2].set(x + 1, y + 1, 0);
-				corners[3].set(x, y + 1, 0);
-				corners[4].set(x, y, 10); // TODO: is 10 high enough?
-				corners[5].set(x + 1, y, 10);
-				corners[6].set(x + 1, y + 1, 10);
-				corners[7].set(x, y + 1, 10);
-				boolean b = false;
-				for (int i = 0; i < 8; ++i) {
-					corners[i].x *= CHUNK_SIZE;
-					corners[i].y *= CHUNK_SIZE;
-					skew.multiply(corners[i], tv1);
-					mView.multiply(tv5.set(tv1), tv6);
-					mProj.multiply(tv6, tv5);
-					tv5.x /= tv5.w;
-					tv5.y /= tv5.w;
-					tv5.z /= tv5.w;
-					if (tv5.x >= -1 && tv5.x <= 1 && tv5.y >= -1 && tv5.y <= 1) {
-						b = true;
-						break;
-					}
-				}
-				
-				if (!b)
-					continue; // not visible
+		int counter = 0;
+		for (Vector2i v : visible) {
+			key.cx = v.x;
+			key.cy = v.y;
+			++counter;
+			TerrainChunkMesh mesh = terrainChunks.get(key);
+			if (mesh == null)
+				mesh = generateTerrainChunk(terrain, key);
 
-				++counter;
-				key.cx = x;
-				TerrainChunkMesh mesh = terrainChunks.get(key);
-				if (mesh == null)
-					mesh = generateTerrainChunk(terrain, key);
-
-				tv1.set(x, y, 0);
-				tv1.multiply(CHUNK_SIZE);
-				tv1 = skew.multiply(tv1, tv2);
-				uoff.bindVec3(tv1);
-				mesh.render();
-			}
+			tv1.set(v.x, v.y, 0);
+			tv1.multiply(CHUNK_SIZE);
+			tv1 = skew.multiply(tv1, tv2);
+			uoff.bindVec3(tv1);
+			mesh.render();
 		}
-		
-		System.out.println("Drawing " + counter + " chunks");
 	}
 
 	private void bindStandardUniforms(Shader s) {
@@ -379,6 +467,8 @@ public class GameView {
 			return;
 		time += dt;
 		viewDist.update(dt);
+		if (selectionMarker != null)
+			selectionMarker.update(dt);
 	}
 
 	public void setViewport(int w, int h) {

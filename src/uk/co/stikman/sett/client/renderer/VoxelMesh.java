@@ -21,8 +21,6 @@ public class VoxelMesh {
 		this.voxmodel = voxmodel;
 		this.palette = gameView.getGame().getVoxelPalette();
 		
-		int ox = voxmodel.getSizeX() / 2;
-		int oy = voxmodel.getSizeY() / 2;
 
 		mesh = gameView.getWindow().createPolyMesh();
 		for (int z = 0; z < voxmodel.getSizeZ(); ++z) {
@@ -42,6 +40,8 @@ public class VoxelMesh {
 			}
 		}
 
+		float ox = voxmodel.getSizeX() / 2.0f;
+		float oy = voxmodel.getSizeY() / 2.0f;
 		mesh.offsetVerts(-ox, -oy, 0);
 		mesh.scaleVerts(0.05f);
 	}

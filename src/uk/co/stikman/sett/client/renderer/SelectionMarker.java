@@ -4,6 +4,7 @@ import uk.co.stikman.sett.ClientGame;
 import uk.co.stikman.sett.MarkerType;
 import uk.co.stikman.sett.game.TerrainNode;
 import uk.co.stikman.sett.gfx.Shader;
+import uk.co.stikman.sett.gfx.Shader.Uniform;
 import uk.co.stikman.utils.math.Matrix3;
 import uk.co.stikman.utils.math.Matrix4;
 import uk.co.stikman.utils.math.Vector2i;
@@ -22,6 +23,7 @@ public class SelectionMarker {
 	private MarkerType	markerType;
 	private Matrix4		tm			= new Matrix4();
 	private GameView	gameview;
+	private float		time		= 0;
 
 	public SelectionMarker(GameView gameview, VoxelMesh caret, VoxelMesh caret2, VoxelMesh small, VoxelMesh large, VoxelMesh flag) {
 		this.gameview = gameview;
@@ -57,12 +59,15 @@ public class SelectionMarker {
 		//
 		// rotate it back so it always faces the user, ish
 		//
-		tm.makeRotation(0, 0, 1, -gameview.getRotation().x);
-		shd.getUniform("model").bindMat4(tm);
+		Uniform u = shd.getUniform("model");
+		tm.makeRotation(0, 0, 1, -gameview.getRotation().x + 3.14159f / 3.0f);
+		u.bindMat4(tm);
 		shd.getUniform("offset").bindVec3(skew.multiply(positions[0], tv));
 		m.render();
 
 		for (int i = 1; i < 7; ++i) {
+			tm.makeRotation(0, 0, 1, time * 3);
+			u.bindMat4(tm);
 			shd.getUniform("offset").bindVec3(skew.multiply(tv2.copy(positions[i]), tv));
 			caret2.render();
 		}
@@ -73,6 +78,10 @@ public class SelectionMarker {
 		markerType = game.getPermissableMarkerFor(pos.x, pos.y);
 		for (int i = 0; i < 7; ++i)
 			positions[i].set(n[i].getX(), n[i].getY(), n[i].getHeight());
+	}
+
+	public void update(float dt) {
+		time += dt;
 	}
 
 }

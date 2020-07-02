@@ -24,6 +24,10 @@
 		<Model>scenery-*-house1.vox</Model>
 	</Scenery>
 
+	<Scenery id="castle">
+		<Model>scenery-*-castle.vox</Model>
+	</Scenery>
+
 	<Scenery id="flag">
 		<Model>scenery-*-flag.vox</Model>
 	</Scenery>

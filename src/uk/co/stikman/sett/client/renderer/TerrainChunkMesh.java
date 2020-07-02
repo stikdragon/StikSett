@@ -236,6 +236,8 @@ public class TerrainChunkMesh {
 			}
 		}
 
+		//	System.out.println("Tris: " + tris.size() * 4 + "   Verts: " + verts.size() * 4);
+
 		invalid = true;
 
 	}
@@ -302,6 +304,8 @@ public class TerrainChunkMesh {
 		if (framecount > 1)
 			indexcount /= framecount;
 		invalid = false;
+		verts = null;
+		tris = null;
 	}
 
 	public void destroy() {
