@@ -96,6 +96,7 @@ public class GameView {
 	private DebugRay						debugRay;
 	private Ray								tray				= new Ray();
 	private static final Plane				BASELINE_PLANE		= new Plane(new Vector3(0, 0, 1), new Vector3(0, 0, 0));
+	private static final boolean			FORCE_ALL_VISIBLE	= true;
 	private final ScanlineConverter			scanconverter		= new ScanlineConverter();
 	private boolean							FORCE_CHUNK_TEST	= true;
 
@@ -251,6 +252,16 @@ public class GameView {
 		Vector2i b = null;
 		Vector2i c = null;
 		Vector2i d = null;
+
+		if (FORCE_ALL_VISIBLE) {
+			int cx = game.getWorld().getTerrain().getWidth() / CHUNK_SIZE;
+			int cy = game.getWorld().getTerrain().getHeight() / CHUNK_SIZE;
+			Matrix4 m = tm3.copy(mProj).multiply(mView);
+			for (int y = 0; y < cy; ++y)
+				for (int x = 0; x < cx; ++x)
+					visible.add(new Vector2i(x, y));
+			return;
+		}
 
 		if (!FORCE_CHUNK_TEST) {
 			Matrix3 skew = SettApp.skewMatrix(tm1).inverse();

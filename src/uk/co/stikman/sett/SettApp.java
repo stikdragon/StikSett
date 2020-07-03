@@ -1,5 +1,8 @@
 package uk.co.stikman.sett;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import uk.co.stikman.sett.client.renderer.GameView;
 import uk.co.stikman.sett.game.World;
 import uk.co.stikman.sett.game.WorldParameters;
@@ -9,6 +12,7 @@ import uk.co.stikman.sett.gfx.text.RenderTextOptions;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
 import uk.co.stikman.sett.gfx.util.WindowInitError;
 import uk.co.stikman.utils.math.Matrix3;
+import uk.co.stikman.utils.math.Vector2i;
 import uk.co.stikman.utils.math.Vector3;
 import uk.co.stikman.utils.math.Vector4;
 
@@ -66,8 +70,17 @@ public class SettApp {
 			ClientGame game = new ClientGame(this);
 			game.setWorld(new World());
 			game.loadResources();
-			WorldParameters params = new WorldParameters(32);
+			WorldParameters params = new WorldParameters(1);
 			game.getWorld().generate(params);
+			
+			List<Vector2i> nodes = new ArrayList<>();
+			nodes.add(new Vector2i(1, 1));
+			nodes.add(new Vector2i(1, 2));
+			nodes.add(new Vector2i(2, 2));
+			nodes.add(new Vector2i(2, 3));
+			nodes.add(new Vector2i(3, 3));
+			game.addRoad(nodes);
+			
 			view = new GameView(window, game);
 			view.init();
 		} catch (ResourceLoadError e) {

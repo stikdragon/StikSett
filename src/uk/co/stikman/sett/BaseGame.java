@@ -1,9 +1,16 @@
 package uk.co.stikman.sett;
 
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import uk.co.stikman.sett.game.IsNodeObject;
 import uk.co.stikman.sett.game.ObstructionType;
+import uk.co.stikman.sett.game.Road;
+import uk.co.stikman.sett.game.Terrain;
 import uk.co.stikman.sett.game.TerrainNode;
 import uk.co.stikman.sett.game.World;
+import uk.co.stikman.utils.MutableInteger;
+import uk.co.stikman.utils.math.Vector2i;
 import uk.co.stikman.utils.math.Vector3;
 
 public class BaseGame {
@@ -15,6 +22,7 @@ public class BaseGame {
 
 	private static final Vector3	UP					= new Vector3(0, 0, 1);
 	protected World					world;
+	private AtomicInteger			sequence			= new AtomicInteger(0);
 
 	public void setWorld(World world) {
 		this.world = world;
@@ -22,6 +30,10 @@ public class BaseGame {
 
 	public World getWorld() {
 		return world;
+	}
+
+	public int nextId() {
+		return sequence.incrementAndGet();
 	}
 
 	public MarkerType getPermissableMarkerFor(int x, int y) {
@@ -61,6 +73,67 @@ public class BaseGame {
 		}
 
 		return MarkerType.NONE;
+	}
+
+	public void addRoad(List<Vector2i> nodes) {
+		Road r = new Road(nextId());
+		r.getPath().addAll(nodes);
+		world.getRoads().put(r);
+		Terrain terr = world.getTerrain();
+
+		for (int i = 0; i < nodes.size() - 1; ++i) {
+			//
+			// find the edge this is on
+			//
+			Vector2i n1 = nodes.get(i);
+			Vector2i n2 = nodes.get(i + 1);
+			int dx = n2.x - n1.x;
+			int dy = n2.y - n1.y;
+
+			//
+			// work out which direction this is in
+			// dx  dy  dir
+			// --  --  ---
+			// -1  -1  -3
+			//  0  -1  -2
+			// -1   0  -1
+			//  1   0   1
+			//  0   1   2
+			//  1   1   3
+			//  
+			//
+			int dir = dy * 2 | dx;
+			TerrainNode n;
+			int x = n1.x;
+			int y = n1.y;
+			switch (dir) {
+			case 1:
+				terr.get(x, y).setRoad(0, r);
+//				terr.get(x, y + 1).setRoad(3, r);
+				break;
+			case 2:
+//				terr.get(x, y).setRoad(4, r);
+				terr.get(x, y).setRoad(2, r);
+				break;
+			case 3:
+				terr.get(x, y).setRoad(1, r);
+				break;
+			case -1:
+				terr.get(x - 1, y).setRoad(0, r);
+//				terr.get(x - 1, y - 1).setRoad(3, r);
+				break;
+			case -2:
+//				terr.get(x, y - 1).setRoad(4, r);
+				terr.get(x, y - 1).setRoad(2, r);
+				break;
+			case -3:
+				terr.get(x - 1, y - 1).setRoad(1, r);
+				break;
+			default:
+				throw new IllegalStateException("Invalid path shape: " + dir);
+			}
+
+		}
 
 	}
 

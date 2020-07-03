@@ -31,7 +31,7 @@ public class MapQuad {
 	 */
 	public static float[]			verts;
 
-	public static MapQuad[]			quads	= new MapQuad[1024];
+	public static MapQuad[]			quads	= new MapQuad[512];
 
 	private static final int		P0		= 0;
 	private static final int		P1		= 1;
@@ -143,7 +143,7 @@ public class MapQuad {
 		//
 		// generate the 1024 combinations that can exist
 		//
-		for (int i = 0; i < 1024; ++i) {
+		for (int i = 0; i < 512; ++i) {
 			List<int[]> use = new ArrayList<>();
 
 			//@formatter:off
@@ -243,18 +243,16 @@ public class MapQuad {
 			n |= 4;
 		if (f3)
 			n |= 8;
-		if (f0)
-			n |= 16;
 		if (r0)
-			n |= 32;
+			n |= 16;
 		if (r1)
-			n |= 64;
+			n |= 32;
 		if (r2)
-			n |= 128;
+			n |= 64;
 		if (r3)
-			n |= 256;
+			n |= 128;
 		if (r4)
-			n |= 512;
+			n |= 256;
 		return n;
 	}
 

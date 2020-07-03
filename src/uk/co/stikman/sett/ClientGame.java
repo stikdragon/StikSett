@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ import uk.co.stikman.sett.game.VoxelModelParams;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
 import uk.co.stikman.sett.res.Resources;
 import uk.co.stikman.sett.util.SettUtil;
+import uk.co.stikman.utils.math.Vector2i;
 
 public class ClientGame extends BaseGame {
 	private static final StikLog				LOGGER	= StikLog.getLogger(ClientGame.class);
