@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import uk.co.stikman.log.StikLog;
-import uk.co.stikman.sett.util.ChunkHeader;
+import uk.co.stikman.sett.util.VOXChunkHeader;
 import uk.co.stikman.sett.util.VoxelInputStream;
 import uk.co.stikman.utils.math.Matrix4;
 import uk.co.stikman.utils.math.Vector3;
@@ -47,7 +47,7 @@ public class VoxelModel {
 			if (v != VOX_FILE_VERSION)
 				throw new IOException("Invalid VOX file: Can only import Version " + VOX_FILE_VERSION + ".  Attempted to read: " + v);
 
-			ChunkHeader chunk = dis.readChunkHeader();
+			VOXChunkHeader chunk = dis.readChunkHeader();
 			if (!"MAIN".equals(chunk.id))
 				throw new IOException("Invalid VOX file: MAIN chunk missing");
 			chunk.assertSize(0, chunk.childLen);

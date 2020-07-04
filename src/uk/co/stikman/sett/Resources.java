@@ -1,4 +1,4 @@
-package uk.co.stikman.sett.res;
+package uk.co.stikman.sett;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -18,7 +18,6 @@ import uk.co.stikman.sett.game.BuildingType;
 import uk.co.stikman.sett.game.SceneryType;
 import uk.co.stikman.sett.game.VoxelModelParams;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
-import uk.co.stikman.sett.res.Resources;
 import uk.co.stikman.sett.util.SettUtil;
 import uk.co.stikman.utils.math.Vector2i;
 

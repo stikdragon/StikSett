@@ -159,6 +159,7 @@ public class TerrainChunkMesh {
 
 					float vx = MapQuad.verts[i++];
 					float vy = MapQuad.verts[i++];
+					float vz = MapQuad.verts[i++];
 					float bf0 = MapQuad.verts[i++];
 					float bf1 = MapQuad.verts[i++];
 					float bf2 = MapQuad.verts[i++];
@@ -183,7 +184,7 @@ public class TerrainChunkMesh {
 					//c1.multiply(0.3f + Utils.clamp(1.5f * Math.abs(tv5.dot(sunlight)), 0, 1));
 					verts.add(vx + tx); // xyz
 					verts.add(vy + ty);
-					verts.add(h);
+					verts.add(h + vz);
 
 					//
 					// pick a different section of the texture map each time

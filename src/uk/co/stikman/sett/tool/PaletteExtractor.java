@@ -13,8 +13,20 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+/**
+ * takes all the PNG files in a directory and works out the 256 most commonly
+ * used colours in them, then tries to sort them into a pleasing order
+ * 
+ * @author stik
+ *
+ */
 public class PaletteExtractor {
-	public static final String ROOT = "G:\\junk\\settimgs\\";
+	// where your PNGs are
+	public static final String	ROOT			= "G:\\junk\\settimgs\\";
+	// this is a big one that you can look at as a human, 16x16 squares
+	private static final String	OUTPUT_READABLE	= "G:\\junk\\pal1.png";
+	// this is the actual 256x1 palette that things like magicavoxel work with
+	private static final String	OUTPUT_PAL		= "G:\\junk\\pal1_line.png";
 
 	private static class ColEnt {
 		Color	colour;
@@ -124,13 +136,14 @@ public class PaletteExtractor {
 			g.setColor(lst.get(i).colour);
 			g.fillRect(x * 16, y * 16, 16, 16);
 		}
-		ImageIO.write(img, "PNG", new File("G:\\junk\\pal1.png"));
-		
+		ImageIO.write(img, "PNG", new File(OUTPUT_READABLE));
+
 		img = new BufferedImage(256, 1, BufferedImage.TYPE_INT_RGB);
 		for (int i = 0; i < lst.size(); ++i) {
 			Color c = lst.get(i).colour;
 			img.setRGB(i, 0, c.getRGB());
 		}
-		ImageIO.write(img, "PNG", new File("G:\\junk\\pal1_line.png"));	}
+		ImageIO.write(img, "PNG", new File(OUTPUT_PAL));
+	}
 
 }

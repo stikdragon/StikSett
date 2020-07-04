@@ -7,6 +7,14 @@ import java.util.NoSuchElementException;
 
 import uk.co.stikman.sett.game.HasId;
 
+/**
+ * List of objects that implement {@link HasId}. provides rapid lookup based on
+ * an <code>int</code> id
+ * 
+ * @author stikd
+ *
+ * @param <T>
+ */
 public class ThingList<T extends HasId> implements Iterable<T> {
 	private Map<Integer, T>	map	= new HashMap<>();
 	private final String	name;

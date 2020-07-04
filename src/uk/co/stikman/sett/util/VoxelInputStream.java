@@ -31,15 +31,15 @@ public class VoxelInputStream extends StikDataInputStream {
 		return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0));
 	}
 	
-	public ChunkHeader readChunkHeader() throws IOException {
-		ChunkHeader h = new ChunkHeader();
+	public VOXChunkHeader readChunkHeader() throws IOException {
+		VOXChunkHeader h = new VOXChunkHeader();
 		h.id = read4();
 		h.contentLen = readInt();
 		h.childLen = readInt();
 		return h;
 	}
 
-	public void skipContent(ChunkHeader ch) throws IOException {
+	public void skipContent(VOXChunkHeader ch) throws IOException {
 		skip(ch.childLen);
 		skip(ch.contentLen);
 	}
@@ -50,11 +50,11 @@ public class VoxelInputStream extends StikDataInputStream {
 	 * @return
 	 * @throws IOException
 	 */
-	public ChunkHeader optionalChunkHeader() throws IOException {
+	public VOXChunkHeader optionalChunkHeader() throws IOException {
 		int n = read(buf, 0, 4);
 		if (n == -1)
 			return null;
-		ChunkHeader h = new ChunkHeader();
+		VOXChunkHeader h = new VOXChunkHeader();
 		h.id = new String(buf, StandardCharsets.ISO_8859_1);
 		h.contentLen = readInt();
 		h.childLen = readInt();

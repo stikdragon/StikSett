@@ -2,7 +2,7 @@ package uk.co.stikman.sett.util;
 
 import java.io.IOException;
 
-public class ChunkHeader {
+public class VOXChunkHeader {
 	public String	id;
 	public int		contentLen;
 	public int		childLen;
