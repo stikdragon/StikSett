@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import uk.co.stikman.log.StikLog;
 import uk.co.stikman.sett.client.renderer.GameView;
 import uk.co.stikman.sett.game.Flag;
 import uk.co.stikman.sett.game.Player;
@@ -17,13 +18,17 @@ import uk.co.stikman.sett.gfx.text.OutlineMode;
 import uk.co.stikman.sett.gfx.text.RenderTextOptions;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
 import uk.co.stikman.sett.gfx.util.WindowInitError;
+import uk.co.stikman.sett.svr.BaseGameServer;
+import uk.co.stikman.sett.svr.GameServer;
+import uk.co.stikman.sett.svr.GameServerConfig;
 import uk.co.stikman.utils.math.Matrix3;
 import uk.co.stikman.utils.math.Vector2i;
 import uk.co.stikman.utils.math.Vector3;
 import uk.co.stikman.utils.math.Vector4;
 
 public class SettApp {
-
+	public static final StikLog LOGGER = StikLog.getLogger(SettApp.class);
+	
 	private static final int	WINDOW_W	= 1024;
 	private static final int	WINDOW_H	= 768;
 
@@ -42,11 +47,27 @@ public class SettApp {
 	private SettUI			ui;
 	private GameView		view;
 	private double			lastT;
+	private BaseGameServer server;
+	
 	private Player			p1;
 	private Player p2;
 	private Player p3;
 
+
 	private void go() {
+		try {
+			GameServerConfig config = new GameServerConfig();
+			GameServer svr = new GameServer(config);
+			svr.start();
+			this.server = svr;
+			
+		} catch (Exception e) {
+			LOGGER.error("Failed to start server:");
+			LOGGER.error(e);
+			return;
+		}
+		
+		
 		try {
 			window = new Window3DNative(WINDOW_W, WINDOW_H, true);
 			window.setTitle("Thing");
@@ -95,7 +116,7 @@ public class SettApp {
 		}
 	}
 
-	private void randomFlags(ClientGame game) {
+	private void randomFlags(BaseGame game) {
 		Random rng = new Random();
 		for (int y = 0; y < game.world.getHeight(); ++y) {
 			for (int x = 0; x < game.world.getWidth(); ++x) {
@@ -114,7 +135,7 @@ public class SettApp {
 		}
 	}
 
-	private void randomRoads(ClientGame game) {
+	private void randomRoads(BaseGame game) {
 		Random rng = new Random();
 		int n = 40 * game.world.getWidth() * game.world.getHeight() / 50000;
 		for (int k = 0; k < n; ++k) {

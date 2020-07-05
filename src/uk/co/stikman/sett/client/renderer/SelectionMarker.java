@@ -1,6 +1,6 @@
 package uk.co.stikman.sett.client.renderer;
 
-import uk.co.stikman.sett.ClientGame;
+import uk.co.stikman.sett.BaseGame;
 import uk.co.stikman.sett.MarkerType;
 import uk.co.stikman.sett.game.TerrainNode;
 import uk.co.stikman.sett.gfx.Shader;
@@ -16,7 +16,7 @@ public class SelectionMarker {
 	private Vector3[]	positions	= new Vector3[7];
 	private Vector3		tv			= new Vector3();
 	private Vector3		tv2			= new Vector3();
-	private ClientGame	game;
+	private BaseGame	game;
 	private VoxelMesh	flag;
 	private VoxelMesh	bighouse;
 	private VoxelMesh	house;

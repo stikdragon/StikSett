@@ -14,6 +14,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import uk.co.stikman.log.StikLog;
+import uk.co.stikman.sett.BaseGame;
 import uk.co.stikman.sett.ClientGame;
 import uk.co.stikman.sett.FileSourceBatchClose;
 import uk.co.stikman.sett.SettApp;
