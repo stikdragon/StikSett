@@ -22,7 +22,9 @@ public class VoxelMesh {
 		this.palette = gameView.getGame().getVoxelPalette();
 
 		mesh = gameView.getWindow().createPolyMesh();
+		int[] offsets = new int[voxmodel.getFrames().size()];
 		for (int f = 0; f < voxmodel.getFrames().size(); ++f) {
+			offsets[f] = mesh.getCurrentTriIndex();
 			for (int z = 0; z < voxmodel.getSizeZ(); ++z) {
 				for (int y = 0; y < voxmodel.getSizeY(); ++y) {
 					for (int x = 0; x < voxmodel.getSizeX(); ++x) {
@@ -41,8 +43,8 @@ public class VoxelMesh {
 			}
 		}
 
-		if (voxmodel.getFrames().size() > 1)
-			mesh.setFrameCount(voxmodel.getFrames().size());
+		if (voxmodel.getFrames().size() > 1) 
+			mesh.setFrameOffsets(offsets);
 
 		float ox = voxmodel.getSizeX() / 2.0f;
 		float oy = voxmodel.getSizeY() / 2.0f;

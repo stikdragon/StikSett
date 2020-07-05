@@ -17,7 +17,6 @@ public class PolyMeshNative extends PolyMesh {
 	private BufferNative	vertices;
 	private BufferNative	indicies;
 	private VAO				vao;
-	private int				indexcount;
 	private boolean			destroyed;
 
 	public PolyMeshNative(Window3D owner) {
@@ -33,7 +32,17 @@ public class PolyMeshNative extends PolyMesh {
 			rebuild();
 
 		vao.bind();
-		GL11.glDrawElements(GL11.GL_TRIANGLES, indexcount, GL11.GL_UNSIGNED_INT, frame * indexcount * 4);
+
+		int count;
+		int off;
+		if (frameOffsets != null) {
+			count = frameSizes[frame];
+			off = frameOffsets[frame];
+		} else {
+			count = tris.size();
+			off = 0;
+		}
+		GL11.glDrawElements(GL11.GL_TRIANGLES, count, GL11.GL_UNSIGNED_INT, off * 4);
 	}
 
 	@Override
@@ -72,9 +81,6 @@ public class PolyMeshNative extends PolyMesh {
 		indicies.bind(GL15.GL_ELEMENT_ARRAY_BUFFER);
 		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, iaidxes, GL15.GL_STATIC_DRAW);
 
-		indexcount = tris.size();
-		if (framecount > 1)
-			indexcount /= framecount;
 		invalid = false;
 	}
 
@@ -88,5 +94,6 @@ public class PolyMeshNative extends PolyMesh {
 			indicies = null;
 		}
 	}
+
 
 }

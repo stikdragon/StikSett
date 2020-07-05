@@ -9,12 +9,12 @@
 	</Model>
 
 	<Model id="flag" rotate="0">
-		<Frame time="0.4"><FileName>group1-*-flag.1.vox</FileName></Frame>
-		<Frame time="0.4"><FileName>group1-*-flag.2.vox</FileName></Frame>
-		<Frame time="0.4"><FileName>group1-*-flag.3.vox</FileName></Frame>
-		<Frame time="0.4"><FileName>group1-*-flag.4.vox</FileName></Frame>
+		<Frame time="0.2"><FileName>group1-*-flag.1.vox</FileName></Frame>
+		<Frame time="0.2"><FileName>group1-*-flag.2.vox</FileName></Frame>
+		<Frame time="0.2"><FileName>group1-*-flag.3.vox</FileName></Frame>
+		<Frame time="0.2"><FileName>group1-*-flag.4.vox</FileName></Frame>
 	</Model>
-
+	
 
 	<Building id="woodcutter" display="Woodcutter">
 		<Model>woodcutter</Model>
@@ -27,7 +27,7 @@
 	</Building>
 
 	<Building id="flag" display="Flag">
-		<Model>flag</Model>
+		<Model>flag2</Model>
 		<Description>Flag</Description>
 	</Building>
 

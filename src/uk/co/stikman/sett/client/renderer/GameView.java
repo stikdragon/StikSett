@@ -596,8 +596,8 @@ public class GameView {
 	public void mouseWheel(int dy) {
 		float f = viewDist.getTarget();
 		f -= dy * 5.0f;
-		if (f < 10.0f)
-			f = 10.0f;
+		if (f < 1.0f)
+			f = 1.0f;
 		if (f > 3000.0f)
 			f = 3000.0f;
 		viewDist.set(f);

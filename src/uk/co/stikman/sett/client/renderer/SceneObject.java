@@ -1,5 +1,6 @@
 package uk.co.stikman.sett.client.renderer;
 
+import uk.co.stikman.sett.VoxelFrame;
 import uk.co.stikman.sett.VoxelModel;
 import uk.co.stikman.sett.game.IsNodeObject;
 
@@ -8,8 +9,13 @@ public class SceneObject {
 	private IsNodeObject	gameObject;
 	private GameView		view;
 	private VoxelMesh		mesh;
-	private float			lastTime;
 	private VoxelModel		model;
+
+	private float			lastTime;
+	private float			time		= 0.0f;
+	private float			animTime;
+	private float[]			frameStarts;
+	private int				curFrame	= 0;
 
 	public SceneObject(GameView view, IsNodeObject gameobj, VoxelModel mdl, VoxelMesh mesh) {
 		if (mesh == null)
@@ -18,6 +24,17 @@ public class SceneObject {
 		this.gameObject = gameobj;
 		this.mesh = mesh;
 		this.model = mdl;
+		this.animTime = 0.0f;
+		if (mdl.isAnimated()) {
+			frameStarts = new float[mdl.getFrames().size()];
+			frameStarts[0] = 0.0f;
+			animTime = mdl.getFrames().get(mdl.getFrames().size() - 1).getDuration();
+			for (int i = 0; i < mdl.getFrames().size() - 1; ++i) {
+				VoxelFrame fr = mdl.getFrames().get(i);
+				frameStarts[i + 1] = frameStarts[i] + fr.getDuration();
+				animTime += fr.getDuration();
+			}
+		}
 	}
 
 	public IsNodeObject getGameObject() {
@@ -32,15 +49,29 @@ public class SceneObject {
 		return mesh;
 	}
 
-	public void render(float time) {
+	public void render(float t) {
 		if (lastTime == 0.0f)
-			lastTime = time;
-		float dt = time - lastTime;
+			lastTime = t;
+		float dt = t - lastTime;
+		lastTime = t;
 
 		if (model.isAnimated()) {
-			int n = (int) (time * 1.0f);
-			n %= model.getFrames().size();
-			mesh.render(n);
+			//
+			// work out what time we're on
+			//
+			time += dt;
+			int n = (int) (time / animTime);
+			time -= n * animTime;
+
+			int l = frameStarts.length;
+			for (curFrame = 0; curFrame < l; ++curFrame) {
+				if (time < frameStarts[curFrame]) {
+					break;
+				}
+			}
+			--curFrame;
+
+			mesh.render(curFrame);
 		} else {
 			mesh.render(0);
 		}

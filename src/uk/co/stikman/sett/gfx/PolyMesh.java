@@ -7,13 +7,15 @@ import uk.co.stikman.utils.math.Vector3;
 import uk.co.stikman.utils.math.Vector4;
 
 public abstract class PolyMesh {
-	protected FloatList	verts		= new FloatList();
-	protected IntList	tris		= new IntList();
-	protected boolean	invalid		= true;
+	protected FloatList	verts			= new FloatList();
+	protected IntList	tris			= new IntList();
+	protected boolean	invalid			= true;
+	protected int[]		frameOffsets	= null;				// if null then this isn't animated
+	protected int[]		frameSizes		= null;				// if null then this isn't animated
+
 	private int			indexcount;
 	private boolean		destroyed;
 	private Vector3		bounds;
-	protected int		framecount	= -1;				// -1 means not animated, draw everything
 	protected Window3D	window;
 
 	public PolyMesh(Window3D owner) {
@@ -74,7 +76,7 @@ public abstract class PolyMesh {
 			i += 9;
 		}
 	}
-	
+
 	public void offsetVerts(float dx, float dy, float dz) {
 		for (int i = 0; i < verts.size(); ++i) {
 			verts.set(i, verts.get(i) + dx);
@@ -86,10 +88,12 @@ public abstract class PolyMesh {
 		}
 	}
 
-	
-
 	public int getCurrentVertIndex() {
 		return verts.size() / 12;
+	}
+	
+	public int getCurrentTriIndex() {
+		return tris.size();
 	}
 
 	public void addVertArray(float[] data, int off, int len) {
@@ -160,19 +164,6 @@ public abstract class PolyMesh {
 		}
 	}
 
-	/**
-	 * Calling this divides <code>indexcount</code> by framecount. When you call
-	 * {@link #render(int)} you need to specify a frame number, which becomes an
-	 * offset
-	 * 
-	 * @param framecount
-	 */
-	public void setFrameCount(int framecount) {
-		if (indexcount > 0)
-			throw new IllegalStateException("Mesh has already been generated, cannot set framecount");
-		this.framecount = framecount;
-	}
-
 	public int getVertCount() {
 		return verts.size() / 12;
 	}
@@ -185,5 +176,18 @@ public abstract class PolyMesh {
 		return window;
 	}
 
+	public int[] getFrameOffsets() {
+		return frameOffsets;
+	}
+
+	public void setFrameOffsets(int[] frameOffsets) {
+		if (this.frameOffsets != null)
+			throw new IllegalStateException("Frame data has already been set");
+		this.frameOffsets = frameOffsets;
+		frameSizes = new int[frameOffsets.length];
+		for (int i = 0; i < frameSizes.length - 1; ++i)
+			frameSizes[i] = frameOffsets[i + 1] - frameOffsets[i];
+		frameSizes[frameSizes.length - 1] = tris.size() - frameOffsets[frameOffsets.length - 1];
+	}
 
 }

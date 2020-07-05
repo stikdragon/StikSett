@@ -123,8 +123,8 @@ public abstract class Sprite {
 				mesh.addTri(n1 + a, n2 + a, n3 + a);
 			}
 		}
-
-		mesh.setFrameCount(framecount);
+		throw new RuntimeException("Reimplement this for new frame method");
+//		mesh.setFrameCount(framecount);
 
 	}
 
