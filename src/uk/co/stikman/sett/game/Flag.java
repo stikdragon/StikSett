@@ -5,35 +5,22 @@ import java.util.List;
 
 import uk.co.stikman.sett.BaseGame;
 
-public class Flag implements HasId, IsNodeObject {
-	private final int			id;
-	private List<HasFlag>		connections	= new ArrayList<>();
-	private BaseGame			game;
+public class Flag extends PlayerObject  {
 
-	public Flag(BaseGame owner) {
-		this(owner, owner.nextId());
+	private List<HasFlag>	connections	= new ArrayList<>();
+
+	public Flag(BaseGame game, Player owner, int id) {
+		super(game, owner, id);
 	}
 
-	public Flag(BaseGame owner, int id) {
-		super();
-		this.id = id;
-		this.game = owner;
+	public Flag(BaseGame game, Player owner) {
+		super(game, owner);
 	}
 
-	@Override
-	public int getId() {
-		return id;
-	}
-
-	@Override
-	public String toString() {
-		return "Flag: " + Integer.toString(id);
-	}
 
 	public List<HasFlag> getConnections() {
 		return connections;
 	}
-
 
 	@Override
 	public ObstructionType getObstructionType() {

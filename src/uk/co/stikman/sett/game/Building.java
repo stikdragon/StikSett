@@ -1,21 +1,17 @@
 package uk.co.stikman.sett.game;
 
-public class Building implements HasId, HasFlag, IsNodeObject {
+import uk.co.stikman.sett.BaseGame;
 
-	private final int			id;
+public class Building extends PlayerObject implements HasFlag {
+
 	private final BuildingType	type;
 	private Flag				flag;
 
-	public Building(int id, BuildingType type) {
-		super();
-		this.id = id;
+	public Building(BaseGame game, Player owner, int id, BuildingType type) {
+		super(game, owner, id);
 		this.type = type;
 	}
 
-	@Override
-	public int getId() {
-		return id;
-	}
 
 	public BuildingType getType() {
 		return type;
@@ -23,7 +19,7 @@ public class Building implements HasId, HasFlag, IsNodeObject {
 
 	@Override
 	public String toString() {
-		return type + ": " + id;
+		return type + ": " + getId();
 	}
 
 	public Flag getFlag() {

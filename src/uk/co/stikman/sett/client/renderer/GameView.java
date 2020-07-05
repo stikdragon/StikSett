@@ -19,6 +19,7 @@ import uk.co.stikman.sett.FileSourceBatchClose;
 import uk.co.stikman.sett.SettApp;
 import uk.co.stikman.sett.VoxelModel;
 import uk.co.stikman.sett.game.IsNodeObject;
+import uk.co.stikman.sett.game.PlayerObject;
 import uk.co.stikman.sett.game.Terrain;
 import uk.co.stikman.sett.game.World;
 import uk.co.stikman.sett.gfx.Image;
@@ -205,6 +206,7 @@ public class GameView {
 		objectShader.use();
 		bindStandardUniforms(objectShader);
 		Uniform uoff = objectShader.getUniform("offset");
+		Uniform uplaycol = objectShader.getUniform("overrideColour");
 		Matrix3 skew = SettApp.skewMatrix(new Matrix3());
 
 		World world = game.getWorld();
@@ -222,6 +224,8 @@ public class GameView {
 						tv3.set(x, y);
 						skew.multiply(tv3, tv4);
 						uoff.bindVec3(tv4.x, tv4.y, h);
+						if (obj instanceof PlayerObject) 
+							uplaycol.bindVec3(((PlayerObject) obj).getOwner().getColour());
 						m.render(time);
 					}
 

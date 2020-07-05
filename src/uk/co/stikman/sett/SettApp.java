@@ -6,10 +6,12 @@ import java.util.Random;
 
 import uk.co.stikman.sett.client.renderer.GameView;
 import uk.co.stikman.sett.game.Flag;
+import uk.co.stikman.sett.game.Player;
 import uk.co.stikman.sett.game.Road;
 import uk.co.stikman.sett.game.TerrainNode;
 import uk.co.stikman.sett.game.World;
 import uk.co.stikman.sett.game.WorldParameters;
+import uk.co.stikman.sett.gfx.VectorColours;
 import uk.co.stikman.sett.gfx.lwjgl.Window3DNative;
 import uk.co.stikman.sett.gfx.text.OutlineMode;
 import uk.co.stikman.sett.gfx.text.RenderTextOptions;
@@ -40,6 +42,9 @@ public class SettApp {
 	private SettUI			ui;
 	private GameView		view;
 	private double			lastT;
+	private Player			p1;
+	private Player p2;
+	private Player p3;
 
 	private void go() {
 		try {
@@ -75,9 +80,12 @@ public class SettApp {
 			ClientGame game = new ClientGame(this);
 			game.setWorld(new World());
 			game.loadResources();
-			WorldParameters params = new WorldParameters(4);
+			WorldParameters params = new WorldParameters(14);
 			game.getWorld().generate(params);
-
+			
+			p1 = new Player(game, "Player1", VectorColours.HSLtoRGB(new Vector3(0, 1.0f,  0.6f)));
+			p2 = new Player(game, "Player2", VectorColours.HSLtoRGB(new Vector3(0.75f, 1.0f,  0.7f)));
+			p3 = new Player(game, "Player3", VectorColours.HSLtoRGB(new Vector3(0.6f, 1.0f,  0.6f)));
 			randomRoads(game);
 			randomFlags(game);
 			view = new GameView(window, game);
@@ -88,12 +96,20 @@ public class SettApp {
 	}
 
 	private void randomFlags(ClientGame game) {
+		Random rng = new Random();
 		for (int y = 0; y < game.world.getHeight(); ++y) {
 			for (int x = 0; x < game.world.getWidth(); ++x) {
 				TerrainNode n = game.world.getTerrain().get(x, y);
 				List<Road> lst = game.world.getRoadsAt(n, new ArrayList<>());
-				if (lst.size() > 2 || lst.size() == 1)
-					n.setObject(new Flag(game));
+				if (lst.size() > 2 || lst.size() == 1) {
+					Player p = p1;
+					switch (rng.nextInt(3)) {
+					case 0: p = p1; break;
+					case 1: p = p2; break;
+					case 2: p = p3; break;
+					}
+					n.setObject(new Flag(game, p));
+				}
 			}
 		}
 	}
