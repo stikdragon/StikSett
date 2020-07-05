@@ -10,22 +10,21 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.sett.game.BuildingType;
 import uk.co.stikman.sett.game.SceneryType;
-import uk.co.stikman.sett.game.VoxelModelParams;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
 import uk.co.stikman.sett.util.SettUtil;
-import uk.co.stikman.utils.math.Vector2i;
 
 public class ClientGame extends BaseGame {
 	private static final StikLog				LOGGER	= StikLog.getLogger(ClientGame.class);
 	private SettApp								app;
 	private FileSource							files;
-	private Map<VoxelModelParams, VoxelModel>	models	= new HashMap<>();
+	private Map<String, VoxelModel>	models	= new HashMap<>();
 	private VoxelPalette						palette;
 
 	public ClientGame(SettApp sett) {
@@ -40,63 +39,36 @@ public class ClientGame extends BaseGame {
 			loadBuildingDefs(SettUtil.readXML(files.get("buildings.xml")));
 			loadSceneryDefs(SettUtil.readXML(files.get("scenery.xml")));
 
-			Set<VoxelModelParams> models = new HashSet<>();
-			world.getBuildingDefs().values().stream().map(BuildingType::getVoxelModelInfo).forEach(models::add);
-			world.getSceneryDefs().values().stream().map(SceneryType::getVoxelModelInfo).forEach(models::add);
-
-			loadModels(models);
 		} catch (IOException e) {
 			throw new ResourceLoadError("Failed to load resources: " + e.getMessage(), e);
 		}
 
 	}
 
-	private void loadModels(Set<VoxelModelParams> models2) throws IOException {
-		for (VoxelModelParams vmp : models2) {
-			String name = vmp.getName();
-			VoxelModel v = new VoxelModel(name, palette);
-			int rot = 0;
-			if (vmp.getRotation() == 'W')
-				rot = 3;
-			else if (vmp.getRotation() == 'E')
-				rot = 1;
-			else if (vmp.getRotation() == 'S')
-				rot = 2;
-			v.fromStream(files.get(name), rot);
-
-			models.put(vmp, v);
-		}
-	}
-
 	private void loadSceneryDefs(Document doc) throws ResourceLoadError {
 		if (!"SceneryDefs".equals(doc.getDocumentElement().getTagName()))
 			throw new ResourceLoadError("Expected <SceneryDefs>, not: " + doc.getDocumentElement().getTagName());
 
-		Map<String, SceneryType> defs = world.getSceneryDefs();
-		for (Element el : SettUtil.getElements(doc.getDocumentElement(), "Scenery")) {
-			String id = SettUtil.getAttrib(el, "id");
+		try {
+			loadModels(doc);
 
-			if (Boolean.parseBoolean(SettUtil.getAttrib(el, "createRotations", "false"))) {
-				for (char ch : "NWSE".toCharArray()) {
-					String s = id.replace('?', ch);
-					if (defs.containsKey(s))
-						throw new IllegalArgumentException("Scenery " + s + " already defined as: " + defs.get(s));
-					SceneryType bt = createSceneryType(el, s, ch);
-					defs.put(bt.getName(), bt);
-				}
-			} else {
+			Map<String, SceneryType> defs = world.getSceneryDefs();
+			for (Element el : SettUtil.getElements(doc.getDocumentElement(), "Scenery")) {
+				String id = SettUtil.getAttrib(el, "id");
+
 				if (defs.containsKey(id))
 					throw new IllegalArgumentException("Scenery " + id + " already defined as: " + defs.get(id));
-				SceneryType bt = createSceneryType(el, id, ' ');
+				SceneryType bt = createSceneryType(el, id);
 				defs.put(bt.getName(), bt);
 			}
+		} catch (Exception e) {
+			throw new ResourceLoadError("Failed to load Scenery Definitions: " + e.getMessage(), e);
 		}
 	}
 
-	private SceneryType createSceneryType(Element root, String id, char rotation) {
+	private SceneryType createSceneryType(Element root, String id) {
 		SceneryType res = new SceneryType(id);
 		res.setModelName(SettUtil.getElement(root, "Model").getTextContent());
-		res.setRotation(rotation);
 		return res;
 	}
 
@@ -104,17 +76,60 @@ public class ClientGame extends BaseGame {
 		if (!"BuildingDefs".equals(doc.getDocumentElement().getTagName()))
 			throw new ResourceLoadError("Expected <BuildingsDefs>, not: " + doc.getDocumentElement().getTagName());
 
-		Map<String, BuildingType> defs = world.getBuildingDefs();
-		for (Element el : SettUtil.getElements(doc.getDocumentElement(), "Building")) {
+		try {
+			loadModels(doc);
+
+			Map<String, BuildingType> defs = world.getBuildingDefs();
+			for (Element el : SettUtil.getElements(doc.getDocumentElement(), "Building")) {
+				String id = SettUtil.getAttrib(el, "id");
+				if (defs.containsKey(id))
+					throw new IllegalArgumentException("BuildingType " + id + " already defined as: " + defs.get(id));
+				BuildingType bt = new BuildingType(id, SettUtil.getAttrib(el, "display", id));
+				bt.setModelName(SettUtil.getElement(el, "Model").getTextContent());
+				bt.setDescription(SettUtil.getElementText(el, "Description", bt.getDisplay()));
+				defs.put(bt.getName(), bt);
+			}
+		} catch (Exception e) {
+			throw new ResourceLoadError("Failed to load Building Definitions: " + e.getMessage(), e);
+		}
+	}
+
+	private void loadModels(Document doc) throws DOMException, IOException {
+		for (Element el : SettUtil.getElements(doc.getDocumentElement(), "Model")) {
 			String id = SettUtil.getAttrib(el, "id");
-			if (defs.containsKey(id))
-				throw new IllegalArgumentException("BuildingType " + id + " already defined as: " + defs.get(id));
-			BuildingType bt = new BuildingType(id, SettUtil.getAttrib(el, "display", id));
-			VoxelModelParams vmp = new VoxelModelParams();
-			vmp.setName(SettUtil.getElement(el, "Model").getTextContent());
-			bt.setVoxelModelInfo(vmp);
-			bt.setDescription(SettUtil.getElementText(el, "Description", bt.getDisplay()));
-			defs.put(bt.getName(), bt);
+			if (models.containsKey(id))
+				throw new IllegalArgumentException("Model " + id + " already defined as: " + models.get(id) + ".  (Remember <Model>s are global across the entire game)");
+			int rot = parseRotation(SettUtil.getAttrib(el, "rotate", "0"));
+			VoxelModel vm = new VoxelModel(id, palette);
+			if (SettUtil.optElement(el, "FileName") != null) {
+				vm.fromStream(files.get(SettUtil.getElement(el, "FileName").getTextContent()), rot);
+			} else {
+				for (Element elframe : SettUtil.getElements(el, "Frame"))
+					vm.fromStream(files.get(SettUtil.getElement(elframe, "FileName").getTextContent()), rot, parseFrameTime(SettUtil.getAttrib(elframe, "time")));
+			}
+			models.put(id, vm);
+		}
+	}
+
+	private static float parseFrameTime(String s) {
+		try {
+			float r = Float.parseFloat(s);
+			if (r <= 0.0f)
+				throw new IllegalArgumentException("Time must be a float > 0.0");
+			return r;
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException("Time must be a float > 0.0");
+		}
+	}
+
+	private static int parseRotation(String s) {
+		try {
+			int r = Integer.parseInt(s);
+			if (r < 0 || r > 3)
+				throw new IllegalArgumentException("Rotation must be in range 0..3");
+			return r;
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException("Rotation must be in range 0..3");
 		}
 	}
 
@@ -128,7 +143,7 @@ public class ClientGame extends BaseGame {
 		}
 	}
 
-	public Map<VoxelModelParams, VoxelModel> getModels() {
+	public Map<String, VoxelModel> getModels() {
 		return models;
 	}
 

@@ -3,16 +3,21 @@ package uk.co.stikman.sett.game;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.co.stikman.sett.BaseGame;
+
 public class Flag implements HasId, IsNodeObject {
 	private final int			id;
 	private List<HasFlag>		connections	= new ArrayList<>();
-	private VoxelModelParams	vmp;
+	private BaseGame			game;
 
-	public Flag(int id) {
+	public Flag(BaseGame owner) {
+		this(owner, owner.nextId());
+	}
+
+	public Flag(BaseGame owner, int id) {
 		super();
 		this.id = id;
-		vmp = new VoxelModelParams();
-		vmp.setName(null);// TODO: ...
+		this.game = owner;
 	}
 
 	@Override
@@ -29,14 +34,15 @@ public class Flag implements HasId, IsNodeObject {
 		return connections;
 	}
 
-	@Override
-	public VoxelModelParams getVoxelModelInfo() {
-		return vmp;
-	}
 
 	@Override
 	public ObstructionType getObstructionType() {
 		return ObstructionType.ALL;
+	}
+
+	@Override
+	public String getModelName() {
+		return "flag";
 	}
 
 }

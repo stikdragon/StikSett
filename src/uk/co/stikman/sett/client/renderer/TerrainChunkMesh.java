@@ -30,7 +30,7 @@ import uk.co.stikman.utils.math.Vector4;
 
 public class TerrainChunkMesh {
 	private static final StikLog	LOGGER			= StikLog.getLogger(TerrainChunkMesh.class);
-	private static final int		VERT_ITEM_COUNT	= 22;
+	private static final int		VERT_ITEM_COUNT	= 23;
 	private static final int		VARIATIONS_SIZE	= 1000;
 
 	protected FloatList				verts			= new FloatList();
@@ -129,10 +129,10 @@ public class TerrainChunkMesh {
 				//
 				//@formatter:off
 				int key = MapQuad.key(
-						node0.getFlag() != null, 
-						node1.getFlag() != null, 
-						node2.getFlag() != null, 
-						node3.getFlag() != null, 
+						node0.hasRoad(), 
+						node1.hasRoad(), 
+						node2.hasRoad(), 
+						node3.hasRoad(), 
 						node0.getRoad(1) != null,
 						node0.getRoad(0) != null,
 						node1.getRoad(2) != null,
@@ -163,7 +163,8 @@ public class TerrainChunkMesh {
 					float bf0 = MapQuad.verts[i++];
 					float bf1 = MapQuad.verts[i++];
 					float bf2 = MapQuad.verts[i++];
-					float bf3 = MapQuad.verts[i];
+					float bf3 = MapQuad.verts[i++];
+					float froad = MapQuad.verts[i];
 
 					//
 					// interpolate height between verts to work out the Z component
@@ -227,6 +228,8 @@ public class TerrainChunkMesh {
 
 					verts.add(smbx);
 					verts.add(smby);
+
+					verts.add(froad);
 				}
 
 				//
@@ -280,6 +283,7 @@ public class TerrainChunkMesh {
 		int ntxt = window.getAttribLocation("txt");
 		int nnorm = window.getAttribLocation("vertexNormal");
 		int nsmb = window.getAttribLocation("shadowUV");
+		int nroad = window.getAttribLocation("isRoad");
 		GL20.glEnableVertexAttribArray(npos);
 		GL20.glEnableVertexAttribArray(ncolour);
 		GL20.glEnableVertexAttribArray(nuv);
@@ -287,16 +291,19 @@ public class TerrainChunkMesh {
 		GL20.glEnableVertexAttribArray(ntxt);
 		GL20.glEnableVertexAttribArray(nnorm);
 		GL20.glEnableVertexAttribArray(nsmb);
+		GL20.glEnableVertexAttribArray(nroad);
 
 		// we can't support anything other than floats here, since it's fiddly
 		// in java to interleave arrays
-		GL20.glVertexAttribPointer(npos, 3, GL11.GL_FLOAT, false, 88, 0);
-		GL20.glVertexAttribPointer(nuv, 2, GL11.GL_FLOAT, false, 88, 12);
-		GL20.glVertexAttribPointer(ncolour, 4, GL11.GL_FLOAT, false, 88, 20);
-		GL20.glVertexAttribPointer(ntxt, 4, GL11.GL_FLOAT, false, 88, 36);
-		GL20.glVertexAttribPointer(ntfact, 4, GL11.GL_FLOAT, false, 88, 52);
-		GL20.glVertexAttribPointer(nnorm, 3, GL11.GL_FLOAT, false, 88, 68);
-		GL20.glVertexAttribPointer(nsmb, 2, GL11.GL_FLOAT, false, 88, 80);
+		int cnt = 92;
+		GL20.glVertexAttribPointer(npos, 3, GL11.GL_FLOAT, false, cnt, 0);
+		GL20.glVertexAttribPointer(nuv, 2, GL11.GL_FLOAT, false, cnt, 12);
+		GL20.glVertexAttribPointer(ncolour, 4, GL11.GL_FLOAT, false, cnt, 20);
+		GL20.glVertexAttribPointer(ntxt, 4, GL11.GL_FLOAT, false, cnt, 36);
+		GL20.glVertexAttribPointer(ntfact, 4, GL11.GL_FLOAT, false, cnt, 52);
+		GL20.glVertexAttribPointer(nnorm, 3, GL11.GL_FLOAT, false, cnt, 68);
+		GL20.glVertexAttribPointer(nsmb, 2, GL11.GL_FLOAT, false, cnt, 80);
+		GL20.glVertexAttribPointer(nroad, 1, GL11.GL_FLOAT, false, cnt, 88);
 
 		indicies.bind(GL15.GL_ELEMENT_ARRAY_BUFFER);
 		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, iaidxes, GL15.GL_STATIC_DRAW);

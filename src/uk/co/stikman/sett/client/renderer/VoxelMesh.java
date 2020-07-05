@@ -20,25 +20,29 @@ public class VoxelMesh {
 		//
 		this.voxmodel = voxmodel;
 		this.palette = gameView.getGame().getVoxelPalette();
-		
 
 		mesh = gameView.getWindow().createPolyMesh();
-		for (int z = 0; z < voxmodel.getSizeZ(); ++z) {
-			for (int y = 0; y < voxmodel.getSizeY(); ++y) {
-				for (int x = 0; x < voxmodel.getSizeX(); ++x) {
-					int vox = voxmodel.get(x, y, z);
-					if (vox == -1)
-						continue;
-					Vector4 colour = palette.get(vox);
-					outputFace(voxmodel, 0, x, y, z, 0, -1, 0, colour);
-					outputFace(voxmodel, 1, x, y, z, 0, 1, 0, colour);
-					outputFace(voxmodel, 2, x, y, z, 1, 0, 0, colour);
-					outputFace(voxmodel, 3, x, y, z, -1, 0, 0, colour);
-					outputFace(voxmodel, 4, x, y, z, 0, 0, 1, colour);
-					outputFace(voxmodel, 5, x, y, z, 0, 0, -1, colour);
+		for (int f = 0; f < voxmodel.getFrames().size(); ++f) {
+			for (int z = 0; z < voxmodel.getSizeZ(); ++z) {
+				for (int y = 0; y < voxmodel.getSizeY(); ++y) {
+					for (int x = 0; x < voxmodel.getSizeX(); ++x) {
+						int vox = voxmodel.get(f, x, y, z);
+						if (vox == -1)
+							continue;
+						Vector4 colour = palette.get(vox);
+						outputFace(voxmodel, f, 0, x, y, z, 0, -1, 0, colour);
+						outputFace(voxmodel, f, 1, x, y, z, 0, 1, 0, colour);
+						outputFace(voxmodel, f, 2, x, y, z, 1, 0, 0, colour);
+						outputFace(voxmodel, f, 3, x, y, z, -1, 0, 0, colour);
+						outputFace(voxmodel, f, 4, x, y, z, 0, 0, 1, colour);
+						outputFace(voxmodel, f, 5, x, y, z, 0, 0, -1, colour);
+					}
 				}
 			}
 		}
+
+		if (voxmodel.getFrames().size() > 1)
+			mesh.setFrameCount(voxmodel.getFrames().size());
 
 		float ox = voxmodel.getSizeX() / 2.0f;
 		float oy = voxmodel.getSizeY() / 2.0f;
@@ -46,8 +50,8 @@ public class VoxelMesh {
 		mesh.scaleVerts(0.05f);
 	}
 
-	private void outputFace(VoxelModel model, int face, int x, int y, int z, int dx, int dy, int dz, Vector4 colour) {
-		int vox = model.get(x + dx, y + dy, z + dz);
+	private void outputFace(VoxelModel model, int frame, int face, int x, int y, int z, int dx, int dy, int dz, Vector4 colour) {
+		int vox = model.get(frame, x + dx, y + dy, z + dz);
 		if (vox != -1) // face is occluded by another voxel 
 			return;
 
@@ -97,7 +101,7 @@ public class VoxelMesh {
 		mesh.addTri(n0, n2, n3);
 	}
 
-	public void render() {
-		mesh.render(0);
+	public void render(int frame) {
+		mesh.render(frame);
 	}
 }

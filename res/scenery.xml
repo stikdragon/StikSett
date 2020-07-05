@@ -1,34 +1,59 @@
 <SceneryDefs>
-	<!-- if createRotations is set true then it'll generate 4 versions of each model, replacing ? in the ID with N,W,S,E -->
-	<Scenery id="oaktree1.?" createRotations="true">
-		<Model>scenery-*-oak1.vox</Model>
-	</Scenery>
 
-	<Scenery id="pinetree1.?" createRotations="true">
-		<Model>scenery-*-pine1.vox</Model>
-	</Scenery>
+	<!-- Landscape  -->
+	<Model id="oak1-N"><FileName>scenery-*-oak1.vox</FileName></Model>
+	<Model id="oak1-E" rotation="1"><FileName>scenery-*-oak1.vox</FileName></Model>
+	<Model id="oak1-S" rotation="2"><FileName>scenery-*-oak1.vox</FileName></Model>
+	<Model id="oak1-W" rotation="3"><FileName>scenery-*-oak1.vox</FileName></Model>
 
-	<Scenery id="rock1.?" createRotations="true">
-		<Model>scenery-*-rock1.vox</Model>
-	</Scenery>
+	<Model id="pinetree1-N"><FileName>scenery-*-pine1.vox</FileName></Model>
+	<Model id="pinetree1-E" rotation="1"><FileName>scenery-*-pine1.vox</FileName></Model>
+	<Model id="pinetree1-S" rotation="2"><FileName>scenery-*-pine1.vox</FileName></Model>
+	<Model id="pinetree1-W" rotation="3"><FileName>scenery-*-pine1.vox</FileName></Model>
 
-	<Scenery id="caret">
-		<Model>scenery-*-caret.vox</Model>
-	</Scenery>
+	<Model id="rock1-N"><FileName>scenery-*-rock1.vox</FileName></Model>
+	<Model id="rock1-E" rotation="1"><FileName>scenery-*-rock1.vox</FileName></Model>
+	<Model id="rock1-S" rotation="2"><FileName>scenery-*-rock1.vox</FileName></Model>
+	<Model id="rock1-W" rotation="3"><FileName>scenery-*-rock1.vox</FileName></Model>
 
-	<Scenery id="caret-outer">
-		<Model>scenery-*-caret2.vox</Model>
-	</Scenery>
 
-	<Scenery id="house1">
-		<Model>scenery-*-house1.vox</Model>
-	</Scenery>
+	<Scenery id="oaktree1-N"><Model>oak1-N</Model></Scenery>
+	<Scenery id="oaktree1-E"><Model>oak1-E</Model></Scenery>
+	<Scenery id="oaktree1-S"><Model>oak1-S</Model></Scenery>
+	<Scenery id="oaktree1-W"><Model>oak1-W</Model></Scenery>
 
-	<Scenery id="castle">
-		<Model>scenery-*-castle.vox</Model>
-	</Scenery>
+	<Scenery id="pinetree1-N"><Model>pinetree1-N</Model></Scenery>
+	<Scenery id="pinetree1-E"><Model>pinetree1-E</Model></Scenery>
+	<Scenery id="pinetree1-S"><Model>pinetree1-S</Model></Scenery>
+	<Scenery id="pinetree1-W"><Model>pinetree1-W</Model></Scenery>
 
-	<Scenery id="flag">
-		<Model>scenery-*-flag.vox</Model>
-	</Scenery>
+	<Scenery id="rock1-N"><Model>rock1-N</Model></Scenery>
+	<Scenery id="rock1-E"><Model>rock1-E</Model></Scenery>
+	<Scenery id="rock1-S"><Model>rock1-S</Model></Scenery>
+	<Scenery id="rock1-W"><Model>rock1-W</Model></Scenery>
+
+	<!-- Interface -->
+
+
+	<Model id="caret">
+		<FileName>scenery-*-caret.vox</FileName>
+	</Model>
+	<Model id="caret-outer">
+		<FileName>scenery-*-caret2.vox</FileName>
+	</Model>
+	<Model id="caret-house">
+		<FileName>scenery-*-house1.vox</FileName>
+	</Model>
+	<Model id="caret-castle">
+		<FileName>scenery-*-castle.vox</FileName>
+	</Model>
+	<Model id="caret-flag">
+		<FileName>scenery-*-flag.vox</FileName>
+	</Model>
+	
+	<Scenery id="caret"><Model>caret</Model></Scenery>
+	<Scenery id="caret-outer"><Model>caret-outer</Model></Scenery>
+	<Scenery id="house1"><Model>caret-house</Model></Scenery>
+	<Scenery id="castle"><Model>caret-castle</Model></Scenery>
+	<Scenery id="flag"><Model>caret-flag</Model></Scenery>
 </SceneryDefs>

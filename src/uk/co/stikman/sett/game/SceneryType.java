@@ -1,16 +1,12 @@
 package uk.co.stikman.sett.game;
 
 public class SceneryType {
-	private final String		name;
-	private VoxelModelParams	voxParms	= new VoxelModelParams();
+	private final String	name;
+	private String			modelName;
 
 	public SceneryType(String name) {
 		super();
 		this.name = name;
-	}
-
-	public void setModelName(String modelName) {
-		voxParms.setName(modelName);
 	}
 
 	public String getName() {
@@ -22,12 +18,12 @@ public class SceneryType {
 		return name;
 	}
 
-	public void setRotation(char rotation) {
-		voxParms.setRotation(rotation);
+	public String getModelName() {
+		return modelName;
 	}
 
-	public VoxelModelParams getVoxelModelInfo() {
-		return voxParms;
+	public void setModelName(String modelName) {
+		this.modelName = modelName;
 	}
 
 }

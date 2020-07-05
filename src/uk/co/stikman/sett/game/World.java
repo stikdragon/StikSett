@@ -1,6 +1,7 @@
 package uk.co.stikman.sett.game;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -75,10 +76,37 @@ public class World {
 	public SceneryType getScenaryDef(String name) {
 		SceneryType x = sceneryDefs.get(name);
 		if (x == null)
-			throw new NoSuchElementException("SceneryDef [" + name + "] not found");
+			throw new NoSuchElementException("SceneryType [" + name + "] not found");
 		return x;
-
 	}
 
+	public BuildingType getBuildingDef(String name) {
+		BuildingType x = buildingDefs.get(name);
+		if (x == null)
+			throw new NoSuchElementException("BuildingType [" + name + "] not found");
+		return x;
+	}
+
+	public List<Road> getRoadsAt(TerrainNode node, List<Road> out) {
+		Road r = node.getRoad(0);
+		if (r != null)
+			out.add(r);
+		r = node.getRoad(1);
+		if (r != null)
+			out.add(r);
+		r = node.getRoad(2);
+		if (r != null)
+			out.add(r);
+		r = terrain.get(node.getX(), node.getY() - 1).getRoad(2);
+		if (r != null)
+			out.add(r);
+		r = terrain.get(node.getX() - 1, node.getY() - 1).getRoad(1);
+		if (r != null)
+			out.add(r);
+		r = terrain.get(node.getX() - 1, node.getY()).getRoad(0);
+		if (r != null)
+			out.add(r);
+		return out;
+	}
 
 }

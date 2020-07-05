@@ -12,6 +12,7 @@ in vec2 v_uv;
 in vec2 v_smb;
 in vec3 v_normal;
 in vec3 viewDir;
+in float v_isRoad;
 
 out vec4 fragcolour;
 
@@ -48,6 +49,7 @@ void main(void) {
 	vec4 cb = texture2D(txt, uv + offset(ib)); 
 	vec4 cc = texture2D(txt, uv + offset(ic)); 
 	vec4 cd = texture2D(txt, uv + offset(id)); 
+	vec4 croad = texture2D(txt, uv + offset(15)); // road texture is always slot 15
 	
 	//
 	// Merge them with the four factors stored in vec4 v_tfact.
@@ -65,6 +67,8 @@ void main(void) {
 	float spec = max(pow(max(dot(viewDir, reflectDir), 0.0), 16), 0);
 	mu += spec * 0.19;
 	fragcolour.rgb = mu * fragcolour.rgb * (0.5 + 0.5 * smb.r);
+	float m = v_isRoad * croad.a;
+	fragcolour.rgb = mix(fragcolour.rgb, croad.rgb, m);
 }
 
 

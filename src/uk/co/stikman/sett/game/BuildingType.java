@@ -1,11 +1,10 @@
 package uk.co.stikman.sett.game;
 
 public class BuildingType {
-	private final String		name;
-	private String				display;
-	private String				modelName;
-	private String				description;
-	private VoxelModelParams	voxParms	= new VoxelModelParams();
+	private final String	name;
+	private String			display;
+	private String			description;
+	private String			modelName;
 
 	public String getDisplay() {
 		return display;
@@ -38,12 +37,12 @@ public class BuildingType {
 		this.description = description;
 	}
 
-	public VoxelModelParams getVoxelModelInfo() {
-		return voxParms;
+	public String getModelName() {
+		return modelName;
 	}
 
-	public void setVoxelModelInfo(VoxelModelParams voxParms) {
-		this.voxParms = voxParms;
+	public void setModelName(String modelName) {
+		this.modelName = modelName;
 	}
 
 }

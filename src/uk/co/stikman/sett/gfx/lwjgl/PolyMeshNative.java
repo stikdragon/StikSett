@@ -33,7 +33,7 @@ public class PolyMeshNative extends PolyMesh {
 			rebuild();
 
 		vao.bind();
-		GL11.glDrawElements(GL11.GL_TRIANGLES, indexcount, GL11.GL_UNSIGNED_INT, frame * indexcount * 2);
+		GL11.glDrawElements(GL11.GL_TRIANGLES, indexcount, GL11.GL_UNSIGNED_INT, frame * indexcount * 4);
 	}
 
 	@Override

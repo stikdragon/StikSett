@@ -8,11 +8,6 @@ public class Tree implements IsNodeObject {
 		this.type = type;
 	}
 
-	@Override
-	public VoxelModelParams getVoxelModelInfo() {
-		return type.getVoxelModelInfo();
-	}
-	
 	public SceneryType getType() {
 		return type;
 	}
@@ -27,5 +22,9 @@ public class Tree implements IsNodeObject {
 		return ObstructionType.BUILDINGS;
 	}
 
+	@Override
+	public String getModelName() {
+		return type.getModelName();
+	}
 
 }

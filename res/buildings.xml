@@ -1,13 +1,35 @@
 <BuildingDefs>
 
+	<Model id="woodcutter" rotate="0">
+		<FileName>group1-*-chopper.vox</FileName>
+	</Model>
+
+	<Model id="knighthut" rotate="0">
+		<FileName>group1-*-nitehut1.vox</FileName>
+	</Model>
+
+	<Model id="flag" rotate="0">
+		<Frame time="0.4"><FileName>group1-*-flag.1.vox</FileName></Frame>
+		<Frame time="0.4"><FileName>group1-*-flag.2.vox</FileName></Frame>
+		<Frame time="0.4"><FileName>group1-*-flag.3.vox</FileName></Frame>
+		<Frame time="0.4"><FileName>group1-*-flag.4.vox</FileName></Frame>
+	</Model>
+
+
 	<Building id="woodcutter" display="Woodcutter">
-		<Model>grp1-*-chopper.vox</Model>
+		<Model>woodcutter</Model>
 		<Description>Cuts trees and produces Logs</Description>
 	</Building>
 
 	<Building id="knighthut" display="Knight Hut">
-		<Model>grp1-*-nitehut1.vox</Model>
+		<Model>knighthut</Model>
 		<Description>Protects and extends your borders</Description>
 	</Building>
+
+	<Building id="flag" display="Flag">
+		<Model>flag</Model>
+		<Description>Flag</Description>
+	</Building>
+
 
 </BuildingDefs>

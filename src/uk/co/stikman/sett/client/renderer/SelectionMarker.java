@@ -63,13 +63,13 @@ public class SelectionMarker {
 		tm.makeRotation(0, 0, 1, -gameview.getRotation().x + 3.14159f / 3.0f);
 		u.bindMat4(tm);
 		shd.getUniform("offset").bindVec3(skew.multiply(positions[0], tv));
-		m.render();
+		m.render(0);
 
 		for (int i = 1; i < 7; ++i) {
 			tm.makeRotation(0, 0, 1, time * 3);
 			u.bindMat4(tm);
 			shd.getUniform("offset").bindVec3(skew.multiply(tv2.copy(positions[i]), tv));
-			caret2.render();
+			caret2.render(0);
 		}
 	}
 

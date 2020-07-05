@@ -7,39 +7,41 @@ import uk.co.stikman.utils.math.Vector3;
 import uk.co.stikman.utils.math.Vector4;
 
 public class MapQuad {
-	private static final StikLog	LOGGER	= StikLog.getLogger(MapQuad.class);
+	private static final StikLog	LOGGER		= StikLog.getLogger(MapQuad.class);
 	public int[]					tris;
 
 	/**
 	 * This will be:
 	 * 
 	 * <pre>
-	 * nX, 
-	 * nY,
-	 * X,
+	 * nX, x
+	 * nY, y
+	 * X, -skewed x,y
 	 * Y,
-	 * Z,
+	 * Z, - height offset
 	 * w0 - barycentric weights for the 4 nodes
 	 * w1
 	 * w2
 	 * w3
+	 * f  - 1.0f if it's a road, 0.0f otherwise
 	 * 
 	 * </pre>
 	 */
 	public static float[]			verts;
 
-	public static MapQuad[]			quads	= new MapQuad[512];
-	public static MapQuad[]			roads	= new MapQuad[512];
+	public static MapQuad[]			quads		= new MapQuad[512];
+	public static MapQuad[]			roads		= new MapQuad[512];
 
-	private static final int		P0		= 0;
-	private static final int		P1		= 1;
-	private static final int		P2		= 2;
-	private static final int		P3		= 3;
-	private static final int		E0		= 4;
-	private static final int		E1		= 5;
-	private static final int		E2		= 6;
-	private static final int		E3		= 7;
-	private static final int		E4		= 8;
+	private static final int		P0			= 0;
+	private static final int		P1			= 1;
+	private static final int		P2			= 2;
+	private static final int		P3			= 3;
+	private static final int		E0			= 4;
+	private static final int		E1			= 5;
+	private static final int		E2			= 6;
+	private static final int		E3			= 7;
+	private static final int		E4			= 8;
+
 
 	static {
 		LOGGER.info("Initialising MapQuad..");
@@ -76,7 +78,7 @@ public class MapQuad {
 			verts[19] = new Vector3(1.0f - pw, 1.0f - pw * 2, 0);
 
 			for (int i = 0; i < 20; ++i)
-				verts[i + 20] = new Vector3(verts[i]).sub(new Vector3(0, 0, 0.05f));
+				verts[i + 20] = new Vector3(verts[i]).sub(new Vector3(0, 0, SettApp.ROAD_DEPTH));
 
 			tris[0] = new int[] { 6, 7, 19 };
 			tris[1] = new int[] { 18, 11, 10 };
@@ -99,8 +101,11 @@ public class MapQuad {
 			tris[18] = new int[] { 9, 10, 15 };
 			tris[19] = new int[] { 9, 15, 14 };
 
-			MapQuad.verts = new float[verts.length * 9];
+			MapQuad.verts = new float[verts.length * 10];
 
+			//
+			// set up coords and skewed coords
+			//
 			Matrix3 m = SettApp.skewMatrix(new Matrix3());
 			Vector3 v2 = new Vector3();
 			int ptr = 0;
@@ -111,7 +116,7 @@ public class MapQuad {
 				MapQuad.verts[ptr++] = v2.x;
 				MapQuad.verts[ptr++] = v2.y;
 				MapQuad.verts[ptr++] = v2.z;
-				ptr += 4;
+				ptr += 5;
 			}
 
 			//
@@ -125,10 +130,10 @@ public class MapQuad {
 					Vector3 c = verts[14];
 					Vector3 out = new Vector3();
 					barycentric(verts[i], a, b, c, out);
-					MapQuad.verts[i * 9 + 5] = out.x;
-					MapQuad.verts[i * 9 + 6] = 0.0f;
-					MapQuad.verts[i * 9 + 7] = out.y;
-					MapQuad.verts[i * 9 + 8] = out.z;
+					MapQuad.verts[i * 10 + 5] = out.x;
+					MapQuad.verts[i * 10 + 6] = 0.0f;
+					MapQuad.verts[i * 10 + 7] = out.y;
+					MapQuad.verts[i * 10 + 8] = out.z;
 				} else {
 					Vector3 a = verts[0];
 					Vector3 b = verts[3];
@@ -136,11 +141,13 @@ public class MapQuad {
 					Vector3 out = new Vector3();
 					barycentric(verts[i], a, b, c, out);
 					bary[i] = new Vector4(out.x, out.y, out.z, 0.0f);
-					MapQuad.verts[i * 9 + 5] = out.x;
-					MapQuad.verts[i * 9 + 6] = out.y;
-					MapQuad.verts[i * 9 + 7] = out.z;
-					MapQuad.verts[i * 9 + 8] = 0.0f;
+					MapQuad.verts[i * 10 + 5] = out.x;
+					MapQuad.verts[i * 10 + 6] = out.y;
+					MapQuad.verts[i * 10 + 7] = out.z;
+					MapQuad.verts[i * 10 + 8] = 0.0f;
 				}
+				
+				MapQuad.verts[i * 10 + 9] = i >= 20 ? 1 : 0; // road or normal?
 			}
 
 			//
@@ -149,41 +156,39 @@ public class MapQuad {
 			for (int i = 0; i < 512; ++i) {
 				boolean[] sunk = new boolean[20];
 
-			//@formatter:off
-			sunk[0] = false;
-			sunk[1] = false;
-			sunk[2] = bit(i, E1);
-			sunk[3] = bit(i, E2);
-			sunk[4] = bit(i, E0);
-			sunk[5] = bit(i, E3);
-			sunk[6] = bit(i, E4);
-			sunk[7] = bit(i, E0);
-			sunk[8] = bit(i, E0, E4);
-			sunk[9] = bit(i, P0, E0, E4);
-			sunk[10] = bit(i, P0, E0, E1);
-			sunk[11] = bit(i, E0, E1);
-			sunk[12] = bit(i, E1, E2);
-			sunk[13] = bit(i, P1, E1, E2);
-			sunk[14] = bit(i, E0, E2);
-			sunk[15] = bit(i, P2, E0, E2);
-			sunk[16] = bit(i, P2, E0, E3);
-			sunk[17] = bit(i, E0, E3);
-			sunk[18] = bit(i, E3, E4);
-			sunk[19] = bit(i, P3, E3, E4);
-			//@formatter:on
+				//@formatter:off
+				sunk[0] = false;
+				sunk[1] = false;
+				sunk[2] = bit(i, E1);
+				sunk[3] = bit(i, E2);
+				sunk[4] = bit(i, E0);
+				sunk[5] = bit(i, E3);
+				sunk[6] = bit(i, E4);
+				sunk[7] = bit(i, E0);
+				sunk[8] = bit(i, E0, E4);
+				sunk[9] = bit(i, P0, E0, E4);
+				sunk[10] = bit(i, P0, E0, E1);
+				sunk[11] = bit(i, E0, E1);
+				sunk[12] = bit(i, E1, E2);
+				sunk[13] = bit(i, P1, E1, E2);
+				sunk[14] = bit(i, E0, E2);
+				sunk[15] = bit(i, P2, E0, E2);
+				sunk[16] = bit(i, P2, E0, E3);
+				sunk[17] = bit(i, E0, E3);
+				sunk[18] = bit(i, E3, E4);
+				sunk[19] = bit(i, P3, E3, E4);
+				//@formatter:on
 
-				int cnt = 0;
+				int cnt1 = 0;
 				for (int k = 0; k < tris.length; ++k) {
-					//				if (sunk[k])
-					//					continue;
 					int[] poly = tris[k];
 					if (poly.length == 4)
-						cnt += 6; // 2 tris for these ones
+						cnt1 += 6; // 2 tris for these ones
 					else
-						cnt += 3;
+						cnt1 += 3;
 				}
 				MapQuad mq = new MapQuad();
-				mq.tris = new int[cnt];
+				mq.tris = new int[cnt1];
 				ptr = 0;
 				for (int k = 0; k < tris.length; ++k) {
 					int[] poly = tris[k];

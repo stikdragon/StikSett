@@ -129,11 +129,11 @@ public class GameView {
 			shadowmapbuf = new FrameBufferNative(game.getWorld().getWidth() * scale, game.getWorld().getHeight() * scale, ColourModel.GRAYSCALE, true);
 			renderbuf = new FrameBufferNative(512, 512, ColourModel.RGBA_DEPTH, false);
 
-			VoxelMesh vm1 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret").getVoxelModelInfo()));
-			VoxelMesh vm2 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret-outer").getVoxelModelInfo()));
-			VoxelMesh vm3 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("house1").getVoxelModelInfo()));
-			VoxelMesh vm4 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("castle").getVoxelModelInfo()));
-			VoxelMesh vm5 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("flag").getVoxelModelInfo()));
+			VoxelMesh vm1 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret").getModelName()));
+			VoxelMesh vm2 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret-outer").getModelName()));
+			VoxelMesh vm3 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("house1").getModelName()));
+			VoxelMesh vm4 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("castle").getModelName()));
+			VoxelMesh vm5 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("flag").getModelName()));
 			selectionMarker = new SelectionMarker(this, vm1, vm2, vm3, vm4, vm5);
 
 			//
@@ -192,16 +192,15 @@ public class GameView {
 		renderTerrain();
 
 		//
-		// Water flat
+		// Water flat, after terrain since it's translucent
 		//
 		waterShader.use();
 		bindStandardUniforms(waterShader);
-		//	waterShader.getUniform("txt").bindTexture(imageWater.getTexture(), 0);
 		imageWater.getTexture().bind(0);
 		getWaterPlane().render();
 
 		//
-		// Now objects
+		// Now objects on top of everything
 		//
 		objectShader.use();
 		bindStandardUniforms(objectShader);
@@ -223,7 +222,7 @@ public class GameView {
 						tv3.set(x, y);
 						skew.multiply(tv3, tv4);
 						uoff.bindVec3(tv4.x, tv4.y, h);
-						m.render();
+						m.render(time);
 					}
 
 				}
@@ -256,7 +255,6 @@ public class GameView {
 		if (FORCE_ALL_VISIBLE) {
 			int cx = game.getWorld().getTerrain().getWidth() / CHUNK_SIZE;
 			int cy = game.getWorld().getTerrain().getHeight() / CHUNK_SIZE;
-			Matrix4 m = tm3.copy(mProj).multiply(mView);
 			for (int y = 0; y < cy; ++y)
 				for (int x = 0; x < cx; ++x)
 					visible.add(new Vector2i(x, y));
@@ -386,7 +384,7 @@ public class GameView {
 					float h = world.getTerrain().get(x, y).getHeight();
 					tv4.set(x, y);
 					uoff.bindVec3(tv4.x, tv4.y, h);
-					m.render();
+					m.render(0);
 				}
 			}
 		}
@@ -405,11 +403,11 @@ public class GameView {
 		//
 		// find a voxel model for this
 		//
-		VoxelModel mdl = game.getModels().get(obj.getVoxelModelInfo());
+		VoxelModel mdl = game.getModels().get(obj.getModelName());
 		if (mdl == null)
-			throw new NoSuchElementException("No model found: " + obj.getVoxelModelInfo() + " for NodeObject: " + obj);
+			throw new NoSuchElementException("No model found: " + obj.getModelName() + " for NodeObject: " + obj);
 
-		SceneObject so = new SceneObject(this, obj, getSceneMesh(mdl));
+		SceneObject so = new SceneObject(this, obj, mdl, getSceneMesh(mdl));
 		sceneObjects.put(obj, so);
 		return so;
 	}

@@ -94,4 +94,8 @@ public class TerrainNode {
 		return "TerrainNode [x=" + x + ", y=" + y + ", height=" + height + ", owner=" + owner + ", type=" + type + ", roads=" + Arrays.toString(roads) + ", normal=" + normal + ", object=" + object + "]";
 	}
 
+	public boolean hasRoad() {
+		return roads[0] != null || roads[1] != null || roads[2] != null;
+	}
+
 }

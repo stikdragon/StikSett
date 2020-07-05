@@ -3,12 +3,12 @@ package uk.co.stikman.sett;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.sett.util.VOXChunkHeader;
 import uk.co.stikman.sett.util.VoxelInputStream;
-import uk.co.stikman.utils.math.Matrix4;
-import uk.co.stikman.utils.math.Vector3;
 
 public class VoxelModel {
 	private static final StikLog	LOGGER				= StikLog.getLogger(VoxelModel.class);
@@ -17,7 +17,10 @@ public class VoxelModel {
 	private int						sizeX;
 	private int						sizeY;
 	private int						sizeZ;
-	private short[]					voxels;
+	private transient int			framesize;
+	private List<VoxelFrame>		frames				= new ArrayList<>();
+	private short[]					voxels				= new short[0];
+	private int						rotation;
 
 	public VoxelModel(String name, VoxelPalette pal) {
 		this.name = name;
@@ -32,14 +35,21 @@ public class VoxelModel {
 		return name;
 	}
 
+	public void fromStream(InputStream is, int zRotation) throws IOException {
+		if (!frames.isEmpty())
+			throw new IllegalStateException("VOX Model already has a single frame, use the other fromStream method to add more");
+		fromStream(is, zRotation, 1);
+	}
+
 	/**
-	 * rotation must be 0, 1, 2, 3 (which is 0, 90, 180, 270 degrees)
+	 * Adds a frame by reading from stream rotation must be 0, 1, 2, 3 (which is
+	 * 0, 90, 180, 270 degrees)
 	 * 
 	 * @param is
 	 * @param zRotation
 	 * @throws IOException
 	 */
-	public void fromStream(InputStream is, int zRotation) throws IOException {
+	public void fromStream(InputStream is, int zRotation, float frameTime) throws IOException {
 		try (VoxelInputStream dis = new VoxelInputStream(new BufferedInputStream(is))) {
 			if (!"VOX ".equals(dis.read4()))
 				throw new IOException("Invalid VOX file: header invalid");
@@ -66,9 +76,26 @@ public class VoxelModel {
 			if (!"SIZE".equals(chunk.id))
 				throw new IOException("Invalid VOX file: Expected SIZE chunk but found " + chunk.id);
 			chunk.assertSize(12, 0);
-			sizeX = dis.readInt();
-			sizeY = dis.readInt();
-			sizeZ = dis.readInt();
+
+			int sizeX = dis.readInt();
+			int sizeY = dis.readInt();
+			int sizeZ = dis.readInt();
+			if (!frames.isEmpty()) {
+				//
+				// appending to an existing model, so check the dimensions
+				// are the same
+				//
+				if (this.rotation != zRotation)
+					throw new IOException("Invalid VOX file: appending a frame to an existing model, must match dimensions");
+				if (this.sizeX != sizeX || this.sizeY != sizeY || this.sizeX != sizeX)
+					throw new IOException("Invalid VOX file: appending a frame to an existing model, must match dimensions");
+			}
+
+			this.sizeX = sizeX;
+			this.sizeY = sizeY;
+			this.sizeZ = sizeZ;
+			this.rotation = zRotation;
+			this.framesize = sizeX * sizeY * sizeZ;
 
 			if (zRotation == 1 || zRotation == 3) {
 				int t = sizeX;
@@ -76,9 +103,11 @@ public class VoxelModel {
 				sizeY = t;
 			}
 
-			voxels = new short[sizeX * sizeY * sizeZ];
-			for (int i = 0; i < voxels.length; ++i)
-				voxels[i] = -1;
+			int offset = frames.size() * framesize;
+			short[] tmp = new short[offset + framesize];
+			System.arraycopy(voxels, 0, tmp, 0, voxels.length);
+			for (int i = offset; i < tmp.length; ++i)
+				tmp[i] = -1;
 
 			chunk = dis.readChunkHeader();
 			if (!"XYZI".equals(chunk.id))
@@ -114,7 +143,7 @@ public class VoxelModel {
 					throw new IllegalArgumentException("Rotation must be 0..3");
 				}
 
-				voxels[z * sizeY * sizeX + y * sizeX + x] = (short) dis.read();
+				tmp[offset + z * sizeY * sizeX + y * sizeX + x] = (short) dis.read();
 			}
 
 			chunk = dis.optionalChunkHeader();
@@ -123,6 +152,8 @@ public class VoxelModel {
 				// TODO...
 			}
 
+			frames.add(new VoxelFrame(frames.size(), frameTime));
+			voxels = tmp;
 			LOGGER.info("Read VOX [" + getName() + "] (" + vc + " voxels)");
 		}
 	}
@@ -143,14 +174,24 @@ public class VoxelModel {
 		return voxels;
 	}
 
-	public int get(int x, int y, int z) {
+	public int get(int frame, int x, int y, int z) {
 		if (x < 0 || x >= sizeX)
 			return -1;
 		if (y < 0 || y >= sizeY)
 			return -1;
 		if (z < 0 || z >= sizeZ)
 			return -1;
-		return voxels[z * sizeX * sizeY + y * sizeX + x];
+		if (frame < 0 || frame >= frames.size())
+			throw new IllegalArgumentException("Invalid Frame");
+		return voxels[frame * framesize + z * sizeX * sizeY + y * sizeX + x];
+	}
+
+	public List<VoxelFrame> getFrames() {
+		return frames;
+	}
+
+	public boolean isAnimated() {
+		return frames.size() > 1;
 	}
 
 }

@@ -76,9 +76,10 @@ public class BaseGame {
 	}
 
 	public void addRoad(List<Vector2i> nodes) {
+		if (nodes == null || nodes.size() < 2)
+			throw new IllegalStateException("Invalid path: Needs at least two segments");
 		Road r = new Road(nextId());
 		r.getPath().addAll(nodes);
-		world.getRoads().put(r);
 		Terrain terr = world.getTerrain();
 
 		for (int i = 0; i < nodes.size() - 1; ++i) {
@@ -90,50 +91,50 @@ public class BaseGame {
 			int dx = n2.x - n1.x;
 			int dy = n2.y - n1.y;
 
+			if (Math.abs(dx) > 1 || Math.abs(dy) > 1)
+				throw new IllegalStateException("Invalid path node list, dx,dy == " + dx + "," + dy);
+
 			//
 			// work out which direction this is in
-			// dx  dy  dir
+			// dx  dy  dir ((4dy+1)+(dx+1))
 			// --  --  ---
-			// -1  -1  -3
-			//  0  -1  -2
-			// -1   0  -1
-			//  1   0   1
-			//  0   1   2
-			//  1   1   3
+			// -1  -1  0
+			//  0  -1  1
+			// -1   0  4
+			//  1   0  6
+			//  0   1  9
+			//  1   1  10
 			//  
 			//
-			int dir = dy * 2 | dx;
+			int dir = (dy + 1) * 4 + (dx + 1);
 			TerrainNode n;
 			int x = n1.x;
 			int y = n1.y;
 			switch (dir) {
-			case 1:
+			case 6:
 				terr.get(x, y).setRoad(0, r);
-//				terr.get(x, y + 1).setRoad(3, r);
 				break;
-			case 2:
-//				terr.get(x, y).setRoad(4, r);
+			case 9:
 				terr.get(x, y).setRoad(2, r);
 				break;
-			case 3:
+			case 10:
 				terr.get(x, y).setRoad(1, r);
 				break;
-			case -1:
+			case 4:
 				terr.get(x - 1, y).setRoad(0, r);
-//				terr.get(x - 1, y - 1).setRoad(3, r);
 				break;
-			case -2:
-//				terr.get(x, y - 1).setRoad(4, r);
+			case 1:
 				terr.get(x, y - 1).setRoad(2, r);
 				break;
-			case -3:
+			case 0:
 				terr.get(x - 1, y - 1).setRoad(1, r);
 				break;
 			default:
-				throw new IllegalStateException("Invalid path shape: " + dir);
+				throw new IllegalStateException("Invalid path shape: " + dir + "   dx,dy == " + dx + ", " + dy);
 			}
 
 		}
+		world.getRoads().put(r);
 
 	}
 

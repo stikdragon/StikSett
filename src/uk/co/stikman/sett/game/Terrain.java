@@ -203,7 +203,7 @@ public class Terrain {
 			}
 		}
 
-		String[] rots = new String[] { ".N", ".S", ".W", ".E" };
+		String[] rots = new String[] { "N", "S", "W", "E" };
 		int m = width * height / 10;
 		for (int i = 0; i < m; ++i) {
 			TerrainNode n = get(rng.nextInt(getWidth()), rng.nextInt(getHeight()));
@@ -211,14 +211,14 @@ public class Terrain {
 				switch (rng.nextInt(5)) {
 				case 0:
 				case 1:
-					n.setObject(new Tree(world.getScenaryDef("oaktree1" + rots[rng.nextInt(4)])));
+					n.setObject(new Tree(world.getScenaryDef("oaktree1-" + rots[rng.nextInt(4)])));
 					break;
 				case 2:
 				case 3:
-					n.setObject(new Tree(world.getScenaryDef("pinetree1" + rots[rng.nextInt(4)])));
+					n.setObject(new Tree(world.getScenaryDef("pinetree1-" + rots[rng.nextInt(4)])));
 					break;
 				case 4:
-					n.setObject(new Rock(world.getScenaryDef("rock1" + rots[rng.nextInt(4)])));
+					n.setObject(new Rock(world.getScenaryDef("rock1-" + rots[rng.nextInt(4)])));
 					break;
 				}
 			}

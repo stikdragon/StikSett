@@ -23,7 +23,7 @@ public class Building implements HasId, HasFlag, IsNodeObject {
 
 	@Override
 	public String toString() {
-		return type + ": " +  id;
+		return type + ": " + id;
 	}
 
 	public Flag getFlag() {
@@ -35,14 +35,13 @@ public class Building implements HasId, HasFlag, IsNodeObject {
 	}
 
 	@Override
-	public VoxelModelParams getVoxelModelInfo() {
-		return type.getVoxelModelInfo();
-	}
-
-	@Override
 	public ObstructionType getObstructionType() {
 		return ObstructionType.ALL;
 	}
-	
+
+	@Override
+	public String getModelName() {
+		return type.getModelName();
+	}
 
 }

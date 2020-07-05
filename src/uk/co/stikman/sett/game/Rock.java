@@ -8,10 +8,6 @@ public class Rock implements IsNodeObject {
 		this.type = type;
 	}
 
-	@Override
-	public VoxelModelParams getVoxelModelInfo() {
-		return type.getVoxelModelInfo();
-	}
 	
 	public SceneryType getType() {
 		return type;
@@ -25,6 +21,12 @@ public class Rock implements IsNodeObject {
 	@Override
 	public ObstructionType getObstructionType() {
 		return ObstructionType.ALL;
+	}
+
+
+	@Override
+	public String getModelName() {
+		return type.getModelName();
 	}
 
 
