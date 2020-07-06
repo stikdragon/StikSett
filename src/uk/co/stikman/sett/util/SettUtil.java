@@ -88,4 +88,21 @@ public class SettUtil {
 		return el.getTextContent();
 	}
 
+	public static int byteToInt(byte[] fourbytes) {
+		int ch1 = fourbytes[0] & 0xff;
+		int ch2 = fourbytes[1] & 0xff;
+		int ch3 = fourbytes[2] & 0xff;
+		int ch4 = fourbytes[3] & 0xff;
+		return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0));
+	}
+
+	public static byte[] intToByte(int n) {
+		byte[] r = new byte[4];
+		for (int i = 3; i >=0; --i) {
+			r[i] = (byte) (n & 0xff);
+			n >>>= 8;
+		}
+		return r;
+	}
+
 }

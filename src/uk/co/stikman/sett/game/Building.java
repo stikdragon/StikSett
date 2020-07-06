@@ -1,17 +1,21 @@
 package uk.co.stikman.sett.game;
 
+import java.io.IOException;
+
 import uk.co.stikman.sett.BaseGame;
 
 public class Building extends PlayerObject implements HasFlag {
 
-	private final BuildingType	type;
+	private  BuildingType	type;
 	private Flag				flag;
 
+	public Building(BaseGame game) {
+		super(game);
+	}
 	public Building(BaseGame game, Player owner, int id, BuildingType type) {
 		super(game, owner, id);
 		this.type = type;
 	}
-
 
 	public BuildingType getType() {
 		return type;
@@ -38,6 +42,13 @@ public class Building extends PlayerObject implements HasFlag {
 	@Override
 	public String getModelName() {
 		return type.getModelName();
+	}
+
+	@Override
+	public void toStream(SettOutputStream out) throws IOException {
+		super.toStream(out);
+		out.writeString(type.getName());
+		out.writeObject(flag);
 	}
 
 }

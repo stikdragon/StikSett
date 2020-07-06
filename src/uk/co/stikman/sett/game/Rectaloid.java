@@ -1,7 +1,5 @@
 package uk.co.stikman.sett.game;
 
-import java.util.Arrays;
-
 import uk.co.stikman.sett.client.renderer.Ray;
 import uk.co.stikman.utils.math.Vector3;
 

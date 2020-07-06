@@ -1,27 +1,30 @@
 package uk.co.stikman.sett.game;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import uk.co.stikman.sett.BaseGame;
 import uk.co.stikman.sett.SettApp;
-import uk.co.stikman.sett.client.renderer.Ray;
 import uk.co.stikman.sett.util.ThingList;
 
 public class World {
-	private WorldParameters					params;
-	private Terrain							terrain;
-	private final Map<String, BuildingType>	buildingDefs	= new HashMap<>();
-	private final Map<String, SceneryType>	sceneryDefs		= new HashMap<>();
-	private final ThingList<Building>		buildings		= new ThingList<>("Building");
-	private final ThingList<Flag>			flags			= new ThingList<>("Flag");
-	private final ThingList<Road>			roads			= new ThingList<>("Road");
+	private WorldParameters								params;
+	private Terrain										terrain;
+	private transient final Map<String, BuildingType>	buildingDefs	= new HashMap<>();
+	private transient final Map<String, SceneryType>	sceneryDefs		= new HashMap<>();
+	private final ThingList<Building>					buildings		= new ThingList<>("Building");
+	private final ThingList<Flag>						flags			= new ThingList<>("Flag");
+	private final ThingList<Road>						roads			= new ThingList<>("Road");
 
-	private int								width;
-	private int								height;
+	private int											width;
+	private int											height;
+	private BaseGame									game;
 
-	public World() {
+	public World(BaseGame game) {
+		this.game = game;
 	}
 
 	public void generate(WorldParameters params) {
@@ -107,6 +110,10 @@ public class World {
 		if (r != null)
 			out.add(r);
 		return out;
+	}
+
+	public BaseGame getGame() {
+		return game;
 	}
 
 }

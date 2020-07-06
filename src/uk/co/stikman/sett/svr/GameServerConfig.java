@@ -1,17 +1,10 @@
 package uk.co.stikman.sett.svr;
 
+import uk.co.stikman.sett.SettApp;
+
 public class GameServerConfig {
-	private ServerMode	mode			= ServerMode.LOCAL;
-	private int			port			= 20202;
-	private int			maxConnections	= 150;
-
-	public ServerMode getMode() {
-		return mode;
-	}
-
-	public void setMode(ServerMode mode) {
-		this.mode = mode;
-	}
+	private int	port			= SettApp.DEFAULT_PORT;
+	private int	maxConnections	= 150;
 
 	public int getPort() {
 		return port;

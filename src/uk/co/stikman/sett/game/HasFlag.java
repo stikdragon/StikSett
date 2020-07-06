@@ -1,5 +1,5 @@
 package uk.co.stikman.sett.game;
 
-public interface HasFlag {
-	
+public interface HasFlag extends IsSerializable {
+
 }

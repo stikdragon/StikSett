@@ -1,16 +1,17 @@
 package uk.co.stikman.sett.game;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.stikman.utils.math.Vector2i;
 
-public class Road implements HasId, HasFlag {
+public class Road implements GameObject, HasFlag {
 
-	private final int		id;
-	private Flag			flagA;
-	private Flag			flagB;
-	private List<Vector2i>	path	= new ArrayList<>();
+	private final int					id;
+	private Flag						flagA;
+	private Flag						flagB;
+	private transient List<Vector2i>	path	= new ArrayList<>();
 
 	public Road(int id) {
 		super();
@@ -45,6 +46,12 @@ public class Road implements HasId, HasFlag {
 
 	public List<Vector2i> getPath() {
 		return path;
+	}
+
+	public void toStream(SettOutputStream out) throws IOException {
+		out.writeInt(id);
+		out.writeObject(flagA);
+		out.writeObject(flagA);
 	}
 
 }

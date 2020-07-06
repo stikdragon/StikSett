@@ -16,8 +16,12 @@ public class ReceivedMessage {
 		str = new StikDataInputStream(new ByteArrayInputStream(msg));
 	}
 
-	public String getInst() throws IOException {
+	public String read4() throws IOException {
 		return new String(str.readNBytes(4), StandardCharsets.ISO_8859_1);
+	}
+
+	public String readString() throws IOException {
+		return str.readString();
 	}
 
 }

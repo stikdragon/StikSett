@@ -16,4 +16,8 @@ public class NetSession {
 		return (T) o;
 	}
 
+	public void setObject(String key, Object o) {
+		objects.put(key, o);
+	}
+
 }

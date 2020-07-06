@@ -1,11 +1,14 @@
 package uk.co.stikman.sett;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -13,6 +16,7 @@ import org.w3c.dom.Element;
 import uk.co.stikman.sett.game.BuildingType;
 import uk.co.stikman.sett.game.IsNodeObject;
 import uk.co.stikman.sett.game.ObstructionType;
+import uk.co.stikman.sett.game.Player;
 import uk.co.stikman.sett.game.Road;
 import uk.co.stikman.sett.game.SceneryType;
 import uk.co.stikman.sett.game.Terrain;
@@ -24,41 +28,46 @@ import uk.co.stikman.utils.math.Vector2i;
 import uk.co.stikman.utils.math.Vector3;
 
 public class BaseGame {
-	public static final int			TERRAIN_GRASS		= 0;
-	public static final int			TERRAIN_DESERT		= 1;
-	public static final int			TERRAIN_MOUNTAIN	= 2;
-	public static final int			TERRAIN_ICE			= 3;
-	public static final int			TERRAIN_WATER		= 4;
 
-	private static final Vector3	UP					= new Vector3(0, 0, 1);
+	public static final int						TERRAIN_GRASS		= 0;
+	public static final int						TERRAIN_DESERT		= 1;
+	public static final int						TERRAIN_MOUNTAIN	= 2;
+	public static final int						TERRAIN_ICE			= 3;
+	public static final int						TERRAIN_WATER		= 4;
 
-	private static float parseFrameTime(String s) {
-		try {
-			float r = Float.parseFloat(s);
-			if (r <= 0.0f)
-				throw new IllegalArgumentException("Time must be a float > 0.0");
-			return r;
-		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Time must be a float > 0.0");
+	private static final Vector3				UP					= new Vector3(0, 0, 1);
+
+	protected transient FileSource				files;
+	protected transient Map<String, VoxelModel>	models				= new HashMap<>();
+	protected Map<String, Player>				players				= new HashMap<>();
+	protected transient VoxelPalette			palette;
+	protected World								world;
+	private transient AtomicInteger				sequence			= new AtomicInteger(0);
+	private String								name;
+	private transient SettApp					app;
+
+	public BaseGame(SettApp app) {
+		this.app = app;
+		files = Resources::getFileWild;
+	}
+
+	public FileSource getFileSource() {
+		return files;
+	}
+
+	public String getTextFile(String name) throws IOException {
+		try (InputStream is = files.get(name)) {
+			return IOUtils.toString(is, StandardCharsets.UTF_8);
 		}
 	}
 
-	private static int parseRotation(String s) {
-		try {
-			int r = Integer.parseInt(s);
-			if (r < 0 || r > 3)
-				throw new IllegalArgumentException("Rotation must be in range 0..3");
-			return r;
-		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Rotation must be in range 0..3");
-		}
+	public Map<String, VoxelModel> getModels() {
+		return models;
 	}
 
-	protected FileSource				files;
-	protected Map<String, VoxelModel>	models		= new HashMap<>();
-	protected VoxelPalette				palette;
-	protected World						world;
-	private AtomicInteger				sequence	= new AtomicInteger(0);
+	public VoxelPalette getVoxelPalette() {
+		return palette;
+	}
 
 	public void setWorld(World world) {
 		this.world = world;
@@ -66,6 +75,14 @@ public class BaseGame {
 
 	public World getWorld() {
 		return world;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public int nextId() {
@@ -250,7 +267,40 @@ public class BaseGame {
 
 		}
 		world.getRoads().put(r);
+	}
 
+	public void addPlayer(Player p) {
+		players.put(p.getName(), p);
+	}
+
+	public Map<String, Player> getPlayers() {
+		return players;
+	}
+
+	private static float parseFrameTime(String s) {
+		try {
+			float r = Float.parseFloat(s);
+			if (r <= 0.0f)
+				throw new IllegalArgumentException("Time must be a float > 0.0");
+			return r;
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException("Time must be a float > 0.0");
+		}
+	}
+
+	private static int parseRotation(String s) {
+		try {
+			int r = Integer.parseInt(s);
+			if (r < 0 || r > 3)
+				throw new IllegalArgumentException("Rotation must be in range 0..3");
+			return r;
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException("Rotation must be in range 0..3");
+		}
+	}
+
+	public SettApp getApp() {
+		return app;
 	}
 
 }

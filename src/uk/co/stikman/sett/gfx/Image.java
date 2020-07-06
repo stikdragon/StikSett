@@ -3,7 +3,6 @@ package uk.co.stikman.sett.gfx;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 
-import uk.co.stikman.sett.gfx.lwjgl.Window3DNative;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
 
 

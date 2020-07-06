@@ -1,11 +1,15 @@
 package uk.co.stikman.sett.game;
 
-public class Tree implements IsNodeObject {
+import java.io.IOException;
 
-	private final SceneryType type;
+public class Tree implements GameObject, IsNodeObject {
 
-	public Tree(SceneryType type) {
+	private final SceneryType	type;
+	private final int			id;
+
+	public Tree(int id, SceneryType type) {
 		this.type = type;
+		this.id = id;
 	}
 
 	public SceneryType getType() {
@@ -25,6 +29,17 @@ public class Tree implements IsNodeObject {
 	@Override
 	public String getModelName() {
 		return type.getModelName();
+	}
+
+	@Override
+	public void toStream(SettOutputStream out) throws IOException {
+		out.writeInt(id);
+		out.writeString(type.getName());
+	}
+
+	@Override
+	public int getId() {
+		return id;
 	}
 
 }

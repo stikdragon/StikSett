@@ -1,73 +1,81 @@
 package uk.co.stikman.sett;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.sett.client.renderer.GameView;
-import uk.co.stikman.sett.game.Flag;
+import uk.co.stikman.sett.conn.GameConnection;
+import uk.co.stikman.sett.conn.PendingNetworkOp;
+import uk.co.stikman.sett.conn.Response;
+import uk.co.stikman.sett.conn.ResponseHandler;
 import uk.co.stikman.sett.game.Player;
-import uk.co.stikman.sett.game.Road;
-import uk.co.stikman.sett.game.TerrainNode;
-import uk.co.stikman.sett.game.World;
-import uk.co.stikman.sett.game.WorldParameters;
-import uk.co.stikman.sett.gfx.VectorColours;
 import uk.co.stikman.sett.gfx.lwjgl.Window3DNative;
 import uk.co.stikman.sett.gfx.text.OutlineMode;
 import uk.co.stikman.sett.gfx.text.RenderTextOptions;
-import uk.co.stikman.sett.gfx.util.ResourceLoadError;
 import uk.co.stikman.sett.gfx.util.WindowInitError;
 import uk.co.stikman.sett.svr.BaseGameServer;
 import uk.co.stikman.sett.svr.GameServer;
 import uk.co.stikman.sett.svr.GameServerConfig;
+import uk.co.stikman.sett.svr.SendMessage;
+import uk.co.stikman.sett.svr.ServerException;
+import uk.co.stikman.utils.StikDataInputStream;
 import uk.co.stikman.utils.math.Matrix3;
-import uk.co.stikman.utils.math.Vector2i;
 import uk.co.stikman.utils.math.Vector3;
 import uk.co.stikman.utils.math.Vector4;
 
 public class SettApp {
-	public static final StikLog LOGGER = StikLog.getLogger(SettApp.class);
-	
-	private static final int	WINDOW_W	= 1024;
-	private static final int	WINDOW_H	= 768;
+	public static final int		VERSION			= 1;
 
-	public static final int		TRI_SIZE	= 32;
-	public static final int		CHUNK_SIZE	= 16;
-	public static final float	PATH_WIDTH	= 0.4f;
-	public static final float	ROAD_DEPTH	= 0.03f;
-	public static final float	ROOT3_2		= (float) (Math.sqrt(3.0) / 2.0);
-	public static final Vector3	SUNLIGHT	= new Vector3(9, 9, -1).normalize();
+	public static final StikLog	LOGGER			= StikLog.getLogger(SettApp.class);
+
+	private static final int	WINDOW_W		= 1024;
+	private static final int	WINDOW_H		= 768;
+
+	public static final int		TRI_SIZE		= 32;
+	public static final int		CHUNK_SIZE		= 16;
+	public static final float	PATH_WIDTH		= 0.4f;
+	public static final float	ROAD_DEPTH		= 0.03f;
+	public static final float	ROOT3_2			= (float) (Math.sqrt(3.0) / 2.0);
+	public static final Vector3	SUNLIGHT		= new Vector3(9, 9, -1).normalize();
+	public static final int		DEFAULT_PORT	= 20202;
 
 	public static void main(String[] args) {
 		new SettApp().go();
 	}
 
-	private Window3DNative	window;
-	private SettUI			ui;
-	private GameView		view;
-	private double			lastT;
-	private BaseGameServer server;
-	
-	private Player			p1;
-	private Player p2;
-	private Player p3;
+	private Window3DNative					window;
+	private SettUI							ui;
+	private GameView						view;
+	private double							lastT;
+	private BaseGameServer					server;
 
+	private Player							p1;
+	private Player							p2;
+	private Player							p3;
+
+	private GameServer						svr;
+
+	private GameConnection					conn;
+
+	private Map<Integer, PendingNetworkOp>	pendingNetworkOperations	= new HashMap<>();
+
+	private ClientGame						game;
 
 	private void go() {
 		try {
 			GameServerConfig config = new GameServerConfig();
-			GameServer svr = new GameServer(config);
+			svr = new GameServer(config, this);
 			svr.start();
 			this.server = svr;
-			
+
 		} catch (Exception e) {
 			LOGGER.error("Failed to start server:");
 			LOGGER.error(e);
 			return;
 		}
-		
-		
+
 		try {
 			window = new Window3DNative(WINDOW_W, WINDOW_H, true);
 			window.setTitle("Thing");
@@ -94,80 +102,106 @@ public class SettApp {
 
 	}
 
-	private void onInit() throws WindowInitError {
+	private void initNetwork() {
 		try {
-			ui = new SettUI(this);
+			conn = new GameConnection();
+			conn.connect("localhost", DEFAULT_PORT);
 
-			ClientGame game = new ClientGame(this);
-			game.setWorld(new World());
-			game.loadResources();
-			WorldParameters params = new WorldParameters(14);
-			game.getWorld().generate(params);
-			
-			p1 = new Player(game, "Player1", VectorColours.HSLtoRGB(new Vector3(0, 1.0f,  0.6f)));
-			p2 = new Player(game, "Player2", VectorColours.HSLtoRGB(new Vector3(0.75f, 1.0f,  0.7f)));
-			p3 = new Player(game, "Player3", VectorColours.HSLtoRGB(new Vector3(0.6f, 1.0f,  0.6f)));
-			randomRoads(game);
-			randomFlags(game);
-			view = new GameView(window, game);
-			view.init();
-		} catch (ResourceLoadError e) {
-			throw new WindowInitError(e);
+			SendMessage msg = new SendMessage();
+			msg.write4("INFO");
+			send(msg, resp -> {
+				try {
+					StikDataInputStream str = resp.asStream();
+					int vers = str.readInt();
+					if (vers != SettApp.VERSION)
+						throw new ServerException(ServerException.INVALID_VERSION, "Server version [" + vers + "] is not compatible with this client (version [" + SettApp.VERSION + "])");
+				} catch (ServerException | IOException e) {
+					LOGGER.error("Response: " + e.getMessage());
+				}
+
+				login();
+
+				createGame();
+			});
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 
-	private void randomFlags(BaseGame game) {
-		Random rng = new Random();
-		for (int y = 0; y < game.world.getHeight(); ++y) {
-			for (int x = 0; x < game.world.getWidth(); ++x) {
-				TerrainNode n = game.world.getTerrain().get(x, y);
-				List<Road> lst = game.world.getRoadsAt(n, new ArrayList<>());
-				if (lst.size() > 2 || lst.size() == 1) {
-					Player p = p1;
-					switch (rng.nextInt(3)) {
-					case 0: p = p1; break;
-					case 1: p = p2; break;
-					case 2: p = p3; break;
-					}
-					n.setObject(new Flag(game, p));
+	private void login() {
+		try {
+			SendMessage msg = new SendMessage();
+			msg.write4("AUTH");
+			msg.writeString("Stik");
+			msg.writeString("password");
+			send(msg, resp -> {
+				try {
+					resp.getData();
+				} catch (ServerException e) {
+					LOGGER.error("Response: " + e.getMessage());
 				}
-			}
+				createGame();
+			});
+		} catch (IOException e) {
+			LOGGER.error("Response: " + e.getMessage());
 		}
 	}
 
-	private void randomRoads(BaseGame game) {
-		Random rng = new Random();
-		int n = 40 * game.world.getWidth() * game.world.getHeight() / 50000;
-		for (int k = 0; k < n; ++k) {
-			List<Vector2i> nodes = new ArrayList<>();
-			float dir = 0.0f;
-			int chg = 0;
-			int x = rng.nextInt(game.world.getWidth());
-			int y = rng.nextInt(game.world.getHeight());
-			for (int i = 0; i < 100; ++i) {
-				if (chg-- < 0) {
-					chg = rng.nextInt(2);
-					dir += rng.nextFloat() - 0.5f;
+	private void createGame() {
+		try {
+			SendMessage msg = new SendMessage();
+			msg.write4("NEWG");
+			msg.writeString("New Game 1");
+			send(msg, resp -> {
+				try {
+					resp.getData();
+				} catch (ServerException e) {
+					LOGGER.error("Response: " + e.getMessage());
 				}
-				int dx = (int) Math.round(Math.sin(dir));
-				int dy = (int) Math.round(Math.cos(dir));
-				if (dx == 0 && dy == 0)
-					continue;
-				if ((dx == -1 && dy == 1) || (dx == 1 && dy == -1))
-					continue; // illegal shape
-
-				x += dx;
-				y += dy;
-				Vector2i nuw = new Vector2i(x, y);
-				nodes.add(nuw);
-			}
-			game.addRoad(nodes);
+				downloadInitGame();
+			});
+		} catch (IOException e) {
+			LOGGER.error("Response: " + e.getMessage());
 		}
+	}
+
+	private void downloadInitGame() {
+		try {
+			SendMessage msg = new SendMessage();
+			msg.write4("GINI");
+			send(msg, resp -> {
+				game = new ClientGame(this);
+				try {
+					game.fromStream(new SettInputStream(resp.asStream()));
+				} catch (ServerException e) {
+					LOGGER.error("Response: " + e.getMessage());
+				}
+
+				// load initial game data from stream
+
+				view = new GameView(window, game);
+				view.init();
+
+			});
+		} catch (IOException e) {
+			LOGGER.error("Response: " + e.getMessage());
+		}
+	}
+
+	private void send(SendMessage msg, ResponseHandler onresponse) throws IOException {
+		int id = conn.send(msg.getBytes());
+		pendingNetworkOperations.put(Integer.valueOf(id), new PendingNetworkOp(onresponse));
+	}
+
+	private void onInit() throws WindowInitError {
+		ui = new SettUI(this);
+		initNetwork();
 	}
 
 	private void onResize(int w, int h) {
 		ui.handleResize(w, h);
-		view.setViewport(w, h);
+		if (view != null)
+			view.setViewport(w, h);
 	}
 
 	private void onFrame(double time) {
@@ -214,6 +248,18 @@ public class SettApp {
 	}
 
 	private void update(float dt) {
+		//
+		// read network responses
+		//
+		for (;;) {
+			Response r = conn.extract();
+			if (r == null)
+				break;
+
+			PendingNetworkOp networkOp = pendingNetworkOperations.remove(Integer.valueOf(r.getId()));
+			networkOp.getHandler().response(r);
+		}
+
 		if (view == null)
 			return;
 		view.update(dt);

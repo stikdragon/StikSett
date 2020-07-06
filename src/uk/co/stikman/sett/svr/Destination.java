@@ -1,19 +1,21 @@
 package uk.co.stikman.sett.svr;
 
-import java.io.IOException;
+import uk.co.stikman.utils.StikDataOutputStream;
 
 public class Destination {
 	public interface DestinationHandler {
-		void handle(NetSession sesh, ReceivedMessage message, SendMessage reply) throws IOException;
+		void handle(NetSession sesh, ReceivedMessage message, StikDataOutputStream reply) throws Exception;
 	}
 
 	private final String				name;
 	private final DestinationHandler	handler;
 	private final boolean				needsGame;
+	private boolean						needsUser;
 
-	public Destination(String name, boolean game, DestinationHandler handler) {
+	public Destination(String name, boolean user, boolean game, DestinationHandler handler) {
 		super();
 		this.name = name;
+		this.needsUser = user;
 		this.needsGame = game;
 		this.handler = handler;
 	}
@@ -33,6 +35,10 @@ public class Destination {
 
 	public String getName() {
 		return name;
+	}
+
+	public boolean requiresUser() {
+		return needsUser;
 	}
 
 }

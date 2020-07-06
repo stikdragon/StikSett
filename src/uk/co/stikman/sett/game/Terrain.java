@@ -1,11 +1,7 @@
 package uk.co.stikman.sett.game;
 
-import java.util.Arrays;
+import java.security.acl.Owner;
 import java.util.Random;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.sett.SettApp;
@@ -211,14 +207,14 @@ public class Terrain {
 				switch (rng.nextInt(5)) {
 				case 0:
 				case 1:
-					n.setObject(new Tree(world.getScenaryDef("oaktree1-" + rots[rng.nextInt(4)])));
+					n.setObject(new Tree(nextId(), world.getScenaryDef("oaktree1-" + rots[rng.nextInt(4)])));
 					break;
 				case 2:
 				case 3:
-					n.setObject(new Tree(world.getScenaryDef("pinetree1-" + rots[rng.nextInt(4)])));
+					n.setObject(new Tree(nextId(), world.getScenaryDef("pinetree1-" + rots[rng.nextInt(4)])));
 					break;
 				case 4:
-					n.setObject(new Rock(world.getScenaryDef("rock1-" + rots[rng.nextInt(4)])));
+					n.setObject(new Rock(nextId(), world.getScenaryDef("rock1-" + rots[rng.nextInt(4)])));
 					break;
 				}
 			}
@@ -227,6 +223,10 @@ public class Terrain {
 		LOGGER.info("  Normals...");
 		recalculateNormals();
 		LOGGER.info("  done");
+	}
+
+	private int nextId() {
+		return world.getGame().nextId();
 	}
 
 	public void recalculateNormals() {

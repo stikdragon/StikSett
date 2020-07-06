@@ -1,14 +1,17 @@
 package uk.co.stikman.sett.game;
 
-public class Rock implements IsNodeObject {
+import java.io.IOException;
 
-	private final SceneryType type;
+public class Rock implements GameObject, IsNodeObject {
 
-	public Rock(SceneryType type) {
+	private final SceneryType	type;
+	private int					id;
+
+	public Rock(int id, SceneryType type) {
 		this.type = type;
+		this.id = id;
 	}
 
-	
 	public SceneryType getType() {
 		return type;
 	}
@@ -23,11 +26,24 @@ public class Rock implements IsNodeObject {
 		return ObstructionType.ALL;
 	}
 
-
 	@Override
 	public String getModelName() {
 		return type.getModelName();
 	}
 
+	@Override
+	public void toStream(SettOutputStream str) throws IOException {
+		str.writeInt(id);
+		str.writeString(type.getName());
+	}
+
+	@Override
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
 
 }

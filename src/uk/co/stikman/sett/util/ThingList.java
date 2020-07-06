@@ -1,23 +1,25 @@
 package uk.co.stikman.sett.util;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import uk.co.stikman.sett.game.HasId;
+import uk.co.stikman.sett.game.GameObject;
 
 /**
- * List of objects that implement {@link HasId}. provides rapid lookup based on
- * an <code>int</code> id
+ * List of objects that implement {@link GameObject}. provides rapid lookup
+ * based on an <code>int</code> id
  * 
- * @author stikd
+ * @author stik
  *
  * @param <T>
  */
-public class ThingList<T extends HasId> implements Iterable<T> {
-	private Map<Integer, T>	map	= new HashMap<>();
-	private final String	name;
+public class ThingList<T extends GameObject> implements Iterable<T>, Serializable {
+	private static final long	serialVersionUID	= 1L;
+	private Map<Integer, T>		map					= new HashMap<>();
+	private final String		name;
 
 	public ThingList(String name) {
 		this.name = name;

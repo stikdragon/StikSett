@@ -2,7 +2,6 @@ package uk.co.stikman.sett.gfx;
 
 import uk.co.stikman.utils.FloatList;
 import uk.co.stikman.utils.IntList;
-import uk.co.stikman.utils.math.Vector2;
 import uk.co.stikman.utils.math.Vector3;
 import uk.co.stikman.utils.math.Vector4;
 

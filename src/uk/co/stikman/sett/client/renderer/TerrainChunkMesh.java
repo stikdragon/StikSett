@@ -15,7 +15,6 @@ import uk.co.stikman.log.StikLog;
 import uk.co.stikman.sett.SettApp;
 import uk.co.stikman.sett.game.Terrain;
 import uk.co.stikman.sett.game.TerrainNode;
-import uk.co.stikman.sett.gfx.PolyMesh;
 import uk.co.stikman.sett.gfx.VAO;
 import uk.co.stikman.sett.gfx.Window3D;
 import uk.co.stikman.sett.gfx.lwjgl.BufferNative;
@@ -91,7 +90,7 @@ public class TerrainChunkMesh {
 		if (vertices != null)
 			destroy();
 
-		int n = CHUNK_SIZE * CHUNK_SIZE * 20 * VERT_ITEM_COUNT;
+		int n = CHUNK_SIZE *  CHUNK_SIZE * 20 * VERT_ITEM_COUNT;
 		int m = CHUNK_SIZE * CHUNK_SIZE * 2 * 22 * 3;
 		verts = new FloatList(n);
 		tris = new IntList(m);
