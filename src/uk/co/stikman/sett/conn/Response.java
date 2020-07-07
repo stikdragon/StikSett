@@ -3,6 +3,7 @@ package uk.co.stikman.sett.conn;
 import java.io.ByteArrayInputStream;
 
 import uk.co.stikman.sett.svr.ServerException;
+import uk.co.stikman.utils.StikByteArrayInputStream;
 import uk.co.stikman.utils.StikDataInputStream;
 import uk.co.stikman.utils.Utils;
 
@@ -56,7 +57,7 @@ public class Response {
 	}
 
 	public StikDataInputStream asStream() throws ServerException {
-		return new StikDataInputStream(new ByteArrayInputStream(getData()));
+		return new StikDataInputStream(new StikByteArrayInputStream(getData()));
 	}
 
 }

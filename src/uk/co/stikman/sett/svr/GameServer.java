@@ -15,6 +15,7 @@ import uk.co.stikman.sett.BaseGame;
 import uk.co.stikman.sett.SettApp;
 import uk.co.stikman.sett.game.Building;
 import uk.co.stikman.sett.game.Flag;
+import uk.co.stikman.sett.game.GenerateOptions;
 import uk.co.stikman.sett.game.IsNodeObject;
 import uk.co.stikman.sett.game.Player;
 import uk.co.stikman.sett.game.Road;
@@ -25,6 +26,7 @@ import uk.co.stikman.sett.game.World;
 import uk.co.stikman.sett.game.WorldParameters;
 import uk.co.stikman.sett.gfx.VectorColours;
 import uk.co.stikman.users.Users;
+import uk.co.stikman.utils.StikByteArrayInputStream;
 import uk.co.stikman.utils.StikDataOutputStream;
 import uk.co.stikman.utils.math.Vector2i;
 import uk.co.stikman.utils.math.Vector3;
@@ -174,8 +176,10 @@ public class GameServer extends BaseGameServer {
 
 			game.setWorld(new World(game));
 			game.loadResources();
-			WorldParameters params = new WorldParameters(1);
-			game.getWorld().generate(params);
+			WorldParameters params = new WorldParameters(4);
+			game.getWorld().setParams(params);
+			GenerateOptions opts = new GenerateOptions();
+			game.getWorld().generate(opts);
 
 			game.addPlayer(new Player(game, 1, u.getId(), VectorColours.HSLtoRGB(new Vector3(0, 1.0f, 0.6f))));
 			game.addPlayer(new Player(game, 2, "Player2", VectorColours.HSLtoRGB(new Vector3(0.75f, 1.0f, 0.7f))));
@@ -253,17 +257,16 @@ public class GameServer extends BaseGameServer {
 			writeKeys(out, w.getSceneryDefs());
 
 			out.writeInt(w.getBuildings().size());
-			for (Building b : w.getBuildings()) {
-				b.toStream(out);
-			}
+			for (Building b : w.getBuildings()) 
+				out.writeObject(b);
 
 			out.writeInt(w.getFlags().size());
 			for (Flag f : w.getFlags())
-				f.toStream(out);
+				out.writeObject(f);
 
 			out.writeInt(w.getRoads().size());
 			for (Road r : w.getRoads())
-				r.toStream(out);
+				out.writeObject(r);
 
 			Terrain t = w.getTerrain();
 			out.writeInt(t.getWidth());

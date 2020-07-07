@@ -6,6 +6,7 @@ import java.util.Map;
 
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.sett.client.renderer.GameView;
+import uk.co.stikman.sett.client.renderer.MainView;
 import uk.co.stikman.sett.conn.GameConnection;
 import uk.co.stikman.sett.conn.PendingNetworkOp;
 import uk.co.stikman.sett.conn.Response;
@@ -14,6 +15,7 @@ import uk.co.stikman.sett.game.Player;
 import uk.co.stikman.sett.gfx.lwjgl.Window3DNative;
 import uk.co.stikman.sett.gfx.text.OutlineMode;
 import uk.co.stikman.sett.gfx.text.RenderTextOptions;
+import uk.co.stikman.sett.gfx.util.ResourceLoadError;
 import uk.co.stikman.sett.gfx.util.WindowInitError;
 import uk.co.stikman.sett.svr.BaseGameServer;
 import uk.co.stikman.sett.svr.GameServer;
@@ -47,13 +49,9 @@ public class SettApp {
 
 	private Window3DNative					window;
 	private SettUI							ui;
-	private GameView						view;
+	private MainView						view;
 	private double							lastT;
-	private BaseGameServer					server;
 
-	private Player							p1;
-	private Player							p2;
-	private Player							p3;
 
 	private GameServer						svr;
 
@@ -68,7 +66,6 @@ public class SettApp {
 			GameServerConfig config = new GameServerConfig();
 			svr = new GameServer(config, this);
 			svr.start();
-			this.server = svr;
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to start server:");
@@ -77,6 +74,8 @@ public class SettApp {
 		}
 
 		try {
+			setView(new NullView());
+
 			window = new Window3DNative(WINDOW_W, WINDOW_H, true);
 			window.setTitle("Thing");
 			window.setOnFrame(this::onFrame);
@@ -100,6 +99,7 @@ public class SettApp {
 			e.printStackTrace();
 		}
 
+		svr.terminate();
 	}
 
 	private void initNetwork() {
@@ -120,8 +120,6 @@ public class SettApp {
 				}
 
 				login();
-
-				createGame();
 			});
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
@@ -173,19 +171,24 @@ public class SettApp {
 				game = new ClientGame(this);
 				try {
 					game.fromStream(new SettInputStream(resp.asStream()));
-				} catch (ServerException e) {
-					LOGGER.error("Response: " + e.getMessage());
+				} catch (ServerException | IOException | ResourceLoadError e) {
+					LOGGER.error("Response: " + e.getMessage(), e);
 				}
 
 				// load initial game data from stream
 
-				view = new GameView(window, game);
+				GameView view = new GameView(window, game);
 				view.init();
+				setView(view);
 
 			});
 		} catch (IOException e) {
 			LOGGER.error("Response: " + e.getMessage());
 		}
+	}
+
+	private void setView(MainView v) {
+		this.view = v;
 	}
 
 	private void send(SendMessage msg, ResponseHandler onresponse) throws IOException {
@@ -241,8 +244,6 @@ public class SettApp {
 	}
 
 	private void render() {
-		if (view == null)
-			return;
 		window.clear();
 		view.render();
 	}

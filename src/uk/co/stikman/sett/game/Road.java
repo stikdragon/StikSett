@@ -4,17 +4,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.co.stikman.sett.SettInputStream;
 import uk.co.stikman.utils.math.Vector2i;
 
 public class Road implements GameObject, HasFlag {
 
-	private final int					id;
-	private Flag						flagA;
-	private Flag						flagB;
-	private transient List<Vector2i>	path	= new ArrayList<>();
+	private int				id;
+	private Flag			flagA;
+	private Flag			flagB;
+	private List<Vector2i>	path	= new ArrayList<>();
+
+	public Road() {
+
+	}
 
 	public Road(int id) {
-		super();
 		this.id = id;
 	}
 
@@ -52,6 +56,19 @@ public class Road implements GameObject, HasFlag {
 		out.writeInt(id);
 		out.writeObject(flagA);
 		out.writeObject(flagA);
+		out.writeInt(path.size());
+		for (Vector2i v : path)
+			out.writeVec2i(v);
+	}
+
+	@Override
+	public void fromStream(SettInputStream str) throws IOException {
+		id = str.readInt();
+		flagA = str.readObject(Flag.class);
+		flagB = str.readObject(Flag.class);
+		int cnt = str.readInt();
+		while (cnt-- > 0)
+			path.add(str.readVec2i(new Vector2i()));
 	}
 
 }

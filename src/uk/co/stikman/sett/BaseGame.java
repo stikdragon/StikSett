@@ -212,8 +212,14 @@ public class BaseGame {
 			throw new IllegalStateException("Invalid path: Needs at least two segments");
 		Road r = new Road(nextId());
 		r.getPath().addAll(nodes);
-		Terrain terr = world.getTerrain();
+		applyRoadToTerrain(r);
+		world.getRoads().put(r);
+	}
 
+	protected void applyRoadToTerrain(Road r) {
+
+		Terrain terr = world.getTerrain();
+		List<Vector2i> nodes = r.getPath();
 		for (int i = 0; i < nodes.size() - 1; ++i) {
 			//
 			// find the edge this is on
@@ -266,7 +272,6 @@ public class BaseGame {
 			}
 
 		}
-		world.getRoads().put(r);
 	}
 
 	public void addPlayer(Player p) {

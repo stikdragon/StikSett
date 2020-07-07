@@ -3,14 +3,16 @@ package uk.co.stikman.sett.game;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 import uk.co.stikman.utils.StikDataOutputStream;
+import uk.co.stikman.utils.math.Vector2i;
 import uk.co.stikman.utils.math.Vector3;
 
 public class SettOutputStream extends StikDataOutputStream {
 
-	private Map<IsSerializable, Integer>					objects	= new HashMap<>();
+	private IdentityHashMap<IsSerializable, Integer>		objects	= new IdentityHashMap<>();
 	private Map<Class<? extends IsSerializable>, Integer>	classes	= new HashMap<>();
 
 	public SettOutputStream(OutputStream out) {
@@ -23,12 +25,13 @@ public class SettOutputStream extends StikDataOutputStream {
 		} else {
 			Integer i = objects.get(o);
 			if (i == null) {
-				out.write(0); // new object
-				objects.put(o, Integer.valueOf(objects.size() + 1));
+				writeInt(0); // new object
+				Integer idx = Integer.valueOf(objects.size() + 1);
+				objects.put(o, idx);
 				writeClass(o.getClass());
 				o.toStream(this);
 			} else {
-				out.write(i.intValue()); // existing object
+				writeInt(i.intValue()); // existing object
 			}
 		}
 
@@ -37,11 +40,11 @@ public class SettOutputStream extends StikDataOutputStream {
 	private void writeClass(Class<? extends IsSerializable> cls) throws IOException {
 		Integer i = classes.get(cls);
 		if (i == null) {
-			write(0);
+			writeInt(0);
 			writeString(cls.getName());
 			classes.put(cls, Integer.valueOf(classes.size() + 1));
 		} else {
-			write(i.intValue());
+			writeInt(i.intValue());
 		}
 	}
 
@@ -49,5 +52,10 @@ public class SettOutputStream extends StikDataOutputStream {
 		writeFloat(v.x);
 		writeFloat(v.y);
 		writeFloat(v.z);
+	}
+
+	public void writeVec2i(Vector2i v) throws IOException {
+		writeInt(v.x);
+		writeInt(v.y);
 	}
 }

@@ -98,4 +98,11 @@ public class TerrainNode {
 		return roads[0] != null || roads[1] != null || roads[2] != null;
 	}
 
+	public void set(float alt, int typ, int ownr, IsNodeObject obj) {
+		this.height = alt;
+		this.type = typ;
+		this.owner = ownr;
+		this.object = obj;
+	}
+
 }

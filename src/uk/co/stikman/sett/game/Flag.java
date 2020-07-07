@@ -5,17 +5,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.stikman.sett.BaseGame;
+import uk.co.stikman.sett.SettInputStream;
 
 public class Flag extends PlayerObject {
 
-	private transient List<HasFlag>	connections			= new ArrayList<>();
+	private transient List<HasFlag> connections = new ArrayList<>();
 
-	public Flag(BaseGame game, Player owner, int id) {
-		super(game, owner, id);
+	public Flag(BaseGame game) {
+		super(game);
 	}
 
 	public Flag(BaseGame game, Player owner) {
-		super(game, owner);
+		super(game, owner, -1);
 	}
 
 	public List<HasFlag> getConnections() {
@@ -35,9 +36,17 @@ public class Flag extends PlayerObject {
 	@Override
 	public void toStream(SettOutputStream out) throws IOException {
 		super.toStream(out);
-		out.write(connections.size());
+		out.writeInt(connections.size());
 		for (HasFlag x : connections)
 			out.writeObject(x);
+	}
+
+	@Override
+	public void fromStream(SettInputStream str) throws IOException {
+		super.fromStream(str);
+		int cnt = str.readInt();
+		while (cnt-- > 0)
+			connections.add(str.readObject(HasFlag.class));
 	}
 
 }

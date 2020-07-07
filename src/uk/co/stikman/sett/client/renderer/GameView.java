@@ -39,7 +39,7 @@ import uk.co.stikman.utils.math.Vector2i;
 import uk.co.stikman.utils.math.Vector3;
 import uk.co.stikman.utils.math.Vector4;
 
-public class GameView {
+public class GameView extends MainView {
 	private static final StikLog			LOGGER				= StikLog.getLogger(GameView.class);
 	private static final float				ROOT3_2				= (float) (Math.sqrt(3.0) / 2.0);
 	private static final int				MAX_SHADOWMAP_SIZE	= 4096;
@@ -224,7 +224,7 @@ public class GameView {
 						tv3.set(x, y);
 						skew.multiply(tv3, tv4);
 						uoff.bindVec3(tv4.x, tv4.y, h);
-						if (obj instanceof PlayerObject) 
+						if (obj instanceof PlayerObject)
 							uplaycol.bindVec3(((PlayerObject) obj).getOwner().getColour());
 						m.render(time);
 					}

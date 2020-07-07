@@ -4,6 +4,7 @@ import java.security.acl.Owner;
 import java.util.Random;
 
 import uk.co.stikman.log.StikLog;
+import uk.co.stikman.sett.BaseGame;
 import uk.co.stikman.sett.SettApp;
 import uk.co.stikman.sett.client.renderer.Ray;
 import uk.co.stikman.utils.math.Matrix3;
@@ -207,14 +208,14 @@ public class Terrain {
 				switch (rng.nextInt(5)) {
 				case 0:
 				case 1:
-					n.setObject(new Tree(nextId(), world.getScenaryDef("oaktree1-" + rots[rng.nextInt(4)])));
+					n.setObject(new Tree(getGame(), nextId(), world.getScenaryDef("oaktree1-" + rots[rng.nextInt(4)])));
 					break;
 				case 2:
 				case 3:
-					n.setObject(new Tree(nextId(), world.getScenaryDef("pinetree1-" + rots[rng.nextInt(4)])));
+					n.setObject(new Tree(getGame(), nextId(), world.getScenaryDef("pinetree1-" + rots[rng.nextInt(4)])));
 					break;
 				case 4:
-					n.setObject(new Rock(nextId(), world.getScenaryDef("rock1-" + rots[rng.nextInt(4)])));
+					n.setObject(new Rock(getGame(), nextId(), world.getScenaryDef("rock1-" + rots[rng.nextInt(4)])));
 					break;
 				}
 			}
@@ -223,6 +224,10 @@ public class Terrain {
 		LOGGER.info("  Normals...");
 		recalculateNormals();
 		LOGGER.info("  done");
+	}
+
+	private BaseGame getGame() {
+		return world.getGame();
 	}
 
 	private int nextId() {

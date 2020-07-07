@@ -3,15 +3,17 @@ package uk.co.stikman.sett.game;
 import java.io.IOException;
 
 import uk.co.stikman.sett.BaseGame;
+import uk.co.stikman.sett.SettInputStream;
 
 public class Building extends PlayerObject implements HasFlag {
 
-	private  BuildingType	type;
-	private Flag				flag;
+	private BuildingType	type;
+	private Flag			flag;
 
 	public Building(BaseGame game) {
 		super(game);
 	}
+
 	public Building(BaseGame game, Player owner, int id, BuildingType type) {
 		super(game, owner, id);
 		this.type = type;
@@ -49,6 +51,13 @@ public class Building extends PlayerObject implements HasFlag {
 		super.toStream(out);
 		out.writeString(type.getName());
 		out.writeObject(flag);
+	}
+
+	@Override
+	public void fromStream(SettInputStream str) throws IOException {
+		super.fromStream(str);
+		type = getGame().getWorld().getBuildingDef(str.readString());
+		flag = str.readObject(Flag.class);
 	}
 
 }

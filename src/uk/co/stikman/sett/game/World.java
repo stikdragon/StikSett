@@ -27,14 +27,13 @@ public class World {
 		this.game = game;
 	}
 
-	public void generate(WorldParameters params) {
+	public void setParams(WorldParameters params) {
 		terrain = new Terrain(this, params.getSize() * SettApp.CHUNK_SIZE, params.getSize() * SettApp.CHUNK_SIZE);
-		terrain.generate(new GenerateOptions());
 		this.width = params.getSize() * SettApp.CHUNK_SIZE;
 		this.height = params.getSize() * SettApp.CHUNK_SIZE;
 		this.params = params;
 	}
-
+	
 	public ThingList<Building> getBuildings() {
 		return buildings;
 	}
@@ -76,6 +75,12 @@ public class World {
 
 	}
 
+	/**
+	 * Throws {@link NoSuchElementException} if missing
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public SceneryType getScenaryDef(String name) {
 		SceneryType x = sceneryDefs.get(name);
 		if (x == null)
@@ -83,6 +88,12 @@ public class World {
 		return x;
 	}
 
+	/**
+	 * Throws {@link NoSuchElementException} if missing
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public BuildingType getBuildingDef(String name) {
 		BuildingType x = buildingDefs.get(name);
 		if (x == null)
@@ -114,6 +125,10 @@ public class World {
 
 	public BaseGame getGame() {
 		return game;
+	}
+
+	public void generate(GenerateOptions opts) {
+		terrain.generate(opts);
 	}
 
 }

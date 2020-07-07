@@ -87,6 +87,7 @@ public abstract class BaseGameServer {
 								outputStream.write(SettUtil.intToByte(data.length)); // length
 								outputStream.write(1); // "success"
 								outputStream.write(data); // bytes
+								LOGGER.debug("Message size recv/sent: " + data.length + " / " + n);
 							} catch (ServerException e) {
 								LOGGER.warn("Sending error to client: " + e.toString());
 								byte[] x = e.getMessage().getBytes(StandardCharsets.UTF_8);
