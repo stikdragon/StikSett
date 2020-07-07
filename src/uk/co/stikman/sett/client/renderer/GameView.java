@@ -132,9 +132,9 @@ public class GameView extends MainView {
 
 			VoxelMesh vm1 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret").getModelName()));
 			VoxelMesh vm2 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret-outer").getModelName()));
-			VoxelMesh vm3 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("house1").getModelName()));
-			VoxelMesh vm4 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("castle").getModelName()));
-			VoxelMesh vm5 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("flag").getModelName()));
+			VoxelMesh vm3 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret-house1").getModelName()));
+			VoxelMesh vm4 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret-castle").getModelName()));
+			VoxelMesh vm5 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret-flag").getModelName()));
 			selectionMarker = new SelectionMarker(this, vm1, vm2, vm3, vm4, vm5);
 
 			//
@@ -503,7 +503,7 @@ public class GameView extends MainView {
 			window.setCursorPosition(lastX, lastY);
 
 			if (dragbutton == 1) {
-				Vector3 v = new Vector3(dx, -dy, 0.0f).multiply(0.2f);
+				Vector3 v = new Vector3(dx, -dy, 0.0f).multiply(0.04f);
 				v = tm1.makeRotation(-rotation.x).multiply(v, new Vector3());
 				cameraPosition.add(v);
 			} else if (dragbutton == 2) {
@@ -549,7 +549,14 @@ public class GameView extends MainView {
 		if (pos != null) {
 			LOGGER.info("Clicked on node: " + pos);
 			Vector2i v = new Vector2i(Math.round(pos.x), Math.round(pos.y));
-			selectionMarker.setPosition(v);
+			if (selectionMarker.getPosition().equals(v)) {
+				// 
+				// clicked again, so do some context specific action
+				//
+				LOGGER.info("Go!");
+			} else {
+				selectionMarker.setPosition(v);
+			}
 		}
 	}
 

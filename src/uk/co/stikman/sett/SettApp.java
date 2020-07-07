@@ -52,7 +52,6 @@ public class SettApp {
 	private MainView						view;
 	private double							lastT;
 
-
 	private GameServer						svr;
 
 	private GameConnection					conn;
@@ -189,6 +188,8 @@ public class SettApp {
 
 	private void setView(MainView v) {
 		this.view = v;
+		if (getWindow() != null)
+			view.setViewport(getWindow().getWidth(), getWindow().getHeight());
 	}
 
 	private void send(SendMessage msg, ResponseHandler onresponse) throws IOException {

@@ -13,17 +13,19 @@ import uk.co.stikman.utils.math.Vector3;
 public class SelectionMarker {
 	private VoxelMesh	caret;
 	private VoxelMesh	caret2;
+	private VoxelMesh	flag;
+	private VoxelMesh	bighouse;
+	private VoxelMesh	house;
+
 	private Vector3[]	positions	= new Vector3[7];
 	private Vector3		tv			= new Vector3();
 	private Vector3		tv2			= new Vector3();
 	private BaseGame	game;
-	private VoxelMesh	flag;
-	private VoxelMesh	bighouse;
-	private VoxelMesh	house;
 	private MarkerType	markerType;
 	private Matrix4		tm			= new Matrix4();
 	private GameView	gameview;
 	private float		time		= 0;
+	private Vector2i	position	= new Vector2i();
 
 	public SelectionMarker(GameView gameview, VoxelMesh caret, VoxelMesh caret2, VoxelMesh small, VoxelMesh large, VoxelMesh flag) {
 		this.gameview = gameview;
@@ -66,14 +68,21 @@ public class SelectionMarker {
 		m.render(0);
 
 		for (int i = 1; i < 7; ++i) {
-			tm.makeRotation(0, 0, 1, time * 3);
-			u.bindMat4(tm);
 			shd.getUniform("offset").bindVec3(skew.multiply(tv2.copy(positions[i]), tv));
-			caret2.render(0);
+			if (i == 4 && mt != MarkerType.FLAG && mt != MarkerType.NONE) {
+				tm.makeRotation(0, 0, 1, -gameview.getRotation().x + 3.14159f / 3.0f);
+				u.bindMat4(tm);
+				flag.render(0);
+			} else {
+				tm.makeRotation(0, 0, 1, time * 3);
+				u.bindMat4(tm);
+				caret2.render(0);
+			}
 		}
 	}
 
 	public void setPosition(Vector2i pos) {
+		this.position.copy(pos);
 		TerrainNode[] n = game.getWorld().getTerrain().getNeighbours(pos.x, pos.y);
 		markerType = game.getPermissableMarkerFor(pos.x, pos.y);
 		for (int i = 0; i < 7; ++i)
@@ -82,6 +91,10 @@ public class SelectionMarker {
 
 	public void update(float dt) {
 		time += dt;
+	}
+	
+	public Vector2i getPosition() {
+		return position;
 	}
 
 }

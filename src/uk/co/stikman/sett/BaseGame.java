@@ -14,6 +14,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.sett.game.BuildingType;
+import uk.co.stikman.sett.game.Flag;
 import uk.co.stikman.sett.game.IsNodeObject;
 import uk.co.stikman.sett.game.ObstructionType;
 import uk.co.stikman.sett.game.Player;
@@ -172,39 +173,88 @@ public class BaseGame {
 		TerrainNode[] n = world.getTerrain().getNeighbours(x, y);
 
 		//
-		// if there's anything else that blocks all at our neighbours then 
-		// you can't build here at all
+		// now work out what can go here
 		//
-		for (int i = 1; i < n.length; ++i)
-			if (n[i].getObject() != null && n[i].getObject().getObstructionType() == ObstructionType.ALL)
-				return MarkerType.NONE;
-
-		IsNodeObject no = n[0].getObject();
-		if (no != null) {
-			if (no.getObstructionType() == ObstructionType.ALL || no.getObstructionType() == ObstructionType.BUILDINGS)
-				return MarkerType.NONE;
-		}
-
-		//
-		// find angle of groud at centre
-		//
-		float f = n[0].getNormal().dot(UP);
-		System.out.println("dotprod = " + f);
-		if (n[0].getType() == BaseGame.TERRAIN_GRASS) {
-			if (f > 0.99f)
-				return MarkerType.LARGE_HOUSE;
-			if (f >= 0.98f)
-				return MarkerType.SMALL_HOUSE;
+		if (isCastleValid(n))
+			return MarkerType.LARGE_HOUSE;
+		else if (isHouseValid(n))
+			return MarkerType.SMALL_HOUSE;
+		else if (isMineValid(n))
+			return MarkerType.MINE;
+		else if (isFlagValid(n[0]))
 			return MarkerType.FLAG;
-		} else if (n[0].getType() == BaseGame.TERRAIN_DESERT) {
-			return MarkerType.FLAG;
-		} else if (n[0].getType() == BaseGame.TERRAIN_MOUNTAIN) {
-			if (f >= 0.8f)
-				return MarkerType.MINE;
-			return MarkerType.NONE;
-		}
-
 		return MarkerType.NONE;
+	}
+
+	private boolean isCastleValid(TerrainNode[] nodes) {
+		if (!isBuildingValid(nodes))
+			return false;
+		if (nodes[0].getType() != TERRAIN_GRASS)
+			return false;
+
+		//
+		// now check the gradient of the land
+		//
+		float f = nodes[0].getNormal().dot(UP);
+		return f > 0.99f;
+	}
+
+	private boolean isHouseValid(TerrainNode[] nodes) {
+		if (!isBuildingValid(nodes))
+			return false;
+		if (nodes[0].getType() != TERRAIN_GRASS)
+			return false;
+
+		//
+		// now check the gradient of the land
+		//
+		float f = nodes[0].getNormal().dot(UP);
+		return f > 0.98f;
+	}
+
+	private boolean isMineValid(TerrainNode[] nodes) {
+		if (!isBuildingValid(nodes))
+			return false;
+		if (nodes[0].getType() != TERRAIN_MOUNTAIN)
+			return false;
+
+		//
+		// now check the gradient of the land
+		//
+		float f = nodes[0].getNormal().dot(UP);
+		return f > 0.80f;
+	}
+
+	private boolean isBuildingValid(TerrainNode[] nodes) {
+		TerrainNode n = nodes[0];
+		if (n.getObject() != null && n.getObject().getObstructionType() != ObstructionType.NONE)
+			return false;
+		
+		if (n.hasRoad())
+			return false;
+
+		//
+		// Can only put a building in if it's valid to put a flag in spot 4
+		//
+		n = nodes[4];
+		if ((n.getObjectAs(Flag.class) != null) || isFlagValid(n))
+			return true;
+		return false;
+	}
+
+	private boolean isFlagValid(TerrainNode n) {
+		if (n.getObject() != null && (n.getObject().getObstructionType() == ObstructionType.BUILDINGS || n.getObject().getObstructionType() == ObstructionType.ALL))
+			return false;
+		if (n.getType() == BaseGame.TERRAIN_ICE || n.getType() == TERRAIN_WATER)
+			return false;
+
+		TerrainNode[] nodes = world.getTerrain().getNeighbours(n);
+		for (int i = 1; i < 7; ++i)
+			if (nodes[i].getObjectAs(Flag.class) != null)
+				return false;
+
+		float f = n.getNormal().dot(UP);
+		return f > 0.40f;
 	}
 
 	public void addRoad(List<Vector2i> nodes) {

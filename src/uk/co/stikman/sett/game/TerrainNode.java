@@ -105,4 +105,21 @@ public class TerrainNode {
 		this.object = obj;
 	}
 
+	/**
+	 * Returns the object if it's assignable to this type, otherwise
+	 * <code>null</code>
+	 * 
+	 * @param <T>
+	 * @param typ
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends IsNodeObject> T getObjectAs(Class<T> typ) {
+		if (object == null)
+			return null;
+		if (typ.isAssignableFrom(object.getClass()))
+			return (T) object;
+		return null;
+	}
+
 }

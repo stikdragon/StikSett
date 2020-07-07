@@ -53,7 +53,7 @@
 	
 	<Scenery id="caret"><Model>caret</Model></Scenery>
 	<Scenery id="caret-outer"><Model>caret-outer</Model></Scenery>
-	<Scenery id="house1"><Model>caret-house</Model></Scenery>
-	<Scenery id="castle"><Model>caret-castle</Model></Scenery>
-	<Scenery id="flag"><Model>caret-flag</Model></Scenery>
+	<Scenery id="caret-house1"><Model>caret-house</Model></Scenery>
+	<Scenery id="caret-castle"><Model>caret-castle</Model></Scenery>
+	<Scenery id="caret-flag"><Model>caret-flag</Model></Scenery>
 </SceneryDefs>

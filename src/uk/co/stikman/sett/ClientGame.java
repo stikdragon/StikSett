@@ -86,6 +86,7 @@ public class ClientGame extends BaseGame {
 		// now there's a bunch of stuff to map up
 		//
 		w.getRoads().forEach(this::applyRoadToTerrain);
+		w.getTerrain().recalculateNormals();
 	}
 
 }

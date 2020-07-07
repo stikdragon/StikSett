@@ -395,4 +395,7 @@ public class Terrain {
 		return arr;
 	}
 
+	public TerrainNode[] getNeighbours(TerrainNode n) {
+		return getNeighbours(n.getX(), n.getY());
+	}
 }
