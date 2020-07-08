@@ -17,6 +17,7 @@ public class WindowTheming {
 	private RectSprite	buttonSpriteDown;
 	private StretchMode	buttonSpriteSM;
 	private RectSprite	flatButtonSpriteDown;
+	private RectSprite	buttonSpriteHover;
 
 	public Vector4 getBackgroundColour() {
 		return backgroundColour;
@@ -108,6 +109,14 @@ public class WindowTheming {
 
 	public void setFlatButtonSpriteDown(RectSprite flatButtonSpriteDown) {
 		this.flatButtonSpriteDown = flatButtonSpriteDown;
+	}
+
+	public void setButtonSpriteHover(RectSprite rs) {
+		this.buttonSpriteHover = rs;
+	}
+
+	public RectSprite getButtonSpriteHover() {
+		return buttonSpriteHover;
 	}
 
 }

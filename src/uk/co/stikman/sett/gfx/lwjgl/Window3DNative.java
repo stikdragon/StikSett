@@ -358,7 +358,7 @@ public class Window3DNative extends Window3D {
 	 */
 	@Override
 	public void clear() {
-		clear(VectorColours.BLACK);
+		clear(VectorColours.TRANSPARENT_BLACK);
 //		clear(new Vector4(1, 0, 1, 1));
 	}
 

@@ -1,6 +1,8 @@
 # Fonts ============================
 font pixelFJ_8.zip
 font pixelmix_8.zip
+font sett_8.zip
+font sett_16.zip
 
 #
 # Sprites =========================
@@ -44,14 +46,21 @@ end
 
 
 sprite button1 rect
-78,22,0,341,78,22
+24,16,1,161,24,16
 layer 0 block32.png
 end
 
 sprite button1_d rect
-78,22,0,363,78,22
+24,16,1,177,24,16
 layer 0 block32.png
 end
+
+sprite button1_h rect
+24,16,1,193,24,16
+layer 0 block32.png
+end
+
+
 
 sprite button2_d rect
 78,22,0,385,78,22

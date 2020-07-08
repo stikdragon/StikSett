@@ -17,12 +17,14 @@ public class SettStandardWindow extends SimpleWindow {
 		GameResources res = v.getUIResources();
 		WindowTheming theme = new WindowTheming();
 		theme.setBackgroundSprite((RectSprite) res.findSprite("dlgbox3"), StretchMode.createSmart(8, 8, 9, 7));
-		theme.setFont(res.findFont("pixelmix_8"));
+//		theme.setFont(res.findFont("pixelmix_8"));
+		theme.setFont(res.findFont("sett_8"));
 		theme.setTitleFont(res.findFont("pixelmix_8"));
 		theme.setButtonSprite((RectSprite) res.findSprite("button1"));
+		theme.setButtonSpriteHover((RectSprite) res.findSprite("button1_h"));
 		theme.setButtonSpriteDown((RectSprite) res.findSprite("button1_d"));
 		theme.setFlatButtonSpriteDown((RectSprite) res.findSprite("button2_d"));
-		theme.setButtonSpriteSM(StretchMode.createSmart(2));
+		theme.setButtonSpriteSM(StretchMode.createSmart(1));
 		setTheming(theme);
 		v.getUI().getWindows().add(this);
 	}

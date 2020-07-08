@@ -78,7 +78,7 @@ public class Button extends Component {
 		}
 
 		if (caption != null)
-			getOwner().getWindow().drawText((int) r.x, (int) r.y, (int) r.w, (int) r.h, getCaption(), theme().getFont(), rtoShadow, tmpC);
+			getOwner().getWindow().drawText((int) r.x, (int) r.y, (int) r.w, (int) r.h, getCaption(), theme().getFont(), rtoShadow, theme().getFontColour());
 		if (sprite != null) {
 			tmpC.copy(VectorColours.WHITE);
 			if (hover) {
@@ -104,6 +104,7 @@ public class Button extends Component {
 		hover = false;
 		pressed = false;
 		textHighlight.set(0.0f);
+		imageMerge.set(0.0f);
 	}
 
 	@Override

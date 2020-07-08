@@ -311,6 +311,7 @@ public class SettApp {
 			}
 		}
 
+		ui.update(dt);
 		if (view == null)
 			return;
 		view.update(dt);

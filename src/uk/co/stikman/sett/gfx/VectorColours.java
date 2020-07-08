@@ -5,9 +5,10 @@ import uk.co.stikman.utils.math.Vector4;
 
 public class VectorColours {
 
-	public static final Vector4	BLACK	= new Vector4(0, 0, 0, 1);
-	public static final Vector4	WHITE	= new Vector4(1, 1, 1, 1);
-	public static final Vector4	RED		= new Vector4(1, 0, 0, 1);
+	public static final Vector4	BLACK				= new Vector4(0, 0, 0, 1);
+	public static final Vector4	WHITE				= new Vector4(1, 1, 1, 1);
+	public static final Vector4	RED					= new Vector4(1, 0, 0, 1);
+	public static final Vector4	TRANSPARENT_BLACK	= new Vector4(0, 0, 0, 0);
 
 	public static Vector4 parseCSS(String s) {
 		if (s.startsWith("#"))
