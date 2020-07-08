@@ -16,7 +16,7 @@ public class SettStandardWindow extends SimpleWindow {
 		this.app = v;
 		GameResources res = v.getUIResources();
 		WindowTheming theme = new WindowTheming();
-		theme.setBackgroundSprite((RectSprite) res.findSprite("dlgbox2"), StretchMode.createSmart(4, 4, 16, 4));
+		theme.setBackgroundSprite((RectSprite) res.findSprite("dlgbox3"), StretchMode.createSmart(8, 8, 9, 7));
 		theme.setFont(res.findFont("pixelmix_8"));
 		theme.setTitleFont(res.findFont("pixelmix_8"));
 		theme.setButtonSprite((RectSprite) res.findSprite("button1"));

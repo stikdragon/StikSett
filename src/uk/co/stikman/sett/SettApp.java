@@ -13,8 +13,11 @@ import uk.co.stikman.sett.conn.PendingNetworkOp;
 import uk.co.stikman.sett.conn.Response;
 import uk.co.stikman.sett.conn.ResponseHandler;
 import uk.co.stikman.sett.gfx.GameResources;
+import uk.co.stikman.sett.gfx.RenderTarget;
 import uk.co.stikman.sett.gfx.Window3D;
+import uk.co.stikman.sett.gfx.lwjgl.FrameBufferNative;
 import uk.co.stikman.sett.gfx.lwjgl.Window3DNative;
+import uk.co.stikman.sett.gfx.lwjgl.FrameBufferNative.ColourModel;
 import uk.co.stikman.sett.gfx.text.OutlineMode;
 import uk.co.stikman.sett.gfx.text.RenderTextOptions;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
@@ -45,6 +48,8 @@ public class SettApp {
 	public static final Vector3	SUNLIGHT		= new Vector3(9, 9, -1).normalize();
 	public static final int		DEFAULT_PORT	= 20202;
 
+	private static final int	UI_PIXEL_SCALE	= 3;
+
 	public static void main(String[] args) {
 		new SettApp().go();
 	}
@@ -62,6 +67,8 @@ public class SettApp {
 	private Map<Integer, PendingNetworkOp>	pendingNetworkOperations	= new HashMap<>();
 
 	private ClientGame						game;
+
+	private FrameBufferNative				uifbo;
 
 	private void go() {
 		try {
@@ -208,6 +215,7 @@ public class SettApp {
 	}
 
 	private void onInit() throws WindowInitError {
+		uifbo = new FrameBufferNative(512, 512, ColourModel.RGBA_DEPTH, false);
 		ui = new SettUI(this);
 		uiResources = new GameResources(window);
 		try {
@@ -226,7 +234,14 @@ public class SettApp {
 	}
 
 	private void onResize(int w, int h) {
-		ui.handleResize(w, h);
+		ui.handleResize(w / UI_PIXEL_SCALE, h / UI_PIXEL_SCALE);
+
+		if (uifbo != null)
+			uifbo.destroy();
+		int w2 = w / UI_PIXEL_SCALE;
+		int h2 = h / UI_PIXEL_SCALE;
+		uifbo = new FrameBufferNative(w2, h2, ColourModel.RGBA_DEPTH, false);
+
 		if (view != null)
 			view.setViewport(w, h);
 	}
@@ -247,18 +262,20 @@ public class SettApp {
 	}
 
 	private void onMouseMove(int x, int y) {
-		ui.handleMouseMove(x, y);
+		if (ui.handleMouseMove(x / UI_PIXEL_SCALE, y / UI_PIXEL_SCALE))
+			return;
 		view.mouseMove(x, y);
 	}
 
 	private void onMouseDown(int x, int y, int button) {
-		ui.handleMouseDown(x, y, button);
+		if (ui.handleMouseDown(x / UI_PIXEL_SCALE, y / UI_PIXEL_SCALE, button))
+			return;
 		view.mouseDown(x, y, button);
-
 	}
 
 	private void onMouseUp(int x, int y, int button) {
-		ui.handleMouseUp(x, y, button);
+		if (ui.handleMouseUp(x / UI_PIXEL_SCALE, y / UI_PIXEL_SCALE, button))
+			return;
 		view.mouseUp(x, y, button);
 	}
 
@@ -270,8 +287,13 @@ public class SettApp {
 		window.setDepthTestEnabled(true);
 		window.clear();
 		view.render();
+
+		RenderTarget old = window.setRenderTarget(uifbo.getRenderTarget());
+		window.clear();
 		window.setDepthTestEnabled(false);
 		ui.render();
+		window.setRenderTarget(old);
+		window.drawBuf(uifbo, 0, 0, uifbo.getWidth() * UI_PIXEL_SCALE, uifbo.getHeight() * UI_PIXEL_SCALE);
 	}
 
 	private void update(float dt) {

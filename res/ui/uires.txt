@@ -32,6 +32,17 @@ sprite dlgbox2 rect
 layer 0 block32.png
 end
 
+sprite dlgbox3 rect 
+143,160,0,0,143,160
+layer 0 block32.png
+end
+
+sprite dlgbox4 rect 
+143,160,143,0,143,160
+layer 0 block32.png
+end
+
+
 sprite button1 rect
 78,22,0,341,78,22
 layer 0 block32.png

@@ -16,7 +16,7 @@ public class MainMenuView extends BaseView {
 		super.shown();
 
 		menu = new MainMenuWindow(getApp());
-		menu.setBounds(new Rect(10, 10, 130, 300));
+		menu.setBounds(new Rect(10, 10, 130, 150));
 		menu.show();
 	}
 

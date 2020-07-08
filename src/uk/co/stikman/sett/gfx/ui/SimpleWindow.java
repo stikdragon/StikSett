@@ -94,7 +94,7 @@ public class SimpleWindow {
 			window.drawFlatRect(0, 0, screenWidth, screenHeight, tmpC.set(0, 0, 0, 0.4f));
 
 		Rect windowBounds = getBounds();
-		
+
 		if (theming.getBackgroundSprite() == null) {
 			window.drawFlatRect(windowBounds, theming.getBackgroundColour());
 		} else {
@@ -105,7 +105,7 @@ public class SimpleWindow {
 		}
 
 		if (theming.getTitleFont() != null) {
-			tmpR2.set(windowBounds.getX(), windowBounds.getY() + 2, windowBounds.getW(), 30);
+			tmpR2.set(windowBounds.getX(), windowBounds.getY() + 12, windowBounds.getW(), 30);
 			window.drawText(tmpR2, getCaption(), theming.getTitleFont(), rtoTitle, theming.getFontColour());
 		}
 
@@ -131,10 +131,13 @@ public class SimpleWindow {
 		return false;
 	}
 
-	public void mouseMove(int x, int y) {
+	public boolean mouseMove(int x, int y) {
 		if (!isVisible())
-			return;
+			return false;
 
+		if (!inBounds(x, y))
+			return false;		
+		
 		//		x = (int) (x - bounds.x);
 		//		y = (int) (y - bounds.y);
 
@@ -157,22 +160,40 @@ public class SimpleWindow {
 				currentHover.mouseEnter((int) (x - r.x), (int) (y - r.y));
 			}
 		}
+		return true;
 	}
 
-	public void mouseUp(int x, int y, int button) {
+	public boolean mouseUp(int x, int y, int button) {
+		if (!isVisible())
+			return false;
+
+		if (!inBounds(x, y))
+			return false;
+
 		for (Component c : components) {
 			Rect r = c.getBounds();
 			if (r.contains(x, y))
 				c.mouseUp((int) (x - r.x), (int) (y - r.y), button);
 		}
+		return true;
 	}
 
-	public void mouseDown(int x, int y, int button) {
+	private boolean inBounds(int x, int y) {
+		return getBounds().contains(x, y);
+	}
+
+	public boolean mouseDown(int x, int y, int button) {
+		if (!isVisible())
+			return false;
+
+		if (!inBounds(x, y))
+			return false;
 		for (Component c : components) {
 			Rect r = c.getBounds();
 			if (r.contains(x, y))
 				c.mouseDown((int) (x - r.x), (int) (y - r.y), button);
 		}
+		return true;
 	}
 
 	public void init() {

@@ -33,6 +33,7 @@ public class MainMenuWindow extends SettStandardWindow {
 		items.add(new Button(this, "options", "Options"));
 		items.add(btnQuit = new Button(this, "quit", "Quit"));
 		btnQuit.setButtonColour(VectorColours.rgb(255, 226, 236));
+		btnQuit.setOnClick(b -> hide());
 	}
 
 	@Override

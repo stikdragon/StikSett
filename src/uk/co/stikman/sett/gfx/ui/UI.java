@@ -1,5 +1,7 @@
 package uk.co.stikman.sett.gfx.ui;
 
+import java.awt.Window;
+
 import uk.co.stikman.sett.gfx.Window3D;
 import uk.co.stikman.sett.gfx.util.Rect;
 
@@ -49,16 +51,25 @@ public class UI {
 		return false;
 	}
 
-	public void handleMouseMove(int x, int y) {
-		getWindows().forEach(w -> w.mouseMove(x, y));
+	public boolean handleMouseMove(int x, int y) {
+		boolean b = false;
+		for (SimpleWindow w : getWindows())
+			b |= w.mouseMove(x, y);
+		return b;
 	}
 
-	public void handleMouseDown(int x, int y, int button) {
-		getWindows().forEach(w -> w.mouseDown(x, y, button));
+	public boolean handleMouseDown(int x, int y, int button) {
+		boolean b = false;
+		for (SimpleWindow w : getWindows())
+			b |= w.mouseDown(x, y, button);
+		return b;
 	}
 
-	public void handleMouseUp(int x, int y, int button) {
-		getWindows().forEach(w -> w.mouseUp(x, y, button));
+	public boolean handleMouseUp(int x, int y, int button) {
+		boolean b = false;
+		for (SimpleWindow w : getWindows())
+			b |= w.mouseUp(x, y, button);
+		return b;
 	}
 
 	public void handleResize(int w, int h) {
