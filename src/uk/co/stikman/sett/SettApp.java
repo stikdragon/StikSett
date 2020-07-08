@@ -1,23 +1,25 @@
 package uk.co.stikman.sett;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import uk.co.stikman.log.StikLog;
+import uk.co.stikman.sett.client.renderer.BaseView;
 import uk.co.stikman.sett.client.renderer.GameView;
-import uk.co.stikman.sett.client.renderer.MainView;
 import uk.co.stikman.sett.conn.GameConnection;
 import uk.co.stikman.sett.conn.PendingNetworkOp;
 import uk.co.stikman.sett.conn.Response;
 import uk.co.stikman.sett.conn.ResponseHandler;
-import uk.co.stikman.sett.game.Player;
+import uk.co.stikman.sett.gfx.GameResources;
+import uk.co.stikman.sett.gfx.Window3D;
 import uk.co.stikman.sett.gfx.lwjgl.Window3DNative;
 import uk.co.stikman.sett.gfx.text.OutlineMode;
 import uk.co.stikman.sett.gfx.text.RenderTextOptions;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
+import uk.co.stikman.sett.gfx.util.StreamSource;
 import uk.co.stikman.sett.gfx.util.WindowInitError;
-import uk.co.stikman.sett.svr.BaseGameServer;
 import uk.co.stikman.sett.svr.GameServer;
 import uk.co.stikman.sett.svr.GameServerConfig;
 import uk.co.stikman.sett.svr.SendMessage;
@@ -49,7 +51,8 @@ public class SettApp {
 
 	private Window3DNative					window;
 	private SettUI							ui;
-	private MainView						view;
+	private GameResources					uiResources;
+	private BaseView						view;
 	private double							lastT;
 
 	private GameServer						svr;
@@ -73,7 +76,7 @@ public class SettApp {
 		}
 
 		try {
-			setView(new NullView());
+			setView(new NullView(this));
 
 			window = new Window3DNative(WINDOW_W, WINDOW_H, true);
 			window.setTitle("Thing");
@@ -176,7 +179,7 @@ public class SettApp {
 
 				// load initial game data from stream
 
-				GameView view = new GameView(window, game);
+				GameView view = new GameView(this, game);
 				view.init();
 				setView(view);
 
@@ -186,10 +189,17 @@ public class SettApp {
 		}
 	}
 
-	private void setView(MainView v) {
+	private void setView(BaseView v) {
+		if (v == null)
+			throw new NullPointerException();
+		if (v == this.view)
+			return;
+		if (this.view != null)
+			this.view.hidden();
 		this.view = v;
 		if (getWindow() != null)
 			view.setViewport(getWindow().getWidth(), getWindow().getHeight());
+		this.view.shown();
 	}
 
 	private void send(SendMessage msg, ResponseHandler onresponse) throws IOException {
@@ -199,6 +209,19 @@ public class SettApp {
 
 	private void onInit() throws WindowInitError {
 		ui = new SettUI(this);
+		uiResources = new GameResources(window);
+		try {
+			uiResources.load(Resources.getFileAsString("ui/uires.txt"), new StreamSource() {
+				@Override
+				public InputStream getStream(String name) throws IOException {
+					return Resources.getFile("ui/" + name);
+				}
+			});
+		} catch (IOException | ResourceLoadError e) {
+			throw new WindowInitError("Could not load Resources", e);
+		}
+		setView(new MainMenuView(this));
+
 		initNetwork();
 	}
 
@@ -219,7 +242,6 @@ public class SettApp {
 		//
 		// Do update() then render()
 		//
-		window.clear();
 		update((float) dt);
 		render();
 	}
@@ -245,21 +267,26 @@ public class SettApp {
 	}
 
 	private void render() {
+		window.setDepthTestEnabled(true);
 		window.clear();
 		view.render();
+		window.setDepthTestEnabled(false);
+		ui.render();
 	}
 
 	private void update(float dt) {
 		//
 		// read network responses
 		//
-		for (;;) {
-			Response r = conn.extract();
-			if (r == null)
-				break;
+		if (conn != null) {
+			for (;;) {
+				Response r = conn.extract();
+				if (r == null)
+					break;
 
-			PendingNetworkOp networkOp = pendingNetworkOperations.remove(Integer.valueOf(r.getId()));
-			networkOp.getHandler().response(r);
+				PendingNetworkOp networkOp = pendingNetworkOperations.remove(Integer.valueOf(r.getId()));
+				networkOp.getHandler().response(r);
+			}
 		}
 
 		if (view == null)
@@ -267,7 +294,7 @@ public class SettApp {
 		view.update(dt);
 	}
 
-	public Window3DNative getWindow() {
+	public Window3D getWindow() {
 		return window;
 	}
 
@@ -282,6 +309,14 @@ public class SettApp {
 		//		m.scale(1.0f, ROOT3_2); 
 		m.skew(0, -0.5f);
 		return m;
+	}
+
+	public SettUI getUI() {
+		return ui;
+	}
+
+	public GameResources getUIResources() {
+		return uiResources;
 	}
 
 }

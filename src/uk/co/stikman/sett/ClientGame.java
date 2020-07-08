@@ -17,7 +17,7 @@ import uk.co.stikman.sett.game.WorldParameters;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
 import uk.co.stikman.utils.StikDataInputStream;
 
-public class ClientGame extends BaseGame {
+public class ClientGame extends Game {
 
 	private final ObjectConstructors OBJECT_CONSTRUCTORS = new ObjectConstructors();
 

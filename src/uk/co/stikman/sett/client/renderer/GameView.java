@@ -1,7 +1,5 @@
 package uk.co.stikman.sett.client.renderer;
 
-import static uk.co.stikman.sett.SettApp.CHUNK_SIZE;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,11 +37,11 @@ import uk.co.stikman.utils.math.Vector2i;
 import uk.co.stikman.utils.math.Vector3;
 import uk.co.stikman.utils.math.Vector4;
 
-public class GameView extends MainView {
+public class GameView extends BaseView {
 	private static final StikLog			LOGGER				= StikLog.getLogger(GameView.class);
-	private static final float				ROOT3_2				= (float) (Math.sqrt(3.0) / 2.0);
 	private static final int				MAX_SHADOWMAP_SIZE	= 4096;
 	private static final int				PIXEL_SCALE			= 1;
+	private static final int				CHUNK_SIZE			= SettApp.CHUNK_SIZE;
 
 	private Window3D						window;
 	private ClientGame						game;
@@ -101,8 +99,9 @@ public class GameView extends MainView {
 	private final ScanlineConverter			scanconverter		= new ScanlineConverter();
 	private boolean							FORCE_CHUNK_TEST	= true;
 
-	public GameView(Window3D window, ClientGame game) {
-		this.window = window;
+	public GameView(SettApp app, ClientGame game) {
+		super(app);
+		this.window = app.getWindow();
 		this.game = game;
 		time = 0.0f;
 	}

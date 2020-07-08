@@ -2,23 +2,22 @@ package uk.co.stikman.sett.game;
 
 import java.io.IOException;
 
-import uk.co.stikman.sett.BaseGame;
-import uk.co.stikman.sett.ClientGame;
+import uk.co.stikman.sett.Game;
 import uk.co.stikman.sett.SettInputStream;
 
 public class Tree implements GameObject, IsNodeObject {
 
-	private final BaseGame	game;
+	private final Game	game;
 	private SceneryType	type;
 	private int			id;
 
-	public Tree(BaseGame game,int id, SceneryType type) {
+	public Tree(Game game,int id, SceneryType type) {
 		this.game = game;
 		this.type = type;
 		this.id = id;
 	}
 
-	public Tree(BaseGame game) {
+	public Tree(Game game) {
 		this.game = game;
 	}
 

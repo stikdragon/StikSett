@@ -77,16 +77,33 @@ public class VectorColours {
 	}
 
 	private static float hue2rgb(float p, float q, float h) {
-		if (h < 0) 
+		if (h < 0)
 			h += 1;
-		if (h > 1) 
+		if (h > 1)
 			h -= 1;
-		if (6 * h < 1) 
+		if (6 * h < 1)
 			return p + ((q - p) * 6 * h);
-		if (2 * h < 1) 
+		if (2 * h < 1)
 			return q;
-		if (3 * h < 2) 
+		if (3 * h < 2)
 			return p + ((q - p) * 6 * ((2.0f / 3.0f) - h));
 		return p;
+	}
+
+	/**
+	 * range 0..255
+	 * 
+	 * @param r
+	 * @param g
+	 * @param b
+	 * @param a
+	 * @return
+	 */
+	public static Vector4 rgba(int r, int g, int b, int a) {
+		return new Vector4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+	}
+
+	public static Vector4 rgb(int r, int g, int b) {
+		return new Vector4(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
 	}
 }

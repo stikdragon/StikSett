@@ -11,12 +11,11 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import uk.co.stikman.log.StikLog;
-import uk.co.stikman.sett.BaseGame;
+import uk.co.stikman.sett.Game;
 import uk.co.stikman.sett.SettApp;
 import uk.co.stikman.sett.game.Building;
 import uk.co.stikman.sett.game.Flag;
 import uk.co.stikman.sett.game.GenerateOptions;
-import uk.co.stikman.sett.game.IsNodeObject;
 import uk.co.stikman.sett.game.Player;
 import uk.co.stikman.sett.game.Road;
 import uk.co.stikman.sett.game.SettOutputStream;
@@ -26,7 +25,6 @@ import uk.co.stikman.sett.game.World;
 import uk.co.stikman.sett.game.WorldParameters;
 import uk.co.stikman.sett.gfx.VectorColours;
 import uk.co.stikman.users.Users;
-import uk.co.stikman.utils.StikByteArrayInputStream;
 import uk.co.stikman.utils.StikDataOutputStream;
 import uk.co.stikman.utils.math.Vector2i;
 import uk.co.stikman.utils.math.Vector3;
@@ -190,7 +188,7 @@ public class GameServer extends BaseGameServer {
 		}
 	}
 
-	private void randomFlags(BaseGame game) {
+	private void randomFlags(Game game) {
 		List<Player> players = game.getPlayers().values().stream().collect(Collectors.toList());
 		Random rng = new Random();
 		for (int y = 0; y < game.getWorld().getHeight(); ++y) {
@@ -205,7 +203,7 @@ public class GameServer extends BaseGameServer {
 		}
 	}
 
-	private void randomRoads(BaseGame game) {
+	private void randomRoads(Game game) {
 		Random rng = new Random();
 		int n = 40 * game.getWorld().getWidth() * game.getWorld().getHeight() / 50000;
 		for (int k = 0; k < n; ++k) {

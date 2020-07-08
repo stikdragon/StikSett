@@ -1,21 +1,22 @@
 package uk.co.stikman.sett.gfx.ui;
 
+import uk.co.stikman.sett.gfx.Window3D;
 import uk.co.stikman.sett.gfx.lwjgl.Window3DNative;
 import uk.co.stikman.sett.gfx.util.Rect;
 
 public class UI {
 	private WindowList	windows		= new WindowList(this);
-	private Window3DNative	owner;
+	private Window3D	owner;
 	private Rect		uiBounds	= new Rect();
 
-	public UI(Window3DNative owner) {
+	public UI(Window3D owner) {
 		this.owner = owner;
 	}
 
 	public void windowListChanged(WindowList list) {
 	}
 
-	public Window3DNative getWindow3D() {
+	public Window3D getWindow3D() {
 		return owner;
 	}
 

@@ -4,18 +4,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.co.stikman.sett.BaseGame;
+import uk.co.stikman.sett.Game;
 import uk.co.stikman.sett.SettInputStream;
 
 public class Flag extends PlayerObject {
 
 	private transient List<HasFlag> connections = new ArrayList<>();
 
-	public Flag(BaseGame game) {
+	public Flag(Game game) {
 		super(game);
 	}
 
-	public Flag(BaseGame game, Player owner) {
+	public Flag(Game game, Player owner) {
 		super(game, owner, -1);
 	}
 

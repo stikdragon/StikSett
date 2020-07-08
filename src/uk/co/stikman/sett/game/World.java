@@ -1,12 +1,11 @@
 package uk.co.stikman.sett.game;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import uk.co.stikman.sett.BaseGame;
+import uk.co.stikman.sett.Game;
 import uk.co.stikman.sett.SettApp;
 import uk.co.stikman.sett.util.ThingList;
 
@@ -21,9 +20,9 @@ public class World {
 
 	private int											width;
 	private int											height;
-	private BaseGame									game;
+	private Game									game;
 
-	public World(BaseGame game) {
+	public World(Game game) {
 		this.game = game;
 	}
 
@@ -123,7 +122,7 @@ public class World {
 		return out;
 	}
 
-	public BaseGame getGame() {
+	public Game getGame() {
 		return game;
 	}
 

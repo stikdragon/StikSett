@@ -28,7 +28,7 @@ public class GameResources {
 	private Map<String, Image>		images	= new HashMap<>();
 	private Map<String, BitmapFont>	fonts	= new HashMap<>();
 	private Map<String, Cursor>		cursors	= new HashMap<>();
-	private final Window3DNative			wnd;
+	private final Window3D			wnd;
 	private StreamSource			loader;
 	private final int				layerCount;
 
@@ -467,7 +467,7 @@ public class GameResources {
 		return lst;
 	}
 
-	public Window3DNative getWindow() {
+	public Window3D getWindow() {
 		return wnd;
 	}
 

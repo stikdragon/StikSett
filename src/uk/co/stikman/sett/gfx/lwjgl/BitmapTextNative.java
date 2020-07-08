@@ -195,7 +195,7 @@ public class BitmapTextNative extends BitmapText {
 		int npos = window.getAttribLocation("vertexPosition");
 		int ncolour = window.getAttribLocation("vertexColour");
 		int nuv = window.getAttribLocation("vertexUV");
-		
+
 		GL20.glEnableVertexAttribArray(npos);
 		GL20.glEnableVertexAttribArray(nuv);
 		if (options.isColourFormatting())
@@ -229,7 +229,7 @@ public class BitmapTextNative extends BitmapText {
 		if (options.getOutlineMode() != OutlineMode.NONE) {
 			Vector4 c = options.getOutlineColour();
 			shader.getUniform("colourOverride").bindFloat(options.getOutlineBlendFactor());
-			shader.getUniform("colourOverrideColour").bindVec4(c.x / 255.0f, c.y / 255.0f, c.z / 255.0f, c.w / 255.0f);
+			shader.getUniform("colourOverrideColour").bindVec4(c.x, c.y, c.z, c.w);
 
 			if (options.getOutlineMode() == OutlineMode.OUTLINE) {
 				for (int dx = -1; dx < 2; ++dx) {
@@ -249,7 +249,7 @@ public class BitmapTextNative extends BitmapText {
 
 		if (overrideColour != null) {
 			shader.getUniform("colourOverride").bindFloat(overrideColourMix);
-			shader.getUniform("colourOverrideColour").bindVec4(overrideColour.x / 255.0f, overrideColour.y / 255.0f, overrideColour.z / 255.0f, overrideColour.w / 255.0f);
+			shader.getUniform("colourOverrideColour").bindVec4(overrideColour.x, overrideColour.y, overrideColour.z, overrideColour.w);
 		} else {
 			shader.getUniform("colourOverride").bindFloat(0.0f);
 		}

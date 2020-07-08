@@ -5,7 +5,9 @@ import java.util.List;
 
 import org.lwjgl.glfw.GLFW;
 
+import uk.co.stikman.sett.MainMenuView;
 import uk.co.stikman.sett.gfx.GameResources;
+import uk.co.stikman.sett.gfx.Window3D;
 import uk.co.stikman.sett.gfx.lwjgl.Window3DNative;
 import uk.co.stikman.sett.gfx.text.BitmapFont;
 import uk.co.stikman.sett.gfx.text.HAlign;
@@ -26,30 +28,30 @@ import uk.co.stikman.utils.math.Vector4;
  *
  */
 public class SimpleWindow {
-	private int						screenHeight;
-	private int						screenWidth;
-	private String					caption;
+	private int					screenHeight;
+	private int					screenWidth;
+	private String				caption;
 
-	private final Rect				tmpR			= new Rect();
-	private final Rect				tmpR2			= new Rect();
-	private final Vector2i			tmpVi			= new Vector2i();
-	private final Vector4			tmpC			= new Vector4();
+	private final Rect			tmpR			= new Rect();
+	private final Rect			tmpR2			= new Rect();
+	private final Vector2i		tmpVi			= new Vector2i();
+	private final Vector4		tmpC			= new Vector4();
 
-	private final Window3DNative	window;
-	private boolean					visible			= false;
+	private final Window3D		window;
+	private boolean				visible			= false;
 
-	private RenderTextOptions		rtoTitle;
-	private Component				currentHover	= null;
+	private RenderTextOptions	rtoTitle;
+	private Component			currentHover	= null;
 
-	private List<Component>			components		= new ArrayList<>();
-	private Rect					bounds;
-	private GameResources			resources;
-	private boolean					glass			= false;
-	private WindowTheming			theming			= new WindowTheming();
-	private WindowPosition			windowPosition	= WindowPosition.MANUAL;
-	private Rect					requestedBounds;
-	private boolean					initialised		= false;
-	private UI						ui;
+	private List<Component>		components		= new ArrayList<>();
+	private Rect				bounds;
+	private GameResources		resources;
+	private boolean				glass			= false;
+	private WindowTheming		theming			= new WindowTheming();
+	private WindowPosition		windowPosition	= WindowPosition.MANUAL;
+	private Rect				requestedBounds;
+	private boolean				initialised		= false;
+	private UI					ui;
 
 	public SimpleWindow(UI owner, GameResources resources) {
 		super();
@@ -91,10 +93,10 @@ public class SimpleWindow {
 		// Dark overlay
 		//
 		if (glass)
-			window.drawFlatRect(0, 0, screenWidth, screenHeight, tmpC.set(0, 0, 0, 200));
+			window.drawFlatRect(0, 0, screenWidth, screenHeight, tmpC.set(0, 0, 0, 0.4f));
 
 		Rect windowBounds = getBounds();
-
+		
 		if (theming.getBackgroundSprite() == null) {
 			window.drawFlatRect(windowBounds, theming.getBackgroundColour());
 		} else {
@@ -208,7 +210,7 @@ public class SimpleWindow {
 		return bounds;
 	}
 
-	public Window3DNative getWindow() {
+	public Window3D getWindow() {
 		return window;
 	}
 

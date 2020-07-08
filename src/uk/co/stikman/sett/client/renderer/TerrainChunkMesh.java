@@ -1,7 +1,5 @@
 package uk.co.stikman.sett.client.renderer;
 
-import static uk.co.stikman.sett.SettApp.CHUNK_SIZE;
-
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.Random;
@@ -58,6 +56,7 @@ public class TerrainChunkMesh {
 
 	private static final float[]	UV_VARIATIONS	= new float[VARIATIONS_SIZE * 2];
 	private static final Vector4	DEEP_BLUE		= new Vector4(0, 0, 0.5f, 1.0f);
+	private static final int		CHUNK_SIZE		= SettApp.CHUNK_SIZE;
 
 	static {
 		Random rng = new Random(1);
@@ -90,7 +89,7 @@ public class TerrainChunkMesh {
 		if (vertices != null)
 			destroy();
 
-		int n = CHUNK_SIZE *  CHUNK_SIZE * 20 * VERT_ITEM_COUNT;
+		int n = CHUNK_SIZE * CHUNK_SIZE * 20 * VERT_ITEM_COUNT;
 		int m = CHUNK_SIZE * CHUNK_SIZE * 2 * 22 * 3;
 		verts = new FloatList(n);
 		tris = new IntList(m);

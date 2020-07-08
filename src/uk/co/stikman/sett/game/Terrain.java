@@ -1,10 +1,9 @@
 package uk.co.stikman.sett.game;
 
-import java.security.acl.Owner;
 import java.util.Random;
 
 import uk.co.stikman.log.StikLog;
-import uk.co.stikman.sett.BaseGame;
+import uk.co.stikman.sett.Game;
 import uk.co.stikman.sett.SettApp;
 import uk.co.stikman.sett.client.renderer.Ray;
 import uk.co.stikman.utils.math.Matrix3;
@@ -226,7 +225,7 @@ public class Terrain {
 		LOGGER.info("  done");
 	}
 
-	private BaseGame getGame() {
+	private Game getGame() {
 		return world.getGame();
 	}
 

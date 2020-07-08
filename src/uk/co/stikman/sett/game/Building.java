@@ -2,7 +2,7 @@ package uk.co.stikman.sett.game;
 
 import java.io.IOException;
 
-import uk.co.stikman.sett.BaseGame;
+import uk.co.stikman.sett.Game;
 import uk.co.stikman.sett.SettInputStream;
 
 public class Building extends PlayerObject implements HasFlag {
@@ -10,11 +10,11 @@ public class Building extends PlayerObject implements HasFlag {
 	private BuildingType	type;
 	private Flag			flag;
 
-	public Building(BaseGame game) {
+	public Building(Game game) {
 		super(game);
 	}
 
-	public Building(BaseGame game, Player owner, int id, BuildingType type) {
+	public Building(Game game, Player owner, int id, BuildingType type) {
 		super(game, owner, id);
 		this.type = type;
 	}

@@ -2,20 +2,20 @@ package uk.co.stikman.sett.game;
 
 import java.io.IOException;
 
-import uk.co.stikman.sett.BaseGame;
+import uk.co.stikman.sett.Game;
 import uk.co.stikman.sett.SettInputStream;
 
 public class Rock implements GameObject, IsNodeObject {
 
 	private SceneryType	type;
 	private int			id;
-	private BaseGame	game;
+	private Game	game;
 
-	public Rock(BaseGame game) {
+	public Rock(Game game) {
 		this.game = game;
 	}
 
-	public Rock(BaseGame game, int id, SceneryType type) {
+	public Rock(Game game, int id, SceneryType type) {
 		this.game = game;
 		this.type = type;
 		this.id = id;

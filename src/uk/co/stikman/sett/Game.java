@@ -15,7 +15,6 @@ import org.w3c.dom.Element;
 
 import uk.co.stikman.sett.game.BuildingType;
 import uk.co.stikman.sett.game.Flag;
-import uk.co.stikman.sett.game.IsNodeObject;
 import uk.co.stikman.sett.game.ObstructionType;
 import uk.co.stikman.sett.game.Player;
 import uk.co.stikman.sett.game.Road;
@@ -28,7 +27,7 @@ import uk.co.stikman.sett.util.SettUtil;
 import uk.co.stikman.utils.math.Vector2i;
 import uk.co.stikman.utils.math.Vector3;
 
-public class BaseGame {
+public class Game {
 
 	public static final int						TERRAIN_GRASS		= 0;
 	public static final int						TERRAIN_DESERT		= 1;
@@ -47,7 +46,7 @@ public class BaseGame {
 	private String								name;
 	private transient SettApp					app;
 
-	public BaseGame(SettApp app) {
+	public Game(SettApp app) {
 		this.app = app;
 		files = Resources::getFileWild;
 	}
@@ -245,7 +244,7 @@ public class BaseGame {
 	private boolean isFlagValid(TerrainNode n) {
 		if (n.getObject() != null && (n.getObject().getObstructionType() == ObstructionType.BUILDINGS || n.getObject().getObstructionType() == ObstructionType.ALL))
 			return false;
-		if (n.getType() == BaseGame.TERRAIN_ICE || n.getType() == TERRAIN_WATER)
+		if (n.getType() == Game.TERRAIN_ICE || n.getType() == TERRAIN_WATER)
 			return false;
 
 		TerrainNode[] nodes = world.getTerrain().getNeighbours(n);

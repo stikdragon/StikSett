@@ -2,19 +2,19 @@ package uk.co.stikman.sett.game;
 
 import java.io.IOException;
 
-import uk.co.stikman.sett.BaseGame;
+import uk.co.stikman.sett.Game;
 import uk.co.stikman.sett.SettInputStream;
 
 public abstract class PlayerObject implements GameObject, HasOwner, IsNodeObject {
-	private transient final BaseGame	game;
+	private transient final Game	game;
 	private int							id;
 	private Player						owner;
 
-	public PlayerObject(BaseGame game) {
+	public PlayerObject(Game game) {
 		this(game, null, -1);
 	}
 
-	public PlayerObject(BaseGame game, Player owner, int id) {
+	public PlayerObject(Game game, Player owner, int id) {
 		super();
 		this.id = id;
 		this.owner = owner;
@@ -35,7 +35,7 @@ public abstract class PlayerObject implements GameObject, HasOwner, IsNodeObject
 		this.id = id;
 	}
 
-	public BaseGame getGame() {
+	public Game getGame() {
 		return game;
 	}
 

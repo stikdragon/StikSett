@@ -58,7 +58,7 @@ public class Window3DNative extends Window3D {
 	private List<TextureNative>		textures					= new ArrayList<>();
 	private List<BitmapFont>		fonts						= new ArrayList<>();
 	private List<Cursor>			cursors						= new ArrayList<>();
-	private RenderTextOptions		defaultTextRenderOptions	= RenderTextOptions.DEFAULT;
+
 
 	private RenderTarget			defaultRenderTarget			= new WindowRenderTargetNative(this);
 
@@ -85,6 +85,15 @@ public class Window3DNative extends Window3D {
 		loop();
 	}
 
+	
+	@Override
+	public void setDepthTestEnabled(boolean b) {
+		if (b)
+			GL11.glEnable(GL11.GL_DEPTH_TEST);
+		else
+			GL11.glDisable(GL11.GL_DEPTH_TEST);
+	}
+	
 	private void loop() {
 		GLFW.glfwSwapInterval(1);
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
@@ -206,6 +215,7 @@ public class Window3DNative extends Window3D {
 		return framecount;
 	}
 
+	@Override
 	public BitmapFont loadFontZIP(InputStream is) throws ResourceLoadError {
 		String fntname = "<stream>";
 		try {
@@ -321,21 +331,7 @@ public class Window3DNative extends Window3D {
 		return new PolyMeshNative(this);
 	}
 
-	public void drawText(Rect r, String text, BitmapFont font, RenderTextOptions rto, Vector4 colour) {
-		drawText((int) r.getX(), (int) r.getY(), (int) r.getW(), (int) r.getH(), text, font, rto, colour);
-	}
 
-	public void drawText(Rect r, String text, BitmapFont font, Vector4 colour) {
-		drawText((int) r.getX(), (int) r.getY(), (int) r.getW(), (int) r.getH(), text, font, null, colour);
-	}
-
-	public void drawText(int x, int y, int w, int h, String text, BitmapFont font) {
-		drawText(x, y, w, h, text, font, null);
-	}
-
-	public void drawText(int x, int y, int w, int h, String text, BitmapFont font, Vector4 colour) {
-		drawText(x, y, w, h, text, font, defaultTextRenderOptions, colour);
-	}
 
 	/**
 	 * If <code>null</code> then it's back to default
@@ -364,6 +360,7 @@ public class Window3DNative extends Window3D {
 	@Override
 	public void clear() {
 		clear(VectorColours.BLACK);
+//		clear(new Vector4(1, 0, 1, 1));
 	}
 
 	/**
@@ -376,20 +373,15 @@ public class Window3DNative extends Window3D {
 	public void clear(Vector4 c) {
 		GL11.glClearColor(c.x, c.y, c.z, c.w);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-	}
-
-	public void setDefaultTextRenderOptions(RenderTextOptions rto) {
-		this.defaultTextRenderOptions = rto;
-	}
-
-	public RenderTextOptions getDefaultTextRenderOptions() {
-		return defaultTextRenderOptions;
+//		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+		GLUtil.checkError();
 	}
 
 	public List<Cursor> getCursors() {
 		return cursors;
 	}
 
+	@Override
 	public Cursor loadCursor(String name, InputStream png, Vector2i hotspot) throws IOException {
 		if (findCursor(name) != null)
 			throw new IllegalArgumentException("Cursor " + name + " already loaded");

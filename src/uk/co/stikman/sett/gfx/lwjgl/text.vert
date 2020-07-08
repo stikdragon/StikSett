@@ -1,13 +1,15 @@
-//ATTRIB:vertexPosition,vertexUV,vertexColour
+//ATTRIB:vertexPosition,vertexUV,vertexColour,vertexNormal
 #version 150 core
 
 uniform mat4 proj;
 uniform vec4 colourOverrideColour;
 uniform float colourOverride;
 uniform vec2 offset;
+
 in vec2 vertexPosition;
 in vec2 vertexUV;
 in vec4 vertexColour;
+in vec4 vertexNormal;
 
 out vec4 v_colour;
 out vec2 v_uv;

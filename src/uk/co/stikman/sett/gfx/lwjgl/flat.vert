@@ -1,4 +1,4 @@
-//ATTRIB:vertexPosition,vertexUV,vertexColour
+//ATTRIB:vertexPosition,vertexColour
 #version 150 core
 
 uniform mat4 view;

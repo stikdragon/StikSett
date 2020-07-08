@@ -191,7 +191,7 @@ public abstract class Sprite {
 	 * @param time
 	 * @param colour
 	 */
-	public void renderLayer(Window3DNative window, int layer, int x, int y, int w, int h, float angle, float time, Vector4 colour) {
+	public void renderLayer(Window3D window, int layer, int x, int y, int w, int h, float angle, float time, Vector4 colour) {
 		if (!hasLayer(layer))
 			return;
 		Vector2 b = getBounds();

@@ -2,7 +2,7 @@ package uk.co.stikman.sett.game;
 
 import java.io.IOException;
 
-import uk.co.stikman.sett.BaseGame;
+import uk.co.stikman.sett.Game;
 import uk.co.stikman.sett.SettInputStream;
 import uk.co.stikman.utils.math.Vector3;
 
@@ -10,13 +10,13 @@ public class Player implements IsSerializable {
 	private int				id;
 	private String			name;
 	private Vector3			colour	= new Vector3(0, 0, 0.8f);
-	private final BaseGame	game;
+	private final Game	game;
 
-	public Player(BaseGame game) {
+	public Player(Game game) {
 		this.game = game;
 	}
 	
-	public Player(BaseGame game, int id, String name, Vector3 colour) {
+	public Player(Game game, int id, String name, Vector3 colour) {
 		this.game = game;
 		this.name = name;
 		this.id = id;
@@ -44,7 +44,7 @@ public class Player implements IsSerializable {
 		return "Player [id=" + id + ", name=" + name + ", colour=" + colour + ", game=" + game + "]";
 	}
 
-	public BaseGame getGame() {
+	public Game getGame() {
 		return game;
 	}
 

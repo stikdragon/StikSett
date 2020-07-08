@@ -34,27 +34,28 @@ import uk.co.stikman.utils.math.Vector2i;
 import uk.co.stikman.utils.math.Vector4;
 
 public abstract class Window3D {
-	private static final int					STRETCH_CACHE_SIZE	= 64;
+	private static final int					STRETCH_CACHE_SIZE			= 64;
 
 	private String								caption;
 	private int									height;
 	private int									width;
 	private boolean								useLinearTextures;
 
-	private Map<String, Shader>					shaders				= new HashMap<>();
-	private MeshCache							meshCache			= new MeshCache();
+	private Map<String, Shader>					shaders						= new HashMap<>();
+	private MeshCache							meshCache					= new MeshCache();
 
 	private Shader								currentShader;
 	private Shader								basicShader;
 	private Shader								flatShader;
 	private Shader								textShader;
 
-	private RenderTarget						renderTarget		= null;
+	private RenderTarget						renderTarget				= null;
 
-	private final SmartQuadKey					tmpSQK				= new SmartQuadKey();
-	private Map<SmartQuadKey, SmartQuadNative>	smartQuadCache		= new HashMap<>();
-	private StretchMode[]						stretchCache		= new StretchMode[STRETCH_CACHE_SIZE];
-	private Map<String, Integer>				attribLocations		= new HashMap<>();
+	private final SmartQuadKey					tmpSQK						= new SmartQuadKey();
+	private Map<SmartQuadKey, SmartQuadNative>	smartQuadCache				= new HashMap<>();
+	private StretchMode[]						stretchCache				= new StretchMode[STRETCH_CACHE_SIZE];
+	private Map<String, Integer>				attribLocations				= new HashMap<>();
+	private RenderTextOptions					defaultTextRenderOptions	= RenderTextOptions.DEFAULT;
 
 	private OnFrameEvent						onFrame;
 	private OnInitHandler						onInit;
@@ -66,9 +67,9 @@ public abstract class Window3D {
 	private OnMouseUpEvent						onMouseUp;
 	private OnMouseWheelEvent					onMouseWheel;
 
-	private Matrix4								tmpM				= new Matrix4();
-	private Vector2[]							tmpV				= new Vector2[] { new Vector2(), new Vector2() };
-	private Vector2i							tmpVi				= new Vector2i();
+	private Matrix4								tmpM						= new Matrix4();
+	private Vector2[]							tmpV						= new Vector2[] { new Vector2(), new Vector2() };
+	private Vector2i							tmpVi						= new Vector2i();
 
 	public Window3D(int width, int height, boolean linear) {
 		this.width = width;
@@ -180,8 +181,7 @@ public abstract class Window3D {
 		Shader.Uniform uniColour = flatShader.getUniform("colour", false);
 
 		uniView.bindMat4(view);
-		uniColour.bindVec4(colour.x / 255.0f, colour.y / 255.0f, colour.z / 255.0f, colour.w / 255.0f);
-
+		uniColour.bindVec4(colour);
 		Entry e = meshCache.get("_flatrect");
 		if (e.getMesh() == null) {
 			PolyMesh m = createPolyMesh();
@@ -290,7 +290,7 @@ public abstract class Window3D {
 
 		uniView.bindMat4(view);
 		if (colour != null)
-			uniColour.bindVec4(colour.x / 255.0f, colour.y / 255.0f, colour.z / 255.0f, colour.w / 255.0f);
+			uniColour.bindVec4(colour);
 		else
 			uniColour.bindVec4(1, 1, 1, 1);
 		uniTxt.bindTexture(sprite.getImage(layer).getTexture(), 0);
@@ -318,7 +318,7 @@ public abstract class Window3D {
 
 		uniView.bindMat4(view);
 		if (colour != null)
-			uniColour.bindVec4(colour.x / 255.0f, colour.y / 255.0f, colour.z / 255.0f, colour.w / 255.0f);
+			uniColour.bindVec4(colour);
 		else
 			uniColour.bindVec4(1, 1, 1, 1);
 		uniTxt.bindTexture(image.getTexture(), 0);
@@ -377,6 +377,22 @@ public abstract class Window3D {
 		} finally {
 			bmt.destroy();
 		}
+	}
+
+	public void drawText(Rect r, String text, BitmapFont font, RenderTextOptions rto, Vector4 colour) {
+		drawText((int) r.getX(), (int) r.getY(), (int) r.getW(), (int) r.getH(), text, font, rto, colour);
+	}
+
+	public void drawText(Rect r, String text, BitmapFont font, Vector4 colour) {
+		drawText((int) r.getX(), (int) r.getY(), (int) r.getW(), (int) r.getH(), text, font, null, colour);
+	}
+
+	public void drawText(int x, int y, int w, int h, String text, BitmapFont font) {
+		drawText(x, y, w, h, text, font, null);
+	}
+
+	public void drawText(int x, int y, int w, int h, String text, BitmapFont font, Vector4 colour) {
+		drawText(x, y, w, h, text, font, defaultTextRenderOptions, colour);
 	}
 
 	protected abstract BitmapText constructBitmapText(Shader shader, BitmapFont font, RenderTextOptions rto, int w);
@@ -534,6 +550,14 @@ public abstract class Window3D {
 		return i.intValue();
 	}
 
+	public void setDefaultTextRenderOptions(RenderTextOptions rto) {
+		this.defaultTextRenderOptions = rto;
+	}
+
+	public RenderTextOptions getDefaultTextRenderOptions() {
+		return defaultTextRenderOptions;
+	}
+
 	public abstract void loadImage(String name, Image image, BufferedImage img, boolean linear) throws ResourceLoadError;
 
 	public abstract void loadImage(String name, Image image, InputStream is, boolean linear) throws ResourceLoadError;
@@ -541,8 +565,15 @@ public abstract class Window3D {
 	public abstract RenderTarget getDefaultRenderTarget();
 
 	public abstract void unhideCursor();
+
 	public abstract void hideCursor();
 
 	public abstract void setCursorPosition(int x, int y);
+
+	public abstract Cursor loadCursor(String name, InputStream png, Vector2i hotspot) throws IOException;
+
+	public abstract BitmapFont loadFontZIP(InputStream is) throws ResourceLoadError;
+
+	public abstract void setDepthTestEnabled(boolean b);
 
 }

@@ -11,4 +11,5 @@ out vec4 fragcolour;
 void main(void)
 {
 	fragcolour = texture2D(txt, v_uv) * v_colour * colour;
+	//fragcolour = mix(fragcolour, vec4(1, 0, 0, 1), 0.5);
 }

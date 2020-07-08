@@ -1,0 +1,92 @@
+# Fonts ============================
+font pixelFJ_8.zip
+font pixelmix_8.zip
+
+#
+# Sprites =========================
+#
+# In the form 
+#   sprite NAME IMAGE TYPE
+#
+# NAME matches the regex [0-9A-Z_]+
+# IMAGE is an image file, they can be repeated for sprite atlases
+# TYPE is either "rect" or "poly" (see next section)
+# 
+# rect:
+#   w, h [, offsetx, offsety, w2, h2]
+# If provided then is sourced from offsetx,offsety, with size (w2, h2)
+#
+# poly:
+#   x, y [, u, v]
+# You can optionally specify the UV coordinate per vertex
+# Polygons are triangulated, so you can make them any shape you like 
+# 
+
+sprite dlgbox1 rect
+64,64,0,85,64,64
+layer 0 block32.png
+end
+
+sprite dlgbox2 rect
+128,64,0,277,128,64
+layer 0 block32.png
+end
+
+sprite button1 rect
+78,22,0,341,78,22
+layer 0 block32.png
+end
+
+sprite button1_d rect
+78,22,0,363,78,22
+layer 0 block32.png
+end
+
+sprite button2_d rect
+78,22,0,385,78,22
+layer 0 block32.png
+end
+
+sprite window-top rect
+378,13,0,499,378,13
+layer 0 block32.png
+end
+
+sprite window-bot rect
+378,13,0,485,378,13
+layer 0 block32.png
+end
+
+sprite window-right rect
+102,360,378,152,102,360
+layer 0 block32.png
+end
+
+sprite icon-cursor rect
+12,12,0,264,12,12
+layer 0 block32.png
+end
+
+sprite icon-erasor rect
+12,12,12,264,12,12
+layer 0 block32.png
+end
+
+sprite icon-disk rect
+12,12,24,264,12,12
+layer 0 block32.png
+end
+
+sprite icon-folder rect
+12,12,36,264,12,12
+layer 0 block32.png
+end
+
+sprite icon-grid rect
+12,12,48,264,12,12
+layer 0 block32.png
+end
+
+
+
+

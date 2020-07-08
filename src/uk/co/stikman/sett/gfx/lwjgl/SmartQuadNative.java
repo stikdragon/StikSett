@@ -69,10 +69,10 @@ public class SmartQuadNative implements SmartQuad {
 		verts[ptr++] = u;
 		verts[ptr++] = v;
 
-		verts[ptr++] = colour.x / 255.0f;
-		verts[ptr++] = colour.y / 255.0f;
-		verts[ptr++] = colour.z / 255.0f;
-		verts[ptr++] = colour.w / 255.0f;
+		verts[ptr++] = colour.x;
+		verts[ptr++] = colour.y;
+		verts[ptr++] = colour.z;
+		verts[ptr++] = colour.w;
 	}
 
 	private void rebuild() {
