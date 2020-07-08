@@ -5,10 +5,8 @@ import java.util.List;
 
 import org.lwjgl.glfw.GLFW;
 
-import uk.co.stikman.sett.MainMenuView;
 import uk.co.stikman.sett.gfx.GameResources;
 import uk.co.stikman.sett.gfx.Window3D;
-import uk.co.stikman.sett.gfx.lwjgl.Window3DNative;
 import uk.co.stikman.sett.gfx.text.BitmapFont;
 import uk.co.stikman.sett.gfx.text.HAlign;
 import uk.co.stikman.sett.gfx.text.OutlineMode;

@@ -1,13 +1,7 @@
 package uk.co.stikman.sett;
 
-import java.io.IOException;
-
 import uk.co.stikman.sett.client.renderer.BaseView;
-import uk.co.stikman.sett.gfx.Image;
-import uk.co.stikman.sett.gfx.Window3D;
 import uk.co.stikman.sett.gfx.util.Rect;
-import uk.co.stikman.sett.gfx.util.ResourceLoadError;
-import uk.co.stikman.utils.math.Vector4;
 
 public class MainMenuView extends BaseView {
 

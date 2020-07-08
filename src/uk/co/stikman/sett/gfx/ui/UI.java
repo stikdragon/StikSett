@@ -1,7 +1,6 @@
 package uk.co.stikman.sett.gfx.ui;
 
 import uk.co.stikman.sett.gfx.Window3D;
-import uk.co.stikman.sett.gfx.lwjgl.Window3DNative;
 import uk.co.stikman.sett.gfx.util.Rect;
 
 public class UI {

@@ -45,7 +45,6 @@ import uk.co.stikman.sett.gfx.text.BitmapFont;
 import uk.co.stikman.sett.gfx.text.BitmapText;
 import uk.co.stikman.sett.gfx.text.RenderTextOptions;
 import uk.co.stikman.sett.gfx.text.TextureLoader;
-import uk.co.stikman.sett.gfx.util.Rect;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
 import uk.co.stikman.sett.gfx.util.WindowInitError;
 import uk.co.stikman.sett.gfx.util.ZipUtil;
