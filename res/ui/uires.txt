@@ -35,12 +35,12 @@ layer 0 block32.png
 end
 
 sprite dlgbox3 rect 
-143,160,0,0,143,160
+144,160,0,0,144,160
 layer 0 block32.png
 end
 
 sprite dlgbox4 rect 
-143,160,143,0,143,160
+144,160,144,0,144,160
 layer 0 block32.png
 end
 
@@ -107,6 +107,15 @@ sprite icon-grid rect
 layer 0 block32.png
 end
 
+sprite icon-plus rect
+12,12,27,162,12,12
+layer 0 block32.png
+end
+
+sprite icon-minus rect
+12,12,40,162,12,12
+layer 0 block32.png
+end
 
 
 

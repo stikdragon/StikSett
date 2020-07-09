@@ -439,4 +439,11 @@ public class Window3DNative extends Window3D {
 		}
 	}
 
+	/**
+	 * Shuts down the app
+	 */
+	public void close() {
+		window.setShouldClose(true);
+	}
+
 }

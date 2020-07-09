@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -70,6 +71,9 @@ public abstract class Window3D {
 	private Matrix4								tmpM						= new Matrix4();
 	private Vector2[]							tmpV						= new Vector2[] { new Vector2(), new Vector2() };
 	private Vector2i							tmpVi						= new Vector2i();
+
+	private Vector2i							cur2DOffset					= new Vector2i(0, 0);
+	private LinkedList<Vector2i>				offsetStack2D				= new LinkedList<>();
 
 	public Window3D(int width, int height, boolean linear) {
 		this.width = width;
@@ -139,7 +143,7 @@ public abstract class Window3D {
 		Vector2i v = tmpVi;
 		renderTarget.getDimensions(v);
 		view.makeOrtho(0.0f, v.x, v.y, 0.0f, -1.0f, 1.0f);
-		view.translate(x, y, 0.0f);
+		view.translate(x + cur2DOffset.x, y + cur2DOffset.y, 0.0f);
 
 		shader.use();
 		Shader.Uniform uniView = basicShader.getUniform("view", false);
@@ -173,7 +177,7 @@ public abstract class Window3D {
 		Vector2i vi = tmpVi;
 		renderTarget.getDimensions(vi);
 		view.makeOrtho(0.0f, vi.x, vi.y, 0.0f, -1.0f, 1.0f);
-		view.translate(x, y, 0.0f);
+		view.translate(x + cur2DOffset.x, y + cur2DOffset.y, 0.0f);
 		view.scale(w, h, 0.0f);
 
 		flatShader.use();
@@ -211,6 +215,8 @@ public abstract class Window3D {
 		Matrix4 view = tmpM;
 		Vector2i vi = tmpVi;
 		renderTarget.getDimensions(vi);
+		offx += cur2DOffset.x;
+		offy += cur2DOffset.y;
 		view.makeOrtho(0.0f, vi.x, vi.y, 0.0f, -1.0f, 1.0f);
 		if (angle != 0) {
 			view.translate(offx + image.getWidth() / 2, offy + image.getHeight() / 2, 0.0f);
@@ -281,7 +287,7 @@ public abstract class Window3D {
 		Vector2i vi = tmpVi;
 		renderTarget.getDimensions(vi);
 		view.makeOrtho(0.0f, vi.x, vi.y, 0.0f, -1.0f, 1.0f);
-		view.translate(r.getX(), r.getY(), 0.0f);
+		view.translate(r.getX() + cur2DOffset.x, r.getY() + cur2DOffset.y, 0.0f);
 
 		basicShader.use();
 		Shader.Uniform uniView = basicShader.getUniform("view", false);
@@ -297,10 +303,12 @@ public abstract class Window3D {
 		sq.render();
 	}
 
-	public void drawMesh(PolyMesh mesh, Image image, int offx, int offy, float scalex, float scaley, float angle, Vector4 colour, int frame) {
+	void drawMesh(PolyMesh mesh, Image image, int offx, int offy, float scalex, float scaley, float angle, Vector4 colour, int frame) {
 		Matrix4 view = tmpM;
 		Vector2i vi = tmpVi;
 		renderTarget.getDimensions(vi);
+		offx += cur2DOffset.x;
+		offy += cur2DOffset.y;
 		view.makeOrtho(0.0f, vi.x, vi.y, 0.0f, -1.0f, 1.0f);
 		if (angle != 0) {
 			view.translate(offx + mesh.getWidth() / 2, offy + mesh.getHeight() / 2, 0.0f);
@@ -371,7 +379,7 @@ public abstract class Window3D {
 				break;
 			}
 
-			view.translate(x + offx, y + offy, 0.0f);
+			view.translate(x + offx + cur2DOffset.x, y + offy + cur2DOffset.y, 0.0f);
 
 			bmt.render(view, colour, colour == null ? 0.0f : 1.0f);
 		} finally {
@@ -556,6 +564,15 @@ public abstract class Window3D {
 
 	public RenderTextOptions getDefaultTextRenderOptions() {
 		return defaultTextRenderOptions;
+	}
+
+	public void push2DOffset(int x, int y) {
+		offsetStack2D.addFirst(new Vector2i(cur2DOffset));
+		cur2DOffset = new Vector2i(x, y);
+	}
+
+	public void popOffsetStack() {
+		cur2DOffset = offsetStack2D.removeFirst();
 	}
 
 	public abstract void loadImage(String name, Image image, BufferedImage img, boolean linear) throws ResourceLoadError;

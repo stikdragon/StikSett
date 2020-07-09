@@ -109,9 +109,10 @@ public class SimpleWindow {
 			window.drawText(tmpR2, getCaption(), theming.getTitleFont(), rtoTitle, theming.getFontColour());
 		}
 
-		for (Component c : components) {
+		window.push2DOffset((int) windowBounds.x, (int) windowBounds.y);
+		for (Component c : components)
 			c.render();
-		}
+		window.popOffsetStack();
 
 	}
 
@@ -136,8 +137,8 @@ public class SimpleWindow {
 			return false;
 
 		if (!inBounds(x, y))
-			return false;		
-		
+			return false;
+
 		//		x = (int) (x - bounds.x);
 		//		y = (int) (y - bounds.y);
 
@@ -179,7 +180,8 @@ public class SimpleWindow {
 	}
 
 	private boolean inBounds(int x, int y) {
-		return getBounds().contains(x, y);
+		Rect b = getBounds();
+		return (x >= 0 && y >= 0 && x < b.w && y < b.h);
 	}
 
 	public boolean mouseDown(int x, int y, int button) {

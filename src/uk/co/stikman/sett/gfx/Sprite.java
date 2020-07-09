@@ -104,8 +104,11 @@ public abstract class Sprite {
 		if (img == null)
 			return;
 
+		int[] offsets = new int[framecount];
+		int oi = 0;
 		i = 0;
 		for (Frame f : frames) {
+			offsets[oi++] = mesh.getCurrentVertIndex();
 			for (Coord c : vertices) {
 				verts[i++] = c.x;
 				verts[i++] = c.y;
@@ -123,9 +126,7 @@ public abstract class Sprite {
 				mesh.addTri(n1 + a, n2 + a, n3 + a);
 			}
 		}
-		throw new RuntimeException("Reimplement this for new frame method");
-//		mesh.setFrameCount(framecount);
-
+		mesh.setFrameOffsets(offsets);
 	}
 
 	public Vector2 getBounds() {

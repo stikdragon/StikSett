@@ -54,21 +54,22 @@ public class UI {
 	public boolean handleMouseMove(int x, int y) {
 		boolean b = false;
 		for (SimpleWindow w : getWindows())
-			b |= w.mouseMove(x, y);
+			b |= w.mouseMove(x - (int) w.getBounds().x, y - (int) w.getBounds().y);
 		return b;
 	}
 
 	public boolean handleMouseDown(int x, int y, int button) {
 		boolean b = false;
-		for (SimpleWindow w : getWindows())
-			b |= w.mouseDown(x, y, button);
+		for (SimpleWindow w : getWindows()) {
+			b |= w.mouseDown(x - (int) w.getBounds().x, y - (int) w.getBounds().y, button);
+		}
 		return b;
 	}
 
 	public boolean handleMouseUp(int x, int y, int button) {
 		boolean b = false;
 		for (SimpleWindow w : getWindows())
-			b |= w.mouseUp(x, y, button);
+			b |= w.mouseUp(x - (int) w.getBounds().x, y - (int) w.getBounds().y, button);
 		return b;
 	}
 

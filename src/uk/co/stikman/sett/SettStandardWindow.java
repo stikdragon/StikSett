@@ -19,7 +19,7 @@ public class SettStandardWindow extends SimpleWindow {
 		theme.setBackgroundSprite((RectSprite) res.findSprite("dlgbox3"), StretchMode.createSmart(8, 8, 9, 7));
 //		theme.setFont(res.findFont("pixelmix_8"));
 		theme.setFont(res.findFont("sett_8"));
-		theme.setTitleFont(res.findFont("pixelmix_8"));
+		theme.setTitleFont(res.findFont("sett_8"));
 		theme.setButtonSprite((RectSprite) res.findSprite("button1"));
 		theme.setButtonSpriteHover((RectSprite) res.findSprite("button1_h"));
 		theme.setButtonSpriteDown((RectSprite) res.findSprite("button1_d"));

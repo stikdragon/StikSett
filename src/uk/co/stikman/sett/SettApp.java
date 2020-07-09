@@ -230,8 +230,7 @@ public class SettApp {
 			throw new WindowInitError("Could not load Resources", e);
 		}
 		setView(new MainMenuView(this));
-
-		initNetwork();
+//		initNetwork();
 	}
 
 	private void onResize(int w, int h) {
@@ -342,6 +341,10 @@ public class SettApp {
 
 	public GameResources getUIResources() {
 		return uiResources;
+	}
+
+	public void quit() {
+		window.close();
 	}
 
 }
