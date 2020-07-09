@@ -12,6 +12,7 @@ import uk.co.stikman.sett.conn.GameConnection;
 import uk.co.stikman.sett.conn.PendingNetworkOp;
 import uk.co.stikman.sett.conn.Response;
 import uk.co.stikman.sett.conn.ResponseHandler;
+import uk.co.stikman.sett.gfx.BlendMode;
 import uk.co.stikman.sett.gfx.GameResources;
 import uk.co.stikman.sett.gfx.RenderTarget;
 import uk.co.stikman.sett.gfx.Window3D;
@@ -289,6 +290,7 @@ public class SettApp {
 		view.render();
 
 		RenderTarget old = window.setRenderTarget(uifbo.getRenderTarget());
+		window.setBlend(BlendMode.FBO_SEPARATE);
 		window.clear();
 		window.setDepthTestEnabled(false);
 		ui.render();

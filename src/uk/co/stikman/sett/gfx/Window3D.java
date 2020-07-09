@@ -576,4 +576,6 @@ public abstract class Window3D {
 
 	public abstract void setDepthTestEnabled(boolean b);
 
+	public abstract void setBlend(BlendMode bm);
+
 }
