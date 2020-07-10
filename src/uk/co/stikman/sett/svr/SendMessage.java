@@ -42,4 +42,17 @@ public class SendMessage {
 		str.writeFloat(v.z);
 	}
 
+	public void writeBuf(byte[] bytes) throws IOException {
+		if (bytes == null) {
+			str.writeInt(-1);
+			return;
+		}
+		if (bytes.length == 0) {
+			str.writeInt(0);
+			return;
+		}
+
+		str.write(bytes);
+	}
+
 }

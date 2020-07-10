@@ -12,6 +12,7 @@ import uk.co.stikman.sett.conn.GameConnection;
 import uk.co.stikman.sett.conn.PendingNetworkOp;
 import uk.co.stikman.sett.conn.Response;
 import uk.co.stikman.sett.conn.ResponseHandler;
+import uk.co.stikman.sett.game.WorldParameters;
 import uk.co.stikman.sett.gfx.BlendMode;
 import uk.co.stikman.sett.gfx.GameResources;
 import uk.co.stikman.sett.gfx.RenderTarget;
@@ -21,6 +22,7 @@ import uk.co.stikman.sett.gfx.lwjgl.Window3DNative;
 import uk.co.stikman.sett.gfx.lwjgl.FrameBufferNative.ColourModel;
 import uk.co.stikman.sett.gfx.text.OutlineMode;
 import uk.co.stikman.sett.gfx.text.RenderTextOptions;
+import uk.co.stikman.sett.gfx.ui.UITimer;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
 import uk.co.stikman.sett.gfx.util.StreamSource;
 import uk.co.stikman.sett.gfx.util.WindowInitError;
@@ -70,6 +72,8 @@ public class SettApp {
 	private ClientGame						game;
 
 	private FrameBufferNative				uifbo;
+
+	private LoadingGameWindow				loading;
 
 	private void go() {
 		try {
@@ -148,18 +152,21 @@ public class SettApp {
 				} catch (ServerException e) {
 					LOGGER.error("Response: " + e.getMessage());
 				}
-				createGame();
+				if (!(view instanceof MainMenuView))
+					throw new RuntimeException("No menu");
+				createGame(((MainMenuView)view).getWorldParams());
 			});
-		} catch (IOException e) {
+		} catch (Exception e) {
 			LOGGER.error("Response: " + e.getMessage());
 		}
 	}
 
-	private void createGame() {
+	private void createGame(WorldParameters params) {
 		try {
 			SendMessage msg = new SendMessage();
 			msg.write4("NEWG");
 			msg.writeString("New Game 1");
+			msg.writeBuf(params.toBytes());
 			send(msg, resp -> {
 				try {
 					resp.getData();
@@ -230,7 +237,7 @@ public class SettApp {
 			throw new WindowInitError("Could not load Resources", e);
 		}
 		setView(new MainMenuView(this));
-//		initNetwork();
+		//		initNetwork();
 	}
 
 	private void onResize(int w, int h) {
@@ -345,6 +352,14 @@ public class SettApp {
 
 	public void quit() {
 		window.close();
+	}
+
+	public void startNewGame(WorldParameters params) {
+		if (view instanceof MainMenuView)
+			((MainMenuView) view).hideMenu();
+		loading = new LoadingGameWindow(this);
+		loading.show();
+		initNetwork();
 	}
 
 }

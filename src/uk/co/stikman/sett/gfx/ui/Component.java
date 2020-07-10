@@ -19,8 +19,9 @@ public class Component {
 		return bounds;
 	}
 
-	public void setBounds(Rect bounds) {
+	public Component setBounds(Rect bounds) {
 		this.bounds.set(bounds);
+		return this;
 	}
 
 	public void render() {

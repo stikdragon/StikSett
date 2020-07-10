@@ -143,4 +143,11 @@ public class Rect {
 		h *= f;
 	}
 
+	public void copy(Rect r) {
+		this.x = r.x;
+		this.y = r.y;
+		this.w = r.w;
+		this.h = r.h;
+	}
+
 }

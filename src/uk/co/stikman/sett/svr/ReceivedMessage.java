@@ -24,4 +24,13 @@ public class ReceivedMessage {
 		return str.readString();
 	}
 
+	public byte[] readBuf() throws IOException {
+		int n = str.readInt();
+		if (n == -1)
+			return null;
+		if (n == 0)
+			return new byte[0];
+		return str.readBytes(n);
+	}
+
 }

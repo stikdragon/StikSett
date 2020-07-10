@@ -162,8 +162,10 @@ public class GameServer extends BaseGameServer {
 		// Create a new game, and join this user to it as the first player
 		//
 		ServerGame game;
+		String name = message.readString();
+		WorldParameters params = new WorldParameters();
+		params.fromBytes(message.readBuf());
 		synchronized (games) {
-			String name = message.readString();
 			game = new ServerGame(app);
 			games.put(name, game);
 			game.setName(name);
@@ -174,7 +176,6 @@ public class GameServer extends BaseGameServer {
 
 			game.setWorld(new World(game));
 			game.loadResources();
-			WorldParameters params = new WorldParameters(4);
 			game.getWorld().setParams(params);
 			GenerateOptions opts = new GenerateOptions();
 			game.getWorld().generate(opts);
