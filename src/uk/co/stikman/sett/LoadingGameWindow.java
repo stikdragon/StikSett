@@ -35,4 +35,8 @@ public class LoadingGameWindow extends SettStandardWindow {
 	public int getProgress() {
 		return pb.getValue();
 	}
+
+	public void closeIn1000ms() {
+		getUi().newTimer(1000, () -> hide(), true);
+	}
 }

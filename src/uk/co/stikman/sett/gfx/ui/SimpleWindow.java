@@ -50,6 +50,7 @@ public class SimpleWindow {
 	private Rect				requestedBounds;
 	private boolean				initialised		= false;
 	private UI					ui;
+	private boolean				modal;
 
 	public SimpleWindow(UI owner, GameResources resources) {
 		super();
@@ -75,7 +76,15 @@ public class SimpleWindow {
 		ui.relayoutWindow(this);
 	}
 
+	public void showModal() {
+		show();
+		this.modal = true;
+		ui.getModalStack().push(this);
+	}
+
 	public void hide() {
+		if (modal)
+			ui.getModalStack().remove(this);
 		visible = false;
 	}
 
@@ -139,6 +148,9 @@ public class SimpleWindow {
 		if (!inBounds(x, y))
 			return false;
 
+		if (!ui.getModalStack().isEmpty() && ui.getModalStack().getTop() != this)
+			return false;
+
 		//		x = (int) (x - bounds.x);
 		//		y = (int) (y - bounds.y);
 
@@ -171,6 +183,9 @@ public class SimpleWindow {
 		if (!inBounds(x, y))
 			return false;
 
+		if (!ui.getModalStack().isEmpty() && ui.getModalStack().getTop() != this)
+			return false;
+
 		for (Component c : components) {
 			Rect r = c.getBounds();
 			if (r.contains(x, y))
@@ -190,6 +205,10 @@ public class SimpleWindow {
 
 		if (!inBounds(x, y))
 			return false;
+
+		if (!ui.getModalStack().isEmpty() && ui.getModalStack().getTop() != this)
+			return false;
+
 		for (Component c : components) {
 			Rect r = c.getBounds();
 			if (r.contains(x, y))
@@ -278,6 +297,10 @@ public class SimpleWindow {
 			if (name.equals(c.getName()))
 				return c;
 		return null;
+	}
+
+	public UI getUi() {
+		return ui;
 	}
 
 }

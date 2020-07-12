@@ -44,7 +44,9 @@ public class MainMenuView extends BaseView {
 		super.render();
 	}
 
-	public void hideMenu() {
+	public void hideMenus() {
+		if (menu != null)
+			menu.hide();
 		if (ngwnd != null)
 			ngwnd.hide();
 	}

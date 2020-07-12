@@ -7,11 +7,14 @@ public class UITimer {
 	private Runnable	onTimer;
 
 	long				countdown	= 0;
+	private boolean		oneshot;
 
-	public UITimer(UI ui, int interval, Runnable ontimer) {
+	public UITimer(UI ui, int interval, Runnable ontimer, boolean oneshot) {
 		this.ui = ui;
 		this.interval = interval;
 		this.onTimer = ontimer;
+		this.oneshot = oneshot;
+		countdown = interval;
 	}
 
 	public int getInterval() {
@@ -41,6 +44,10 @@ public class UITimer {
 
 	public Runnable getOnTimer() {
 		return onTimer;
+	}
+
+	public boolean isOneshot() {
+		return oneshot;
 	}
 
 }

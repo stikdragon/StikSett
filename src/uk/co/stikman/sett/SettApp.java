@@ -162,6 +162,7 @@ public class SettApp {
 	}
 
 	private void createGame(WorldParameters params) {
+		loading.setProgress(0);
 		try {
 			SendMessage msg = new SendMessage();
 			msg.write4("NEWG");
@@ -175,12 +176,15 @@ public class SettApp {
 				}
 				downloadInitGame();
 			});
+			loading.setProgress(20);
+
 		} catch (IOException e) {
 			LOGGER.error("Response: " + e.getMessage());
 		}
 	}
 
 	private void downloadInitGame() {
+		loading.setProgress(40);
 		try {
 			SendMessage msg = new SendMessage();
 			msg.write4("GINI");
@@ -197,7 +201,9 @@ public class SettApp {
 				GameView view = new GameView(this, game);
 				view.init();
 				setView(view);
-
+				loading.setProgress(100);
+				loading.closeIn1000ms();
+				
 			});
 		} catch (IOException e) {
 			LOGGER.error("Response: " + e.getMessage());
@@ -356,9 +362,9 @@ public class SettApp {
 
 	public void startNewGame(WorldParameters params) {
 		if (view instanceof MainMenuView)
-			((MainMenuView) view).hideMenu();
+			((MainMenuView) view).hideMenus();
 		loading = new LoadingGameWindow(this);
-		loading.show();
+		loading.showModal();
 		initNetwork();
 	}
 

@@ -52,6 +52,7 @@ public class SendMessage {
 			return;
 		}
 
+		str.writeInt(bytes.length);
 		str.write(bytes);
 	}
 

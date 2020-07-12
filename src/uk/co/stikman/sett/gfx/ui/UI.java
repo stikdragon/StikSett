@@ -12,6 +12,7 @@ public class UI {
 	private Rect			uiBounds	= new Rect();
 	private SimpleWindow	activeWindow;
 	private List<UITimer>	timers		= new LinkedList<>();
+	private ModalStack		modalStack	= new ModalStack();
 
 	public UI(Window3D owner) {
 		this.owner = owner;
@@ -38,8 +39,11 @@ public class UI {
 
 	public void update(float dt) {
 		for (UITimer t : timers) {
-			if (t.update(dt))
+			if (t.update(dt)) {
 				t.trigger();
+				if (t.isOneshot())
+					t.cancel();
+			}
 		}
 
 		getWindows().forEach(sw -> sw.update(dt));
@@ -113,16 +117,21 @@ public class UI {
 	 * interval in ms
 	 * 
 	 * @param interval
+	 * @param b
 	 * @return
 	 */
-	public UITimer newTimer(int interval, Runnable event) {
-		UITimer t = new UITimer(this, interval, event);
+	public UITimer newTimer(int interval, Runnable event, boolean oneshot) {
+		UITimer t = new UITimer(this, interval, event, oneshot);
 		timers.add(t);
 		return t;
 	}
 
 	void cancelTimer(UITimer t) {
 		timers.remove(t);
+	}
+
+	public ModalStack getModalStack() {
+		return modalStack;
 	}
 
 }

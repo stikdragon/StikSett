@@ -35,6 +35,8 @@ public class WorldParameters {
 
 	public void fromStream(StikDataInputStream str) throws IOException {
 		size = str.readInt();
+		if (size > 96 || size < 1)
+			throw new IOException("Invalid stream");
 	}
 
 	public byte[] toBytes() {
