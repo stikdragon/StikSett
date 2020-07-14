@@ -225,7 +225,7 @@ public abstract class Sprite {
 		}
 	}
 
-	public void renderLayer(Window3DNative window, int layer, Rect rect, int angle, int time, Vector4 colour) {
+	public void renderLayer(Window3D window, int layer, Rect rect, int angle, int time, Vector4 colour) {
 		renderLayer(window, layer, (int) rect.x, (int) rect.y, (int) rect.w, (int) rect.h, angle, time, colour);
 	}
 

@@ -73,21 +73,21 @@ public class UI {
 		for (SimpleWindow w : getWindows().reverse())
 			if (w.mouseMove(x - (int) w.getBounds().x, y - (int) w.getBounds().y))
 				return true;
-		return false;
+		return !modalStack.isEmpty();
 	}
 
 	public boolean handleMouseDown(int x, int y, int button) {
 		for (SimpleWindow w : getWindows().reverse())
 			if (w.mouseDown(x - (int) w.getBounds().x, y - (int) w.getBounds().y, button))
 				return true;
-		return false;
+		return !modalStack.isEmpty();
 	}
 
 	public boolean handleMouseUp(int x, int y, int button) {
 		for (SimpleWindow w : getWindows().reverse())
 			if (w.mouseUp(x - (int) w.getBounds().x, y - (int) w.getBounds().y, button))
 				return true;
-		return false;
+		return !modalStack.isEmpty();
 	}
 
 	public void handleResize(int w, int h) {

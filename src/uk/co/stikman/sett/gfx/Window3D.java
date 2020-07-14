@@ -74,6 +74,7 @@ public abstract class Window3D {
 
 	private Vector2i							cur2DOffset					= new Vector2i(0, 0);
 	private LinkedList<Vector2i>				offsetStack2D				= new LinkedList<>();
+	private Rect								tmpR						= new Rect();
 
 	public Window3D(int width, int height, boolean linear) {
 		this.width = width;
@@ -251,6 +252,10 @@ public abstract class Window3D {
 			e.setMesh(m);
 		}
 		e.getMesh().render(0);
+	}
+
+	public void drawSprite(Sprite sprite, int x, int y) {
+		sprite.renderLayer(this, 0, x, y, -1, -1, 0, 0, VectorColours.WHITE);
 	}
 
 	/**

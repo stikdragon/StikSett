@@ -13,7 +13,9 @@ import java.util.concurrent.TimeUnit;
 
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.sett.ClientGame;
+import uk.co.stikman.sett.CreateBuildingWindow;
 import uk.co.stikman.sett.FileSourceBatchClose;
+import uk.co.stikman.sett.LoadingGameWindow;
 import uk.co.stikman.sett.SettApp;
 import uk.co.stikman.sett.VoxelModel;
 import uk.co.stikman.sett.game.IsNodeObject;
@@ -98,6 +100,7 @@ public class GameView extends BaseView {
 	private static final boolean			FORCE_ALL_VISIBLE	= true;
 	private final ScanlineConverter			scanconverter		= new ScanlineConverter();
 	private boolean							FORCE_CHUNK_TEST	= true;
+	private CreateBuildingWindow createBuildingWnd;
 
 	public GameView(SettApp app, ClientGame game) {
 		super(app);
@@ -552,11 +555,16 @@ public class GameView extends BaseView {
 				// 
 				// clicked again, so do some context specific action
 				//
-				LOGGER.info("Go!");
+				buildAt(v);
 			} else {
 				selectionMarker.setPosition(v);
 			}
 		}
+	}
+
+	private void buildAt(Vector2i v) {
+		createBuildingWnd = new CreateBuildingWindow(this.getApp(), this);
+		createBuildingWnd.showModal();
 	}
 
 	//

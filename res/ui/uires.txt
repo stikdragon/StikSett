@@ -117,5 +117,29 @@ sprite icon-minus rect
 layer 0 block32.png
 end
 
+sprite icon-exit rect
+16,16,56,161,16,16
+layer 0 block32.png
+end
+
+sprite icon-flip rect
+16,16,56,178,16,16
+layer 0 block32.png
+end
+
+
+#
+# images for the new building window
+#
+sprite nb-woodcutter rect
+31,25,480,1,31,25
+layer 0 block32.png
+end
+
+sprite nb-forester rect
+31,24,480,27,31,24
+layer 0 block32.png
+end
+
 
 
