@@ -17,14 +17,15 @@ public class CreateBuildingWindow extends SettStandardWindow {
 
 
 	public CreateBuildingWindow(SettApp v, GameView gameview) {
-		super(v);
+		super(v, 1);
 		setGlass(true);
 		setWindowPosition(WindowPosition.CENTRE);
 		setBounds(new Rect(0, 0, 144, 160));
 		
 		CreateBuildingPage p = new CreateBuildingPage(this);
-		p.addBuilding("nb-woodcutter", 10, 40);
-		p.addBuilding("nb-forester", 50, 40);
+		p.addBuilding("nb-woodcutter", 10, 25);
+		p.addBuilding("nb-forester", 40, 25);
+		p.addBuilding("nb-weaponsmith", 13, 55);
 		pages.add(p);
 	}
 

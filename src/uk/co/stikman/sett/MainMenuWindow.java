@@ -21,7 +21,7 @@ public class MainMenuWindow extends SettStandardWindow {
 	private Consumer<MainMenuWindow>	onNewGame;
 
 	public MainMenuWindow(SettApp v) {
-		super(v);
+		super(v, 0);
 		setCaption("Main Menu");
 		setGlass(true);
 		setWindowPosition(WindowPosition.CENTRE);

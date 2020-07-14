@@ -14,8 +14,7 @@ public class NewGameWindow extends SettStandardWindow {
 	private int mapSize = 3;
 
 	public NewGameWindow(SettApp v) {
-		super(v);
-		getTheming().setBackgroundSprite((RectSprite) v.getUIResources().findSprite("dlgbox4"), StretchMode.createSmart(8, 8, 9, 7));
+		super(v, 1);
 		setCaption("New Game");
 		setGlass(true);
 		setWindowPosition(WindowPosition.CENTRE);

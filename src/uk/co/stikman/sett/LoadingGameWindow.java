@@ -12,7 +12,7 @@ public class LoadingGameWindow extends SettStandardWindow {
 	private ProgressBar	pb;
 
 	public LoadingGameWindow(SettApp v) {
-		super(v);
+		super(v, 0);
 		getTheming().setBackgroundSprite((RectSprite) v.getUIResources().findSprite("dlgbox4"), StretchMode.createSmart(8, 8, 9, 7));
 		setCaption("Loading...");
 		setGlass(true);

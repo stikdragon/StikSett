@@ -141,5 +141,11 @@ sprite nb-forester rect
 layer 0 block32.png
 end
 
+sprite nb-weaponsmith rect
+48,29,463,52,48,29
+layer 0 block32.png
+end
+
+
 
 

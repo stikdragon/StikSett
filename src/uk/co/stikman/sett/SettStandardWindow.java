@@ -15,12 +15,15 @@ public class SettStandardWindow extends SimpleWindow {
 	private int				borderTop		= 9;
 	private int				borderBottom	= 7;
 
-	public SettStandardWindow(SettApp v) {
+	public SettStandardWindow(SettApp v, int background) {
 		super(v.getUI(), v.getUIResources());
 		this.app = v;
 		GameResources res = v.getUIResources();
 		WindowTheming theme = new WindowTheming();
-		theme.setBackgroundSprite((RectSprite) res.findSprite("dlgbox3"), StretchMode.createSmart(borderLeft, borderRight, borderTop, borderBottom));
+		if (background == 0)
+			theme.setBackgroundSprite((RectSprite) res.findSprite("dlgbox3"), StretchMode.createSmart(borderLeft, borderRight, borderTop, borderBottom));
+		else if (background == 1)
+			theme.setBackgroundSprite((RectSprite) res.findSprite("dlgbox4"), StretchMode.createSmart(borderLeft, borderRight, borderTop, borderBottom));
 		theme.setFont(res.findFont("sett_8"));
 		theme.setTitleFont(res.findFont("sett_8"));
 		theme.setButtonSprite((RectSprite) res.findSprite("button1"));
