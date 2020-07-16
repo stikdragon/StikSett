@@ -1,35 +1,70 @@
 <BuildingDefs>
 
-	<Model id="woodcutter" rotate="0">
-		<FileName>group1-*-chopper.vox</FileName>
-	</Model>
-
-	<Model id="knighthut" rotate="0">
-		<FileName>group1-*-nitehut1.vox</FileName>
-	</Model>
-
 	<Model id="flag" rotate="0">
 		<Frame time="0.2"><FileName>group1-*-flag.1.vox</FileName></Frame>
 		<Frame time="0.2"><FileName>group1-*-flag.2.vox</FileName></Frame>
 		<Frame time="0.2"><FileName>group1-*-flag.3.vox</FileName></Frame>
 		<Frame time="0.2"><FileName>group1-*-flag.4.vox</FileName></Frame>
 	</Model>
-	
-
-	<Building id="woodcutter" display="Woodcutter">
-		<Model>woodcutter</Model>
-		<Description>Cuts trees and produces Logs</Description>
-	</Building>
-
-	<Building id="knighthut" display="Knight Hut">
-		<Model>knighthut</Model>
-		<Description>Protects and extends your borders</Description>
-	</Building>
 
 	<Building id="flag" display="Flag">
 		<Model>flag2</Model>
 		<Description>Flag</Description>
 	</Building>
 
+	<Model id="base1">
+		<FileName>group1-*-base1.vox</FileName>
+	</Model>
 
+	<Building id="base1" display="*">
+		<Model>base1</Model>
+		<Description>Uneven base for buildings</Description>
+	</Building>
+
+	<Model id="base2">
+		<FileName>group1-*-base2.vox</FileName>
+	</Model>
+
+	<Building id="base2" display="*">
+		<Model>base2</Model>
+		<Description>Levelled base for buildings</Description>
+	</Building>
+
+	<Model id="woodcutter" rotate="0">
+		<FileName>group1-*-woodcutter.vox</FileName>
+	</Model>
+
+	<Building id="woodcutter" size="small" display="Woodcutter">
+		<Model>woodcutter</Model>
+		<Description>Cuts trees and produces Logs</Description>
+	</Building>
+
+<!-- 
+	<Model id="knighthut" rotate="0">
+		<FileName>group1-*-nitehut1.vox</FileName>
+	</Model>
+
+	<Building id="knighthut" display="Knight Hut">
+		<Model>knighthut</Model>
+		<Description>Protects and extends your borders</Description>
+	</Building>
+-->
+	<Model id="forester" rotate="0">
+		<FileName>group1-*-forester.vox</FileName>
+	</Model>
+
+	<Building id="forester" size="small" display="Forester">
+		<Model>forester</Model>
+		<Description>Plants saplings around their hut</Description>
+	</Building>
+	
+	<Model id="weaponsmith" rotate="0">
+		<FileName>group1-*-weponsmth.vox</FileName>
+	</Model>
+
+	<Building id="weaponsmith" size="small" display="Weaponsmith">
+		<Model>weaponsmith</Model>
+		<Description>Makes swords and shields for knights</Description>
+	</Building>
+	
 </BuildingDefs>

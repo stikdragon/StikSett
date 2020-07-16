@@ -257,6 +257,10 @@ public abstract class Window3D {
 	public void drawSprite(Sprite sprite, int x, int y) {
 		sprite.renderLayer(this, 0, x, y, -1, -1, 0, 0, VectorColours.WHITE);
 	}
+	
+	public void drawSprite(Sprite sprite, int x, int y, Vector4 colour, int layer, float time) {
+		sprite.renderLayer(this, layer, x, y, -1, -1, 0, time, colour);
+	}
 
 	/**
 	 * A "SmartQuad" is an intelligently resizable square image that tiles the
@@ -599,5 +603,7 @@ public abstract class Window3D {
 	public abstract void setDepthTestEnabled(boolean b);
 
 	public abstract void setBlend(BlendMode bm);
+
+
 
 }

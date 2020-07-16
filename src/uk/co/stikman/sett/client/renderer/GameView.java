@@ -18,6 +18,7 @@ import uk.co.stikman.sett.FileSourceBatchClose;
 import uk.co.stikman.sett.LoadingGameWindow;
 import uk.co.stikman.sett.SettApp;
 import uk.co.stikman.sett.VoxelModel;
+import uk.co.stikman.sett.conn.ResponseHandler;
 import uk.co.stikman.sett.game.IsNodeObject;
 import uk.co.stikman.sett.game.PlayerObject;
 import uk.co.stikman.sett.game.Terrain;
@@ -31,6 +32,8 @@ import uk.co.stikman.sett.gfx.lwjgl.FrameBufferNative;
 import uk.co.stikman.sett.gfx.lwjgl.FrameBufferNative.ColourModel;
 import uk.co.stikman.sett.gfx.ui.EasingFloat;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
+import uk.co.stikman.sett.svr.SendMessage;
+import uk.co.stikman.sett.svr.ServerException;
 import uk.co.stikman.sett.util.ScanlineConverter;
 import uk.co.stikman.utils.math.Matrix3;
 import uk.co.stikman.utils.math.Matrix4;
@@ -100,7 +103,7 @@ public class GameView extends BaseView {
 	private static final boolean			FORCE_ALL_VISIBLE	= true;
 	private final ScanlineConverter			scanconverter		= new ScanlineConverter();
 	private boolean							FORCE_CHUNK_TEST	= true;
-	private CreateBuildingWindow createBuildingWnd;
+	private CreateBuildingWindow			createBuildingWnd;
 
 	public GameView(SettApp app, ClientGame game) {
 		super(app);
@@ -132,11 +135,11 @@ public class GameView extends BaseView {
 			shadowmapbuf = new FrameBufferNative(game.getWorld().getWidth() * scale, game.getWorld().getHeight() * scale, ColourModel.GRAYSCALE, true);
 			renderbuf = new FrameBufferNative(512, 512, ColourModel.RGBA_DEPTH, false);
 
-			VoxelMesh vm1 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret").getModelName()));
-			VoxelMesh vm2 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret-outer").getModelName()));
-			VoxelMesh vm3 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret-house1").getModelName()));
-			VoxelMesh vm4 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret-castle").getModelName()));
-			VoxelMesh vm5 = new VoxelMesh(this, game.getModels().get(game.getWorld().getScenaryDef("caret-flag").getModelName()));
+			VoxelMesh vm1 = new VoxelMesh(this, game.getModels().get(game.getScenaryDef("caret").getModelName()));
+			VoxelMesh vm2 = new VoxelMesh(this, game.getModels().get(game.getScenaryDef("caret-outer").getModelName()));
+			VoxelMesh vm3 = new VoxelMesh(this, game.getModels().get(game.getScenaryDef("caret-house1").getModelName()));
+			VoxelMesh vm4 = new VoxelMesh(this, game.getModels().get(game.getScenaryDef("caret-castle").getModelName()));
+			VoxelMesh vm5 = new VoxelMesh(this, game.getModels().get(game.getScenaryDef("caret-flag").getModelName()));
 			selectionMarker = new SelectionMarker(this, vm1, vm2, vm3, vm4, vm5);
 
 			//
@@ -549,7 +552,6 @@ public class GameView extends BaseView {
 		Vector3 pos = game.getWorld().getTerrain().intersectRay(ray);
 
 		if (pos != null) {
-			LOGGER.info("Clicked on node: " + pos);
 			Vector2i v = new Vector2i(Math.round(pos.x), Math.round(pos.y));
 			if (selectionMarker.getPosition().equals(v)) {
 				// 
@@ -563,7 +565,28 @@ public class GameView extends BaseView {
 	}
 
 	private void buildAt(Vector2i v) {
-		createBuildingWnd = new CreateBuildingWindow(this.getApp(), this);
+		createBuildingWnd = new CreateBuildingWindow(this.getApp(), this, b -> {
+			createBuildingWnd.hide();
+			//
+			// send request to server to place this
+			//
+			try {
+				SendMessage msg = new SendMessage();
+				msg.write4("BILD");
+				msg.writeString(b.getName());
+				msg.writeInt(v.x);
+				msg.writeInt(v.y);
+				getApp().send(msg, resp -> {
+					try {
+						resp.getData();
+					} catch (ServerException e) {
+						LOGGER.error("Response: " + e.getMessage());
+					}
+				});
+			} catch (IOException e) {
+				LOGGER.error(e);
+			}
+		});
 		createBuildingWnd.showModal();
 	}
 

@@ -49,7 +49,7 @@ public class Rock implements GameObject, IsNodeObject {
 	@Override
 	public void fromStream(SettInputStream str) throws IOException {
 		id = str.readInt();
-		type = game.getWorld().getScenaryDef(str.readString());
+		type = game.getScenaryDef(str.readString());
 	}
 
 	@Override

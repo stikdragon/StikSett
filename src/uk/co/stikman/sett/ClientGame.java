@@ -14,6 +14,7 @@ import uk.co.stikman.sett.game.TerrainNode;
 import uk.co.stikman.sett.game.Tree;
 import uk.co.stikman.sett.game.World;
 import uk.co.stikman.sett.game.WorldParameters;
+import uk.co.stikman.sett.gameevents.GameEvent;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
 import uk.co.stikman.utils.StikDataInputStream;
 
@@ -87,6 +88,10 @@ public class ClientGame extends Game {
 		//
 		w.getRoads().forEach(this::applyRoadToTerrain);
 		w.getTerrain().recalculateNormals();
+	}
+
+	public void update(float dt) {
+		
 	}
 
 }

@@ -3,9 +3,11 @@ package uk.co.stikman.sett;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
@@ -13,6 +15,8 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import uk.co.stikman.sett.game.Building;
+import uk.co.stikman.sett.game.BuildingSize;
 import uk.co.stikman.sett.game.BuildingType;
 import uk.co.stikman.sett.game.Flag;
 import uk.co.stikman.sett.game.ObstructionType;
@@ -22,29 +26,35 @@ import uk.co.stikman.sett.game.SceneryType;
 import uk.co.stikman.sett.game.Terrain;
 import uk.co.stikman.sett.game.TerrainNode;
 import uk.co.stikman.sett.game.World;
+import uk.co.stikman.sett.gameevents.BuildingOrderedEvent;
+import uk.co.stikman.sett.gameevents.GameEvent;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
+import uk.co.stikman.sett.svr.ServerException;
 import uk.co.stikman.sett.util.SettUtil;
 import uk.co.stikman.utils.math.Vector2i;
 import uk.co.stikman.utils.math.Vector3;
 
 public class Game {
 
-	public static final int						TERRAIN_GRASS		= 0;
-	public static final int						TERRAIN_DESERT		= 1;
-	public static final int						TERRAIN_MOUNTAIN	= 2;
-	public static final int						TERRAIN_ICE			= 3;
-	public static final int						TERRAIN_WATER		= 4;
+	public static final int								TERRAIN_GRASS		= 0;
+	public static final int								TERRAIN_DESERT		= 1;
+	public static final int								TERRAIN_MOUNTAIN	= 2;
+	public static final int								TERRAIN_ICE			= 3;
+	public static final int								TERRAIN_WATER		= 4;
 
-	private static final Vector3				UP					= new Vector3(0, 0, 1);
+	private static final Vector3						UP					= new Vector3(0, 0, 1);
 
-	protected transient FileSource				files;
-	protected transient Map<String, VoxelModel>	models				= new HashMap<>();
-	protected Map<String, Player>				players				= new HashMap<>();
-	protected transient VoxelPalette			palette;
-	protected World								world;
-	private transient AtomicInteger				sequence			= new AtomicInteger(0);
-	private String								name;
-	private transient SettApp					app;
+	protected transient FileSource						files;
+	protected transient Map<String, VoxelModel>			models				= new HashMap<>();
+	protected Map<String, Player>						players				= new HashMap<>();
+	protected transient VoxelPalette					palette;
+	protected World										world;
+	private transient AtomicInteger						sequence			= new AtomicInteger(0);
+	private String										name;
+	private transient SettApp							app;
+	private float										time				= 0.0f;
+	private transient final Map<String, BuildingType>	buildingDefs		= new HashMap<>();
+	private transient final Map<String, SceneryType>	sceneryDefs			= new HashMap<>();
 
 	public Game(SettApp app) {
 		this.app = app;
@@ -59,6 +69,14 @@ public class Game {
 		try (InputStream is = files.get(name)) {
 			return IOUtils.toString(is, StandardCharsets.UTF_8);
 		}
+	}
+
+	public Map<String, BuildingType> getBuildingDefs() {
+		return buildingDefs;
+	}
+
+	public Map<String, SceneryType> getSceneryDefs() {
+		return sceneryDefs;
 	}
 
 	public Map<String, VoxelModel> getModels() {
@@ -109,7 +127,7 @@ public class Game {
 		try {
 			loadModels(doc);
 
-			Map<String, SceneryType> defs = world.getSceneryDefs();
+			Map<String, SceneryType> defs = getSceneryDefs();
 			for (Element el : SettUtil.getElements(doc.getDocumentElement(), "Scenery")) {
 				String id = SettUtil.getAttrib(el, "id");
 
@@ -129,6 +147,32 @@ public class Game {
 		return res;
 	}
 
+	/**
+	 * Throws {@link NoSuchElementException} if missing
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public SceneryType getScenaryDef(String name) {
+		SceneryType x = sceneryDefs.get(name);
+		if (x == null)
+			throw new NoSuchElementException("SceneryType [" + name + "] not found");
+		return x;
+	}
+
+	/**
+	 * Throws {@link NoSuchElementException} if missing
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public BuildingType getBuildingDef(String name) {
+		BuildingType x = buildingDefs.get(name);
+		if (x == null)
+			throw new NoSuchElementException("BuildingType [" + name + "] not found");
+		return x;
+	}
+
 	private void loadBuildingDefs(Document doc) throws ResourceLoadError {
 		if (!"BuildingDefs".equals(doc.getDocumentElement().getTagName()))
 			throw new ResourceLoadError("Expected <BuildingsDefs>, not: " + doc.getDocumentElement().getTagName());
@@ -136,7 +180,7 @@ public class Game {
 		try {
 			loadModels(doc);
 
-			Map<String, BuildingType> defs = world.getBuildingDefs();
+			Map<String, BuildingType> defs = getBuildingDefs();
 			for (Element el : SettUtil.getElements(doc.getDocumentElement(), "Building")) {
 				String id = SettUtil.getAttrib(el, "id");
 				if (defs.containsKey(id))
@@ -144,6 +188,7 @@ public class Game {
 				BuildingType bt = new BuildingType(id, SettUtil.getAttrib(el, "display", id));
 				bt.setModelName(SettUtil.getElement(el, "Model").getTextContent());
 				bt.setDescription(SettUtil.getElementText(el, "Description", bt.getDisplay()));
+				bt.setBuildingSize(BuildingSize.valueOf(SettUtil.getAttrib(el, "size", "none").toUpperCase()));
 				defs.put(bt.getName(), bt);
 			}
 		} catch (Exception e) {
@@ -228,7 +273,7 @@ public class Game {
 		TerrainNode n = nodes[0];
 		if (n.getObject() != null && n.getObject().getObstructionType() != ObstructionType.NONE)
 			return false;
-		
+
 		if (n.hasRoad())
 			return false;
 
@@ -331,6 +376,13 @@ public class Game {
 		return players;
 	}
 
+	public Player getPlayer(String name) {
+		Player p = players.get(name);
+		if (p == null)
+			throw new NoSuchElementException("Player [" + name + "] does not exist");
+		return p;
+	}
+
 	private static float parseFrameTime(String s) {
 		try {
 			float r = Float.parseFloat(s);
@@ -356,5 +408,63 @@ public class Game {
 	public SettApp getApp() {
 		return app;
 	}
+
+	public boolean canBuildAt(Player player, int posx, int posy, BuildingType bd) {
+		if (posx < 0 || posy < 0 || posx >= getWorld().getWidth() || posy >= getWorld().getHeight())
+			return false;
+		MarkerType mt = getPermissableMarkerFor(posx, posy);
+		switch (bd.getBuildingSize()) {
+		case LARGE:
+			if (mt != MarkerType.LARGE_HOUSE)
+				return false;
+			break;
+		case MINE:
+			if (mt != MarkerType.MINE)
+				return false;
+			break;
+		case SMALL:
+			if (mt != MarkerType.LARGE_HOUSE && mt != MarkerType.SMALL_HOUSE)
+				return false;
+			break;
+		case SPECIAL:
+			break;
+		default:
+			return false;
+		}
+
+		//
+		// see if we own the land
+		//
+//		TerrainNode n = getWorld().getTerrain().get(posx, posy);
+//		if (n.getOwner() != player.getId())
+//			return false;
+
+		return true;
+	}
+
+	public void build(Player player, String id, int posx, int posy) throws ServerException {
+		BuildingType bd = getBuildingDef(id);
+		if (!canBuildAt(player, posx, posy, bd))
+			throw new ServerException(ServerException.E_INVALID_BUILD_LOCATION, "Cannot build " + bd + " here");
+		TerrainNode n = getWorld().getTerrain().get(posx, posy);
+		Building b = new Building(this, player, nextId(), bd);
+		if (bd.getBuildingSize() != BuildingSize.LARGE)
+			b.setStateLevelled(1.0f); // only large buildings need levelling
+		getWorld().getBuildings().put(b);
+		n.setObject(b);
+		b.setPosition(posx, posy);
+		postEvent(new BuildingOrderedEvent(b));
+	}
+
+	private void postEvent(GameEvent e) {
+		for (Player p : getPlayers().values()) 
+			p.addEvent(e);
+	}
+
+	public float getTime() {
+		return time;
+	}
+	
+
 
 }

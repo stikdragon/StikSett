@@ -14,6 +14,7 @@ import uk.co.stikman.log.StikLog;
 import uk.co.stikman.sett.Game;
 import uk.co.stikman.sett.SettApp;
 import uk.co.stikman.sett.game.Building;
+import uk.co.stikman.sett.game.BuildingType;
 import uk.co.stikman.sett.game.Flag;
 import uk.co.stikman.sett.game.GenerateOptions;
 import uk.co.stikman.sett.game.Player;
@@ -23,6 +24,7 @@ import uk.co.stikman.sett.game.Terrain;
 import uk.co.stikman.sett.game.TerrainNode;
 import uk.co.stikman.sett.game.World;
 import uk.co.stikman.sett.game.WorldParameters;
+import uk.co.stikman.sett.gameevents.GameEvent;
 import uk.co.stikman.sett.gfx.VectorColours;
 import uk.co.stikman.users.Users;
 import uk.co.stikman.utils.StikDataOutputStream;
@@ -53,8 +55,12 @@ public class GameServer extends BaseGameServer {
 
 		handlers.add(new Destination("INFO", false, false, this::handleINFO));
 		handlers.add(new Destination("AUTH", false, false, this::handleAUTH));
+
 		handlers.add(new Destination("NEWG", true, false, this::handleNEWG));
 		handlers.add(new Destination("GINI", true, false, this::handleGINI));
+
+		handlers.add(new Destination("BILD", true, true, this::handleBILD));
+		handlers.add(new Destination("POLL", true, true, this::handlePOLL));
 	}
 
 	public Users<SettUser> getUsers() {
@@ -88,9 +94,9 @@ public class GameServer extends BaseGameServer {
 			if (dest == null) {
 				SettUser user = sesh.getObject("user", SettUser.class);
 				if (user != null)
-					throw new ServerException(ServerException.UNSPECIFIED, "No handler for: " + inst);
+					throw new ServerException(ServerException.E_UNSPECIFIED, "No handler for: " + inst);
 				else
-					throw new ServerException(ServerException.UNAUTHORISED, "Not Authorised");
+					throw new ServerException(ServerException.E_UNAUTHORISED, "Not Authorised");
 
 			}
 
@@ -98,13 +104,13 @@ public class GameServer extends BaseGameServer {
 			if (dest.requiresGame()) {
 				game = sesh.getObject("game", ServerGame.class);
 				if (game == null)
-					throw new ServerException(ServerException.UNSPECIFIED, dest + " requires a Game");
+					throw new ServerException(ServerException.E_UNSPECIFIED, dest + " requires a Game");
 			}
 
 			if (dest.requiresUser()) {
 				SettUser user = sesh.getObject("user", SettUser.class);
 				if (user == null)
-					throw new ServerException(ServerException.UNAUTHORISED, dest + " requires a User");
+					throw new ServerException(ServerException.E_UNAUTHORISED, dest + " requires a User");
 			}
 
 			Object syncon = game == null ? new Object() : game;
@@ -116,24 +122,14 @@ public class GameServer extends BaseGameServer {
 			}
 		} catch (ServerException se) {
 			LOGGER.warn("ServerException: " + se.getMessage());
-			return handleError(se);
+			throw se;
+			//			return handleError(se);
 		} catch (Exception ex) {
 			LOGGER.error(ex);
-			return handleError(new ServerException(ServerException.UNSPECIFIED, "Unspecified internal error"));
+			throw new ServerException(ServerException.E_UNSPECIFIED, "Unspecified internal error");
 		}
 	}
 
-	private byte[] handleError(ServerException se) {
-		try {
-			SendMessage msg = new SendMessage();
-			msg.write4("ERRO");
-			msg.writeInt(se.getCode());
-			msg.writeString(se.getMessage());
-			return msg.getBytes();
-		} catch (IOException ex) {
-			throw new RuntimeException("Unexpected internal error: " + ex.getMessage(), ex);
-		}
-	}
 
 	private void handleINFO(NetSession sesh, ReceivedMessage message, StikDataOutputStream out) throws Exception {
 		out.writeInt(SERVER_VERSION);
@@ -148,11 +144,11 @@ public class GameServer extends BaseGameServer {
 		SettUser u = users.find(usr);
 		if (u == null) {
 			LOGGER.warn("Login for missing user: " + usr);
-			throw new ServerException(ServerException.LOGIN_FAILED, "Login Failed");
+			throw new ServerException(ServerException.E_LOGIN_FAILED, "Login Failed");
 		}
 		if (!users.tryLogin(u, pwd)) {
 			LOGGER.warn("Login failed for user: " + usr);
-			throw new ServerException(ServerException.LOGIN_FAILED, "Login Failed");
+			throw new ServerException(ServerException.E_LOGIN_FAILED, "Login Failed");
 		}
 		sesh.setObject("user", u);
 	}
@@ -180,7 +176,7 @@ public class GameServer extends BaseGameServer {
 			GenerateOptions opts = new GenerateOptions();
 			game.getWorld().generate(opts);
 
-			game.addPlayer(new Player(game, 1, u.getId(), VectorColours.HSLtoRGB(new Vector3(0, 1.0f, 0.6f))));
+			game.addPlayer(new Player(game, 1, u.getName(), VectorColours.HSLtoRGB(new Vector3(0, 1.0f, 0.6f))));
 			game.addPlayer(new Player(game, 2, "Player2", VectorColours.HSLtoRGB(new Vector3(0.75f, 1.0f, 0.7f))));
 			game.addPlayer(new Player(game, 3, "Player3", VectorColours.HSLtoRGB(new Vector3(0.6f, 1.0f, 0.6f))));
 			randomRoads(game);
@@ -242,7 +238,7 @@ public class GameServer extends BaseGameServer {
 			w.getParams().toStream(out);
 			out.writeString(g.getName());
 			out.writeInt(g.getPlayers().size());
-			for (Player p : g.getPlayers().values()) 
+			for (Player p : g.getPlayers().values())
 				out.writeObject(p);
 
 			//
@@ -252,11 +248,11 @@ public class GameServer extends BaseGameServer {
 			// check when they first connect, but can't hurt to be safe
 			//
 			writeKeys(out, g.getModels());
-			writeKeys(out, w.getBuildingDefs());
-			writeKeys(out, w.getSceneryDefs());
+			writeKeys(out, g.getBuildingDefs());
+			writeKeys(out, g.getSceneryDefs());
 
 			out.writeInt(w.getBuildings().size());
-			for (Building b : w.getBuildings()) 
+			for (Building b : w.getBuildings())
 				out.writeObject(b);
 
 			out.writeInt(w.getFlags().size());
@@ -279,6 +275,35 @@ public class GameServer extends BaseGameServer {
 					out.writeObject(n.getObject());
 				}
 			}
+		}
+	}
+
+	private void handlePOLL(NetSession sesh, ReceivedMessage message, StikDataOutputStream sdos) throws Exception {
+		LOGGER.info("Poll...");
+		SettOutputStream out = new SettOutputStream(sdos);
+		ServerGame g = getGame(sesh);
+		synchronized (g) {
+			Player player = g.getPlayer(getUser(sesh).getName());
+			List<GameEvent> lst = player.extractEvents();
+			out.writeInt(lst.size());
+			for (GameEvent ev : lst)  {
+				out.writeString(ev.getClass().getSimpleName());
+				ev.toStream(out);
+			}
+		}	
+	}
+	
+	private void handleBILD(NetSession sesh, ReceivedMessage message, StikDataOutputStream sdos) throws Exception {
+		SettOutputStream out = new SettOutputStream(sdos);
+		String id = message.readString();
+		int posx = message.readInt();
+		int posy = message.readInt();
+		
+		ServerGame g = getGame(sesh);
+		synchronized (g) {
+			Player player = g.getPlayer(getUser(sesh).getName());
+			g.build(player, id, posx, posy);
+			out.writeString("OK");
 		}
 
 	}

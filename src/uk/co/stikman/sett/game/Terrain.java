@@ -207,14 +207,14 @@ public class Terrain {
 				switch (rng.nextInt(5)) {
 				case 0:
 				case 1:
-					n.setObject(new Tree(getGame(), nextId(), world.getScenaryDef("oaktree1-" + rots[rng.nextInt(4)])));
+					n.setObject(new Tree(getGame(), nextId(), world.getGame().getScenaryDef("oaktree1-" + rots[rng.nextInt(4)])));
 					break;
 				case 2:
 				case 3:
-					n.setObject(new Tree(getGame(), nextId(), world.getScenaryDef("pinetree1-" + rots[rng.nextInt(4)])));
+					n.setObject(new Tree(getGame(), nextId(), world.getGame().getScenaryDef("pinetree1-" + rots[rng.nextInt(4)])));
 					break;
 				case 4:
-					n.setObject(new Rock(getGame(), nextId(), world.getScenaryDef("rock1-" + rots[rng.nextInt(4)])));
+					n.setObject(new Rock(getGame(), nextId(), world.getGame().getScenaryDef("rock1-" + rots[rng.nextInt(4)])));
 					break;
 				}
 			}

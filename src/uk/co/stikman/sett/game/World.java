@@ -12,8 +12,6 @@ import uk.co.stikman.sett.util.ThingList;
 public class World {
 	private WorldParameters								params;
 	private Terrain										terrain;
-	private transient final Map<String, BuildingType>	buildingDefs	= new HashMap<>();
-	private transient final Map<String, SceneryType>	sceneryDefs		= new HashMap<>();
 	private final ThingList<Building>					buildings		= new ThingList<>("Building");
 	private final ThingList<Flag>						flags			= new ThingList<>("Flag");
 	private final ThingList<Road>						roads			= new ThingList<>("Road");
@@ -45,13 +43,6 @@ public class World {
 		return roads;
 	}
 
-	public Map<String, BuildingType> getBuildingDefs() {
-		return buildingDefs;
-	}
-
-	public Map<String, SceneryType> getSceneryDefs() {
-		return sceneryDefs;
-	}
 
 	public Terrain getTerrain() {
 		return terrain;
@@ -74,31 +65,6 @@ public class World {
 
 	}
 
-	/**
-	 * Throws {@link NoSuchElementException} if missing
-	 * 
-	 * @param name
-	 * @return
-	 */
-	public SceneryType getScenaryDef(String name) {
-		SceneryType x = sceneryDefs.get(name);
-		if (x == null)
-			throw new NoSuchElementException("SceneryType [" + name + "] not found");
-		return x;
-	}
-
-	/**
-	 * Throws {@link NoSuchElementException} if missing
-	 * 
-	 * @param name
-	 * @return
-	 */
-	public BuildingType getBuildingDef(String name) {
-		BuildingType x = buildingDefs.get(name);
-		if (x == null)
-			throw new NoSuchElementException("BuildingType [" + name + "] not found");
-		return x;
-	}
 
 	public List<Road> getRoadsAt(TerrainNode node, List<Road> out) {
 		Road r = node.getRoad(0);

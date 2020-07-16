@@ -54,7 +54,7 @@ public class Tree implements GameObject, IsNodeObject {
 	@Override
 	public void fromStream(SettInputStream str) throws IOException {
 		this.id = str.readInt();
-		this.type = game.getWorld().getScenaryDef(str.readString());
+		this.type = game.getScenaryDef(str.readString());
 	}
 
 }

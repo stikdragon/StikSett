@@ -1,5 +1,6 @@
 package uk.co.stikman.sett;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -25,6 +26,10 @@ public class SettInputStream extends StikDataInputStream {
 
 	public SettInputStream(InputStream src) {
 		super(src);
+	}
+
+	public SettInputStream(byte[] data) {
+		this(new ByteArrayInputStream(data));
 	}
 
 	@SuppressWarnings("unchecked")

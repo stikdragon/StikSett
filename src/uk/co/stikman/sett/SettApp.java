@@ -3,6 +3,7 @@ package uk.co.stikman.sett;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import uk.co.stikman.log.StikLog;
@@ -13,6 +14,7 @@ import uk.co.stikman.sett.conn.PendingNetworkOp;
 import uk.co.stikman.sett.conn.Response;
 import uk.co.stikman.sett.conn.ResponseHandler;
 import uk.co.stikman.sett.game.WorldParameters;
+import uk.co.stikman.sett.gameevents.GameEvent;
 import uk.co.stikman.sett.gfx.BlendMode;
 import uk.co.stikman.sett.gfx.GameResources;
 import uk.co.stikman.sett.gfx.RenderTarget;
@@ -75,6 +77,9 @@ public class SettApp {
 
 	private LoadingGameWindow				loading;
 
+	private float							netRate						= 0.5f; //5.0f;
+	private float							nextNetPoll					= 0.0f;
+
 	private void go() {
 		try {
 			GameServerConfig config = new GameServerConfig();
@@ -128,7 +133,7 @@ public class SettApp {
 					StikDataInputStream str = resp.asStream();
 					int vers = str.readInt();
 					if (vers != SettApp.VERSION)
-						throw new ServerException(ServerException.INVALID_VERSION, "Server version [" + vers + "] is not compatible with this client (version [" + SettApp.VERSION + "])");
+						throw new ServerException(ServerException.E_INVALID_VERSION, "Server version [" + vers + "] is not compatible with this client (version [" + SettApp.VERSION + "])");
 				} catch (ServerException | IOException e) {
 					LOGGER.error("Response: " + e.getMessage());
 				}
@@ -154,8 +159,9 @@ public class SettApp {
 				}
 				if (!(view instanceof MainMenuView))
 					throw new RuntimeException("No menu");
-				createGame(((MainMenuView)view).getWorldParams());
+				createGame(((MainMenuView) view).getWorldParams());
 			});
+
 		} catch (Exception e) {
 			LOGGER.error("Response: " + e.getMessage());
 		}
@@ -197,13 +203,12 @@ public class SettApp {
 				}
 
 				// load initial game data from stream
-
 				GameView view = new GameView(this, game);
 				view.init();
 				setView(view);
 				loading.setProgress(100);
 				loading.closeIn1000ms();
-				
+
 			});
 		} catch (IOException e) {
 			LOGGER.error("Response: " + e.getMessage());
@@ -223,7 +228,7 @@ public class SettApp {
 		this.view.shown();
 	}
 
-	private void send(SendMessage msg, ResponseHandler onresponse) throws IOException {
+	public void send(SendMessage msg, ResponseHandler onresponse) throws IOException {
 		int id = conn.send(msg.getBytes());
 		pendingNetworkOperations.put(Integer.valueOf(id), new PendingNetworkOp(onresponse));
 	}
@@ -311,6 +316,15 @@ public class SettApp {
 	}
 
 	private void update(float dt) {
+		if (game != null) {
+			nextNetPoll -= dt;
+			if (nextNetPoll <= 0.0f) {
+				while (nextNetPoll <= 0.0f)
+					nextNetPoll += (1.0f / netRate);
+				sendNetPoll();
+			}
+		}
+
 		//
 		// read network responses
 		//
@@ -328,7 +342,28 @@ public class SettApp {
 		ui.update(dt);
 		if (view == null)
 			return;
+
+		if (game != null)
+			game.update(dt);
 		view.update(dt);
+	}
+
+	private void sendNetPoll() {
+		SendMessage msg = new SendMessage();
+		try {
+			msg.write4("POLL");
+			send(msg, res -> {
+				try {
+					List<GameEvent> events = GameEvents.read(res.getData());
+					for (GameEvent ev : events) 
+						ev.applyTo(game);
+				} catch (ServerException | IOException e) {
+					LOGGER.error(e);
+				}
+			});
+		} catch (IOException e) {
+			LOGGER.error(e);
+		}		
 	}
 
 	public Window3D getWindow() {

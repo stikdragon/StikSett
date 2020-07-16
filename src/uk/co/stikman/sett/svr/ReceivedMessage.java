@@ -33,4 +33,8 @@ public class ReceivedMessage {
 		return str.readBytes(n);
 	}
 
+	public int readInt() throws IOException {
+		return str.readInt();
+	}
+
 }

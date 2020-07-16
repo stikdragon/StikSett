@@ -5,6 +5,7 @@ public class BuildingType {
 	private String			display;
 	private String			description;
 	private String			modelName;
+	private BuildingSize	buildingSize;
 
 	public String getDisplay() {
 		return display;
@@ -43,6 +44,14 @@ public class BuildingType {
 
 	public void setModelName(String modelName) {
 		this.modelName = modelName;
+	}
+
+	public BuildingSize getBuildingSize() {
+		return buildingSize;
+	}
+
+	public void setBuildingSize(BuildingSize buildingSize) {
+		this.buildingSize = buildingSize;
 	}
 
 }

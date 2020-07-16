@@ -1,21 +1,25 @@
 package uk.co.stikman.sett.game;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import uk.co.stikman.sett.Game;
 import uk.co.stikman.sett.SettInputStream;
+import uk.co.stikman.sett.gameevents.GameEvent;
 import uk.co.stikman.utils.math.Vector3;
 
 public class Player implements IsSerializable {
 	private int				id;
 	private String			name;
 	private Vector3			colour	= new Vector3(0, 0, 0.8f);
-	private final Game	game;
+	private final Game		game;
+	private List<GameEvent>	events	= new ArrayList<>();
 
 	public Player(Game game) {
 		this.game = game;
 	}
-	
+
 	public Player(Game game, int id, String name, Vector3 colour) {
 		this.game = game;
 		this.name = name;
@@ -64,6 +68,16 @@ public class Player implements IsSerializable {
 		id = str.readInt();
 		name = str.readString();
 		str.readVec3(colour);
+	}
+
+	public List<GameEvent> extractEvents() {
+		List<GameEvent> res = events;
+		events = new ArrayList<>();
+		return res;
+	}
+
+	public void addEvent(GameEvent e) {
+		events.add(e);
 	}
 
 }

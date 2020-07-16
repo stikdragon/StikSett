@@ -87,12 +87,12 @@ public abstract class BaseGameServer {
 								outputStream.write(SettUtil.intToByte(data.length)); // length
 								outputStream.write(1); // "success"
 								outputStream.write(data); // bytes
-								LOGGER.debug("Message size recv/sent: " + data.length + " / " + n);
+//								LOGGER.debug("Message size recv/sent: " + data.length + " / " + n);
 							} catch (ServerException e) {
 								LOGGER.warn("Sending error to client: " + e.toString());
 								byte[] x = e.getMessage().getBytes(StandardCharsets.UTF_8);
 								outputStream.write(SettUtil.intToByte(id));
-								outputStream.write(SettUtil.intToByte(x.length + 4)); // length
+								outputStream.write(SettUtil.intToByte(x.length)); // length
 								outputStream.write(2); // "error"
 								outputStream.write(SettUtil.intToByte(e.getCode())); // code
 								outputStream.write(x); // bytes
