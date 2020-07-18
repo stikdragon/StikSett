@@ -27,4 +27,6 @@ public abstract class GameEvent {
 	}
 
 	public abstract void applyTo(Game game);
+
+	public abstract boolean isChangesStructure();
 }

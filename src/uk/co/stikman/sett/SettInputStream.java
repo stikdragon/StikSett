@@ -110,4 +110,8 @@ public class SettInputStream extends StikDataInputStream {
 		return out;
 	}
 
+	public boolean readBoolean() throws IOException {
+		return readByte() == 1;
+	}
+
 }

@@ -355,8 +355,12 @@ public class SettApp {
 			send(msg, res -> {
 				try {
 					List<GameEvent> events = GameEvents.read(res.getData());
-					for (GameEvent ev : events) 
+					for (GameEvent ev : events) { 
 						ev.applyTo(game);
+						if (ev.isChangesStructure()) {
+							((GameView)view).triggerShadowRebuild();
+						}
+					}
 				} catch (ServerException | IOException e) {
 					LOGGER.error(e);
 				}

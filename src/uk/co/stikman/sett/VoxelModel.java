@@ -7,8 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.stikman.log.StikLog;
+import uk.co.stikman.sett.client.renderer.Ray;
+import uk.co.stikman.sett.game.Rectaloid;
+import uk.co.stikman.sett.util.SettUtil;
 import uk.co.stikman.sett.util.VOXChunkHeader;
 import uk.co.stikman.sett.util.VoxelInputStream;
+import uk.co.stikman.utils.math.Vector3;
+import uk.co.stikman.utils.math.Vector3i;
 
 public class VoxelModel {
 	private static final StikLog	LOGGER				= StikLog.getLogger(VoxelModel.class);
@@ -21,6 +26,10 @@ public class VoxelModel {
 	private List<VoxelFrame>		frames				= new ArrayList<>();
 	private short[]					voxels				= new short[0];
 	private int						rotation;
+
+	private Vector3i				tmpv1				= new Vector3i();
+	private Vector3i				tmpv2				= new Vector3i();
+	private Vector3					tmpv3				= new Vector3();
 
 	public VoxelModel(String name, VoxelPalette pal) {
 		this.name = name;
@@ -192,6 +201,47 @@ public class VoxelModel {
 
 	public boolean isAnimated() {
 		return frames.size() > 1;
+	}
+
+	/**
+	 * returns <code>null</code> if no intersection
+	 * 
+	 * @param ray
+	 * @param out
+	 * @return
+	 */
+	public Vector3 intersect(Vector3i start, Vector3i end, Vector3 out, int frame) {
+		Vector3i[] res = new Vector3i[1];
+		SettUtil.drawLine3d(end, start, v -> {
+			if (v.equals(end)) // ignore ourselves
+				return true; 
+			
+			int x = v.x;
+			int y = v.y;
+			int z = v.z;
+			
+			//
+			// cut off when we get out the bottom
+			//
+			if (z < 0)
+				return false; 
+			
+			if (x < 0 || x >= sizeX)
+				return true;
+			if (y < 0 || y >= sizeY)
+				return true;
+			if (z >= sizeZ)
+				return true;
+			short vox = voxels[frame * framesize + z * sizeX * sizeY + y * sizeX + x];
+			if (vox != -1) {
+				res[0] = new Vector3i(x, y, z);
+				return false; // found it
+			}
+			return true;
+		});
+		if (res[0] == null)
+			return null;
+		return out.copy(res[0]);
 	}
 
 }

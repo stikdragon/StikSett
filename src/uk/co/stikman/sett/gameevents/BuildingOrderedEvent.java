@@ -17,6 +17,8 @@ public class BuildingOrderedEvent extends GameEvent {
 	private float		stateConstructed;
 	private float		stateLevelled;
 
+	private boolean		changesStructure	= true;
+
 	public BuildingOrderedEvent(Building b) {
 		super();
 
@@ -41,6 +43,7 @@ public class BuildingOrderedEvent extends GameEvent {
 		str.writeFloat(stateConstructed);
 		str.writeFloat(stateLevelled);
 		str.writeString(playerName);
+		str.writeBoolean(changesStructure);
 	}
 
 	@Override
@@ -52,6 +55,7 @@ public class BuildingOrderedEvent extends GameEvent {
 		stateConstructed = str.readFloat();
 		stateLevelled = str.readFloat();
 		playerName = str.readString();
+		changesStructure = str.readBoolean();
 	}
 
 	@Override
@@ -62,6 +66,15 @@ public class BuildingOrderedEvent extends GameEvent {
 		b.setStateLevelled(stateLevelled);
 		game.getWorld().getBuildings().put(b);
 		game.getWorld().getTerrain().get(b.getPosition()).setObject(b);
+	}
+
+	@Override
+	public boolean isChangesStructure() {
+		return changesStructure;
+	}
+
+	public void setChangesStructure(boolean changesStructure) {
+		this.changesStructure = changesStructure;
 	}
 
 }

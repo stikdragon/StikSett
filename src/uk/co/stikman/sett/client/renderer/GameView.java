@@ -401,6 +401,10 @@ public class GameView extends BaseView {
 		needShadowMapUpdate = false;
 	}
 
+	public void triggerShadowRebuild() {
+		needShadowMapUpdate = true;
+	}
+
 	private SceneObject findSceneObjectFor(IsNodeObject obj) {
 		SceneObject so = sceneObjects.get(obj);
 		if (so == null)
@@ -424,7 +428,7 @@ public class GameView extends BaseView {
 	private VoxelMesh getSceneMesh(VoxelModel mdl) {
 		VoxelMesh mesh = voxelMeshes.get(mdl);
 		if (mesh == null)
-			voxelMeshes.put(mdl, mesh = new VoxelMesh(this, mdl));
+			voxelMeshes.put(mdl, mesh = new VoxelMesh(this, mdl, new AOSkySphere(50, 0.5f)));
 		return mesh;
 	}
 

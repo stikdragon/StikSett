@@ -69,7 +69,8 @@ public class SceneObject {
 					break;
 				}
 			}
-			--curFrame;
+			if (curFrame > 0)
+				--curFrame;
 
 			mesh.render(curFrame);
 		} else {

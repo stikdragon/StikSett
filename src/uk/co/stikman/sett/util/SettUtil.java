@@ -1,5 +1,8 @@
 package uk.co.stikman.sett.util;
 
+import static java.lang.Math.abs;
+import static java.lang.Math.max;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -12,6 +15,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import uk.co.stikman.utils.math.Vector3i;
 
 public class SettUtil {
 
@@ -98,11 +103,117 @@ public class SettUtil {
 
 	public static byte[] intToByte(int n) {
 		byte[] r = new byte[4];
-		for (int i = 3; i >=0; --i) {
+		for (int i = 3; i >= 0; --i) {
 			r[i] = (byte) (n & 0xff);
 			n >>>= 8;
 		}
 		return r;
+	}
+
+	public interface DrawLineVisitor {
+		boolean visit(Vector3i v);
+	}
+
+	/**
+	 * return <code>true</code> from {@link DrawLineVisitor} to continue
+	 * searching, return <code>false</code> to stop
+	 * 
+	 * @param from
+	 * @param to
+	 * @param visit
+	 */
+	public static void drawLine3d(Vector3i from, Vector3i to, DrawLineVisitor visit) {
+		Vector3i v = new Vector3i();
+
+		int dx = to.x - from.x;
+		int dy = to.y - from.y;
+		int dz = to.z - from.z;
+
+		int ax = abs(dx) << 1;
+		int ay = abs(dy) << 1;
+		int az = abs(dz) << 1;
+
+		int sx = dx == 0 ? 0 : (dx < 0 ? -1 : 1);
+		int sy = dy == 0 ? 0 : (dy < 0 ? -1 : 1);
+		int sz = dz == 0 ? 0 : (dz < 0 ? -1 : 1);
+
+		int x = from.x;
+		int y = from.y;
+		int z = from.z;
+		int xe = to.x;
+		int ye = to.y;
+		int ze = to.z;
+
+		if (ax >= max(ay, az)) {
+			int yd = ay - (ax >> 1);
+			int zd = az - (ax >> 1);
+			for (;;) {
+				if (!visit.visit(v.set(x, y, z)))
+					return;
+				if (x == xe)
+					return;
+
+				if (yd >= 0) {
+					y += sy;
+					yd -= ax;
+				}
+
+				if (zd >= 0) {
+					z += sz;
+					zd -= ax;
+				}
+
+				x += sx;
+				yd += ay;
+				zd += az;
+			}
+		} else if (ay >= max(ax, az)) {
+			int xd = ax - (ay >> 1);
+			int zd = az - (ay >> 1);
+			for (;;) {
+				if (!visit.visit(v.set(x, y, z)))
+					return;
+				if (y == ye)
+					return;
+
+				if (xd >= 0) {
+					x += sx;
+					xd -= ay;
+				}
+
+				if (zd >= 0) {
+					z += sz;
+					zd -= ay;
+				}
+
+				y += sy;
+				xd += ax;
+				zd += az;
+			}
+		} else if (az >= max(ax, ay)) {
+			int xd = ax - (az >> 1);
+			int yd = ay - (az >> 1);
+			for (;;) {
+				if (!visit.visit(v.set(x, y, z)))
+					return;
+				if (z == ze)
+					return;
+
+				if (xd >= 0) {
+					x += sx;
+					xd -= az;
+				}
+
+				if (yd >= 0) {
+					y += sy;
+					yd -= az;
+				}
+
+				z += sz;
+				xd += ax;
+				yd += ay;
+			}
+		}
 	}
 
 }

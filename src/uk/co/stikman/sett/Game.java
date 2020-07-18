@@ -435,9 +435,9 @@ public class Game {
 		//
 		// see if we own the land
 		//
-//		TerrainNode n = getWorld().getTerrain().get(posx, posy);
-//		if (n.getOwner() != player.getId())
-//			return false;
+		//		TerrainNode n = getWorld().getTerrain().get(posx, posy);
+		//		if (n.getOwner() != player.getId())
+		//			return false;
 
 		return true;
 	}
@@ -457,14 +457,12 @@ public class Game {
 	}
 
 	private void postEvent(GameEvent e) {
-		for (Player p : getPlayers().values()) 
+		for (Player p : getPlayers().values())
 			p.addEvent(e);
 	}
 
 	public float getTime() {
 		return time;
 	}
-	
-
 
 }

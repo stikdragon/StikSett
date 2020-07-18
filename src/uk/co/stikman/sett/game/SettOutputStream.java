@@ -58,4 +58,8 @@ public class SettOutputStream extends StikDataOutputStream {
 		writeInt(v.x);
 		writeInt(v.y);
 	}
+
+	public void writeBoolean(boolean b) throws IOException {
+		writeByte((byte) (b ? 1 : 0));
+	}
 }
