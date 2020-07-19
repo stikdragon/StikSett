@@ -64,8 +64,8 @@ void main(void) {
 	float mu = max(0, dot(globalLight, -v_normal) + 0.5);
 	
 	vec3 reflectDir = reflect(-globalLight, v_normal);  
-	float spec = max(pow(max(dot(viewDir, reflectDir), 0.0), 16), 0);
-	mu += spec * 0.19;
+	//float spec = max(pow(max(dot(viewDir, reflectDir), 0.0), 16), 0);
+	//mu += spec * 0.19;
 	fragcolour.rgb = mu * fragcolour.rgb * (0.5 + 0.5 * smb.r);
 	float m = v_isRoad * croad.a;
 	fragcolour.rgb = mix(fragcolour.rgb, croad.rgb, m);

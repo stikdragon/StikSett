@@ -6,6 +6,7 @@ import java.util.List;
 import uk.co.stikman.sett.game.Building;
 import uk.co.stikman.sett.game.Flag;
 import uk.co.stikman.sett.game.IsNodeObject;
+import uk.co.stikman.sett.game.Noddy;
 import uk.co.stikman.sett.game.Player;
 import uk.co.stikman.sett.game.Road;
 import uk.co.stikman.sett.game.Rock;
@@ -14,7 +15,6 @@ import uk.co.stikman.sett.game.TerrainNode;
 import uk.co.stikman.sett.game.Tree;
 import uk.co.stikman.sett.game.World;
 import uk.co.stikman.sett.game.WorldParameters;
-import uk.co.stikman.sett.gameevents.GameEvent;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
 import uk.co.stikman.utils.StikDataInputStream;
 
@@ -56,6 +56,7 @@ public class ClientGame extends Game {
 		List<String> modelNames = str.readStringList();
 		List<String> buildingDefNames = str.readStringList();
 		List<String> sceneryDefNames = str.readStringList();
+		List<String> noddyDefNames = str.readStringList();
 
 		cnt = str.readInt();
 		while (cnt-- > 0)
@@ -69,6 +70,10 @@ public class ClientGame extends Game {
 		while (cnt-- > 0)
 			w.getRoads().put(str.readObject(Road.class));
 
+		cnt = str.readInt();
+		while (cnt-- > 0)
+			w.getNoddies().put(str.readObject(Noddy.class));
+		
 		Terrain t = w.getTerrain();
 		int nw = str.readInt();
 		int nh = str.readInt();

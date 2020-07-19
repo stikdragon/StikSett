@@ -7,8 +7,8 @@ import uk.co.stikman.sett.SettInputStream;
 
 public abstract class PlayerObject implements GameObject, HasOwner, IsNodeObject {
 	private transient final Game	game;
-	private int							id;
-	private Player						owner;
+	private int						id;
+	private Player					owner;
 
 	public PlayerObject(Game game) {
 		this(game, null, -1);

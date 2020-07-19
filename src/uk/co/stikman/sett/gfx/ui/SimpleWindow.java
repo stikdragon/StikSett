@@ -113,7 +113,7 @@ public class SimpleWindow {
 				window.drawSmartQuad(theming.getBackgroundSprite(), windowBounds, theming.getBackgroundColour(), theming.getStretchMode(), 0);
 		}
 
-		if (theming.getTitleFont() != null) {
+		if (theming.getTitleFont() != null && getCaption() != null) {
 			tmpR2.set(windowBounds.getX(), windowBounds.getY() + 12, windowBounds.getW(), 30);
 			window.drawText(tmpR2, getCaption(), theming.getTitleFont(), rtoTitle, theming.getFontColour());
 		}

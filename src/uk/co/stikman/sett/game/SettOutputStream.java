@@ -7,6 +7,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 import uk.co.stikman.utils.StikDataOutputStream;
+import uk.co.stikman.utils.math.Vector2;
 import uk.co.stikman.utils.math.Vector2i;
 import uk.co.stikman.utils.math.Vector3;
 
@@ -61,5 +62,10 @@ public class SettOutputStream extends StikDataOutputStream {
 
 	public void writeBoolean(boolean b) throws IOException {
 		writeByte((byte) (b ? 1 : 0));
+	}
+
+	public void writeVec2(Vector2 v) throws IOException {
+		writeFloat(v.x);
+		writeFloat(v.y);
 	}
 }

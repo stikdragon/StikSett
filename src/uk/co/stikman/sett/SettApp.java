@@ -24,7 +24,13 @@ import uk.co.stikman.sett.gfx.lwjgl.Window3DNative;
 import uk.co.stikman.sett.gfx.lwjgl.FrameBufferNative.ColourModel;
 import uk.co.stikman.sett.gfx.text.OutlineMode;
 import uk.co.stikman.sett.gfx.text.RenderTextOptions;
+import uk.co.stikman.sett.gfx.text.WordWrap;
+import uk.co.stikman.sett.gfx.ui.Button;
+import uk.co.stikman.sett.gfx.ui.Label;
+import uk.co.stikman.sett.gfx.ui.SimpleWindow;
 import uk.co.stikman.sett.gfx.ui.UITimer;
+import uk.co.stikman.sett.gfx.ui.WindowPosition;
+import uk.co.stikman.sett.gfx.util.Rect;
 import uk.co.stikman.sett.gfx.util.ResourceLoadError;
 import uk.co.stikman.sett.gfx.util.StreamSource;
 import uk.co.stikman.sett.gfx.util.WindowInitError;
@@ -77,7 +83,7 @@ public class SettApp {
 
 	private LoadingGameWindow				loading;
 
-	private float							netRate						= 0.5f; //5.0f;
+	private float							netRate						= 0.5f;				//5.0f;
 	private float							nextNetPoll					= 0.0f;
 
 	private void go() {
@@ -195,14 +201,19 @@ public class SettApp {
 			SendMessage msg = new SendMessage();
 			msg.write4("GINI");
 			send(msg, resp -> {
-				game = new ClientGame(this);
+				ClientGame game = new ClientGame(this);
 				try {
 					game.fromStream(new SettInputStream(resp.asStream()));
 				} catch (ServerException | IOException | ResourceLoadError e) {
 					LOGGER.error("Response: " + e.getMessage(), e);
+					loading.hide();
+					setView(new MainMenuView(this));
+					showMessage("ERROR", e.getMessage());
+					return;
 				}
 
 				// load initial game data from stream
+				this.game = game;
 				GameView view = new GameView(this, game);
 				view.init();
 				setView(view);
@@ -213,6 +224,25 @@ public class SettApp {
 		} catch (IOException e) {
 			LOGGER.error("Response: " + e.getMessage());
 		}
+	}
+
+	private void showMessage(String title, String message) {
+		SettStandardWindow wnd = new SettStandardWindow(this, 0);
+		wnd.setBounds(new Rect(0, 0, 200, 100));
+		Label l = new Label(wnd, title);
+		l.setColour(new Vector4(1, 1, 0, 1)).setBounds(new Rect(12, 12, 180, 16));
+		l.getRenderOptions().setOutlineMode(OutlineMode.SHADOW);
+		l = new Label(wnd, message);
+		l.setColour(new Vector4(0.7f, 0.7f, 0.7f, 1)).setBounds(new Rect(12, 30, 180, 50));
+		l.getRenderOptions().setWrap(WordWrap.WRAP);
+		l.getRenderOptions().setLineSpacing(1);
+
+		Button b = new Button(wnd, "ok", "OK");
+		b.setOnClick(x -> wnd.hide());
+		Rect r = wnd.getClientBounds();
+		b.setBounds(new Rect(r.x + r.w - 38, r.y + r.h - 18, 36, 16));
+		wnd.setWindowPosition(WindowPosition.CENTRE);
+		wnd.showModal();
 	}
 
 	private void setView(BaseView v) {
@@ -326,7 +356,8 @@ public class SettApp {
 		}
 
 		//
-		// read network responses
+		// read network responses and call response handlers, all in 
+		// the current thread
 		//
 		if (conn != null) {
 			for (;;) {
@@ -355,10 +386,10 @@ public class SettApp {
 			send(msg, res -> {
 				try {
 					List<GameEvent> events = GameEvents.read(res.getData());
-					for (GameEvent ev : events) { 
+					for (GameEvent ev : events) {
 						ev.applyTo(game);
 						if (ev.isChangesStructure()) {
-							((GameView)view).triggerShadowRebuild();
+							((GameView) view).triggerShadowRebuild();
 						}
 					}
 				} catch (ServerException | IOException e) {
@@ -367,7 +398,7 @@ public class SettApp {
 			});
 		} catch (IOException e) {
 			LOGGER.error(e);
-		}		
+		}
 	}
 
 	public Window3D getWindow() {

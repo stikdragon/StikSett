@@ -34,13 +34,19 @@ public class Label extends Component {
 	 * if <code>null</code> then uses the theme colour
 	 * 
 	 * @param col
+	 * @return
 	 */
-	public void setColour(Vector4 col) {
+	public Label setColour(Vector4 col) {
 		this.colour = col;
+		return this;
 	}
 
 	public Vector4 getColour() {
 		return colour;
+	}
+
+	public RenderTextOptions getRenderOptions() {
+		return rto;
 	}
 
 }

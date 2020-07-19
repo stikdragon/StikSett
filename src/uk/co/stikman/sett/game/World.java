@@ -10,15 +10,16 @@ import uk.co.stikman.sett.SettApp;
 import uk.co.stikman.sett.util.ThingList;
 
 public class World {
-	private WorldParameters								params;
-	private Terrain										terrain;
-	private final ThingList<Building>					buildings		= new ThingList<>("Building");
-	private final ThingList<Flag>						flags			= new ThingList<>("Flag");
-	private final ThingList<Road>						roads			= new ThingList<>("Road");
+	private WorldParameters				params;
+	private Terrain						terrain;
+	private final ThingList<Building>	buildings	= new ThingList<>("Building");
+	private final ThingList<Flag>		flags		= new ThingList<>("Flag");
+	private final ThingList<Road>		roads		= new ThingList<>("Road");
+	private final ThingList<Noddy>		noddies		= new ThingList<>("Noddy");
 
-	private int											width;
-	private int											height;
-	private Game									game;
+	private int							width;
+	private int							height;
+	private Game						game;
 
 	public World(Game game) {
 		this.game = game;
@@ -30,7 +31,7 @@ public class World {
 		this.height = params.getSize() * SettApp.CHUNK_SIZE;
 		this.params = params;
 	}
-	
+
 	public ThingList<Building> getBuildings() {
 		return buildings;
 	}
@@ -43,6 +44,9 @@ public class World {
 		return roads;
 	}
 
+	public ThingList<Noddy> getNoddies() {
+		return noddies;
+	}
 
 	public Terrain getTerrain() {
 		return terrain;
@@ -64,7 +68,6 @@ public class World {
 		return terrain.get(x, y).getObject();
 
 	}
-
 
 	public List<Road> getRoadsAt(TerrainNode node, List<Road> out) {
 		Road r = node.getRoad(0);

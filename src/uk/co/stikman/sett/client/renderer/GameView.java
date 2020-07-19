@@ -428,7 +428,7 @@ public class GameView extends BaseView {
 	private VoxelMesh getSceneMesh(VoxelModel mdl) {
 		VoxelMesh mesh = voxelMeshes.get(mdl);
 		if (mesh == null)
-			voxelMeshes.put(mdl, mesh = new VoxelMesh(this, mdl, new AOSkySphere(50, 0.5f)));
+			voxelMeshes.put(mdl, mesh = new VoxelMesh(this, mdl, new AOSkySphere(50, 0.3f)));
 		return mesh;
 	}
 

@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 
 import uk.co.stikman.sett.game.IsSerializable;
 import uk.co.stikman.utils.StikDataInputStream;
+import uk.co.stikman.utils.math.Vector2;
 import uk.co.stikman.utils.math.Vector2i;
 import uk.co.stikman.utils.math.Vector3;
 
@@ -112,6 +113,11 @@ public class SettInputStream extends StikDataInputStream {
 
 	public boolean readBoolean() throws IOException {
 		return readByte() == 1;
+	}
+
+	public void readVec2(Vector2 v) throws IOException {
+		v.x = readFloat();
+		v.y = readFloat();
 	}
 
 }

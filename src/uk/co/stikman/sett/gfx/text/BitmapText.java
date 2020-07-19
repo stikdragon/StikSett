@@ -111,7 +111,7 @@ public abstract class BitmapText {
 	}
 
 	public int getLineHeight() {
-		return font.getLineHeight();
+		return font.getLineHeight() + options.getLineSpacing();
 	}
 
 	public boolean isLoaded() {

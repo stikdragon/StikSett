@@ -13,6 +13,7 @@ public class RenderTextOptions {
 	private OutlineMode						outlineMode			= OutlineMode.NONE;
 	private float							outlineBlendFactor	= 1.0f;
 	private Vector4							outlineColour		= VectorColours.BLACK;
+	private int								lineSpacing;
 
 	public RenderTextOptions() {
 
@@ -26,6 +27,7 @@ public class RenderTextOptions {
 		this.outlineMode = copy.outlineMode;
 		this.outlineBlendFactor = copy.outlineBlendFactor;
 		this.outlineColour = new Vector4(copy.outlineColour);
+		this.lineSpacing = copy.lineSpacing;
 	}
 
 	public RenderTextOptions(HAlign textAlign, VAlign valign) {
@@ -133,6 +135,15 @@ public class RenderTextOptions {
 		this.outlineMode = copy.outlineMode;
 		this.outlineBlendFactor = copy.outlineBlendFactor;
 		this.outlineColour = copy.outlineColour;
+		this.lineSpacing = copy.lineSpacing;
+	}
+
+	public void setLineSpacing(int px) {
+		this.lineSpacing = px;
+	}
+
+	public int getLineSpacing() {
+		return lineSpacing;
 	}
 
 }

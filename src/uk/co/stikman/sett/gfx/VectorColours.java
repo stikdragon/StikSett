@@ -13,10 +13,24 @@ public class VectorColours {
 	public static Vector4 parseCSS(String s) {
 		if (s.startsWith("#"))
 			s = s.substring(1);
-		if (s.length() != 6)
-			throw new IllegalArgumentException("Colour must be RRGGBB");
-		int n = Integer.parseInt(s, 16);
-		return new Vector4((n & 0xff0000) >> 16, (n & 0x00ff00) >> 8, n & 0x0000ff, 0).divide(256.0f);
+		switch (s.length()) {
+		case 3:
+			char[] arr = s.toCharArray();
+			char[] arr2 = new char[6];
+			arr2[0] = arr[0];
+			arr2[1] = arr[0];
+			arr2[2] = arr[1];
+			arr2[3] = arr[1];
+			arr2[4] = arr[2];
+			arr2[5] = arr[2];
+			s = new String(arr2); // wheee
+		case 6:
+			int n = Integer.parseInt(s, 16);
+			return new Vector4((n & 0xff0000) >> 16, (n & 0x00ff00) >> 8, n & 0x0000ff, 256).divide(256.0f);
+		default:
+			throw new IllegalArgumentException("Colour must be RGB or RRGGBB");
+
+		}
 	}
 
 	public static Vector3 HSBtoRGB(Vector3 in) {

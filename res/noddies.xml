@@ -1,0 +1,53 @@
+<NoddyDefs>
+
+	<Model id="standing">
+		<FileName>noddies-*-stand1.vox</FileName>
+	</Model>
+	<Model id="walking">
+		<Frame time="0.2">
+			<FileName>noddies-*-walk1.vox</FileName>
+		</Frame>
+		<Frame time="0.2">
+			<FileName>noddies-*-walk2.vox</FileName>
+		</Frame>
+		<Frame time="0.2">
+			<FileName>noddies-*-walk3.vox</FileName>
+		</Frame>
+		<Frame time="0.2">
+			<FileName>noddies-*-walk4.vox</FileName>
+		</Frame>
+	</Model>
+
+	<!-- todo... -->
+	<Model id="carrying">
+		<FileName>noddies-*-stand1.vox</FileName>
+		<Attach>1,2,3</Attach>
+	</Model>
+	<!-- todo... -->
+	<Model id="cutting">
+		<FileName>noddies-*-stand1.vox</FileName>
+		<Attach>1,2,3</Attach>
+	</Model>
+
+
+	<!-- the Animation id is a model declared above -->
+	<!-- the Attach id is a model declared above, and requires a triplet of [x,y,z] for each frame of the Animation -->
+	<Noddy id="carrier">
+		<Sequence id="standing"></Sequence>
+		<Sequence id="walking"></Sequence>
+		<Sequence id="carrying"></Sequence>
+		<Description>This settler carries things along a road</Description>
+	</Noddy>
+
+	<Noddy id="woodcutter">
+		<Sequence id="walking"></Sequence>
+		<Sequence id="cutting">
+			<Attachment>axe</Attachment>
+		</Sequence>
+		<Sequence id="carrying"></Sequence>
+
+		<Description>This settler carries things along a road</Description>
+	</Noddy>
+
+
+</NoddyDefs>

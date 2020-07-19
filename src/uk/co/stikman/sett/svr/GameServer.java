@@ -17,6 +17,7 @@ import uk.co.stikman.sett.game.Building;
 import uk.co.stikman.sett.game.BuildingType;
 import uk.co.stikman.sett.game.Flag;
 import uk.co.stikman.sett.game.GenerateOptions;
+import uk.co.stikman.sett.game.Noddy;
 import uk.co.stikman.sett.game.Player;
 import uk.co.stikman.sett.game.Road;
 import uk.co.stikman.sett.game.SettOutputStream;
@@ -130,7 +131,6 @@ public class GameServer extends BaseGameServer {
 		}
 	}
 
-
 	private void handleINFO(NetSession sesh, ReceivedMessage message, StikDataOutputStream out) throws Exception {
 		out.writeInt(SERVER_VERSION);
 	}
@@ -181,10 +181,17 @@ public class GameServer extends BaseGameServer {
 			game.addPlayer(new Player(game, 3, "Player3", VectorColours.HSLtoRGB(new Vector3(0.6f, 1.0f, 0.6f))));
 			randomRoads(game);
 			randomFlags(game);
+			randomNoddies(game);
 			sesh.setObject("game", game);
 		}
 	}
 
+	private void randomNoddies(Game game) {
+		Random rng = new Random();
+		Noddy n = new Noddy(game, game.nextId());
+		n.setPosition(4, 6);
+		n.setType(game.getNoddyDef("carrier"));
+	}
 	private void randomFlags(Game game) {
 		List<Player> players = game.getPlayers().values().stream().collect(Collectors.toList());
 		Random rng = new Random();
@@ -250,6 +257,9 @@ public class GameServer extends BaseGameServer {
 			writeKeys(out, g.getModels());
 			writeKeys(out, g.getBuildingDefs());
 			writeKeys(out, g.getSceneryDefs());
+			out.writeInt(g.getNoddyDefs().getKeys().size());
+			for (String s : g.getNoddyDefs().getKeys())
+				out.writeString(s);
 
 			out.writeInt(w.getBuildings().size());
 			for (Building b : w.getBuildings())
@@ -262,6 +272,10 @@ public class GameServer extends BaseGameServer {
 			out.writeInt(w.getRoads().size());
 			for (Road r : w.getRoads())
 				out.writeObject(r);
+
+			out.writeInt(w.getNoddies().size());
+			for (Noddy n : w.getNoddies())
+				out.writeObject(n);
 
 			Terrain t = w.getTerrain();
 			out.writeInt(t.getWidth());
@@ -286,19 +300,19 @@ public class GameServer extends BaseGameServer {
 			Player player = g.getPlayer(getUser(sesh).getName());
 			List<GameEvent> lst = player.extractEvents();
 			out.writeInt(lst.size());
-			for (GameEvent ev : lst)  {
+			for (GameEvent ev : lst) {
 				out.writeString(ev.getClass().getSimpleName());
 				ev.toStream(out);
 			}
-		}	
+		}
 	}
-	
+
 	private void handleBILD(NetSession sesh, ReceivedMessage message, StikDataOutputStream sdos) throws Exception {
 		SettOutputStream out = new SettOutputStream(sdos);
 		String id = message.readString();
 		int posx = message.readInt();
 		int posy = message.readInt();
-		
+
 		ServerGame g = getGame(sesh);
 		synchronized (g) {
 			Player player = g.getPlayer(getUser(sesh).getName());

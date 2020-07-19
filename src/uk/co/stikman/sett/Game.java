@@ -1,5 +1,9 @@
 package uk.co.stikman.sett;
 
+import static uk.co.stikman.sett.util.SettUtil.getAttrib;
+import static uk.co.stikman.sett.util.SettUtil.getElements;
+import static uk.co.stikman.sett.util.SettUtil.optElement;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -19,6 +23,7 @@ import uk.co.stikman.sett.game.Building;
 import uk.co.stikman.sett.game.BuildingSize;
 import uk.co.stikman.sett.game.BuildingType;
 import uk.co.stikman.sett.game.Flag;
+import uk.co.stikman.sett.game.NoddyType;
 import uk.co.stikman.sett.game.ObstructionType;
 import uk.co.stikman.sett.game.Player;
 import uk.co.stikman.sett.game.Road;
@@ -33,6 +38,7 @@ import uk.co.stikman.sett.svr.ServerException;
 import uk.co.stikman.sett.util.SettUtil;
 import uk.co.stikman.utils.math.Vector2i;
 import uk.co.stikman.utils.math.Vector3;
+import uk.co.stikman.utils.math.Vector3i;
 
 public class Game {
 
@@ -55,6 +61,7 @@ public class Game {
 	private float										time				= 0.0f;
 	private transient final Map<String, BuildingType>	buildingDefs		= new HashMap<>();
 	private transient final Map<String, SceneryType>	sceneryDefs			= new HashMap<>();
+	private transient final NoddyDefs					noddyDefs			= new NoddyDefs();
 
 	public Game(SettApp app) {
 		this.app = app;
@@ -77,6 +84,10 @@ public class Game {
 
 	public Map<String, SceneryType> getSceneryDefs() {
 		return sceneryDefs;
+	}
+
+	public NoddyDefs getNoddyDefs() {
+		return noddyDefs;
 	}
 
 	public Map<String, VoxelModel> getModels() {
@@ -113,6 +124,7 @@ public class Game {
 			palette.loadFromPNG(files.get("palette.png"));
 			loadBuildingDefs(SettUtil.readXML(files.get("buildings.xml")));
 			loadSceneryDefs(SettUtil.readXML(files.get("scenery.xml")));
+			loadNoddyDefs(SettUtil.readXML(files.get("noddies.xml")));
 
 		} catch (IOException e) {
 			throw new ResourceLoadError("Failed to load resources: " + e.getMessage(), e);
@@ -128,8 +140,8 @@ public class Game {
 			loadModels(doc);
 
 			Map<String, SceneryType> defs = getSceneryDefs();
-			for (Element el : SettUtil.getElements(doc.getDocumentElement(), "Scenery")) {
-				String id = SettUtil.getAttrib(el, "id");
+			for (Element el : getElements(doc.getDocumentElement(), "Scenery")) {
+				String id = getAttrib(el, "id");
 
 				if (defs.containsKey(id))
 					throw new IllegalArgumentException("Scenery " + id + " already defined as: " + defs.get(id));
@@ -173,6 +185,60 @@ public class Game {
 		return x;
 	}
 
+	/**
+	 * Throws {@link NoSuchElementException} if missing
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public NoddyType getNoddyDef(String name) {
+		NoddyType x = noddyDefs.get(name);
+		if (x == null)
+			throw new NoSuchElementException("NoddyType [" + name + "] not found");
+		return x;
+	}
+
+	private void loadNoddyDefs(Document doc) throws ResourceLoadError {
+		if (!"NoddyDefs".equals(doc.getDocumentElement().getTagName()))
+			throw new ResourceLoadError("Expected <NoddyDefs>, not: " + doc.getDocumentElement().getTagName());
+		try {
+			loadModels(doc);
+
+			//
+			// load attachment points for any model that has them
+			//
+			for (Element el : getElements(doc.getDocumentElement(), "Model")) {
+				Element el2 = optElement(el, "FileName");
+				if (el2 == null) {
+					int n = 0;
+					for (Element el3 : getElements(el, "Frame")) {
+						Element el4 = optElement(el3, "Attach");
+						if (el4 != null)
+							noddyDefs.setAttach(getModels().get(getAttrib(el, "id")), n, Vector3i.parse(el4.getTextContent()));
+						++n;
+					}
+				} else {
+					Element el4 = optElement(el, "Attach");
+					if (el4 != null)
+						noddyDefs.setAttach(getModels().get(getAttrib(el, "id")), 0, Vector3i.parse(el4.getTextContent()));
+				}
+			}
+
+			for (Element el : getElements(doc.getDocumentElement(), "Noddy")) {
+				String id = getAttrib(el, "id");
+				if (noddyDefs.find(name)!=null)
+					throw new ResourceLoadError("<Noddy> " + id + " is already defined");
+				
+				NoddyType nt = new NoddyType(id);
+				nt.addSequence(getModels().get(getAttrib(el, "id")));
+				nt.setDescription(SettUtil.getElementText(el, "Description", id));
+			}
+
+		} catch (Exception e) {
+			throw new ResourceLoadError("Failed to load Noddy Definitions: " + e.getMessage(), e);
+		}
+	}
+
 	private void loadBuildingDefs(Document doc) throws ResourceLoadError {
 		if (!"BuildingDefs".equals(doc.getDocumentElement().getTagName()))
 			throw new ResourceLoadError("Expected <BuildingsDefs>, not: " + doc.getDocumentElement().getTagName());
@@ -181,14 +247,14 @@ public class Game {
 			loadModels(doc);
 
 			Map<String, BuildingType> defs = getBuildingDefs();
-			for (Element el : SettUtil.getElements(doc.getDocumentElement(), "Building")) {
-				String id = SettUtil.getAttrib(el, "id");
+			for (Element el : getElements(doc.getDocumentElement(), "Building")) {
+				String id = getAttrib(el, "id");
 				if (defs.containsKey(id))
 					throw new IllegalArgumentException("BuildingType " + id + " already defined as: " + defs.get(id));
-				BuildingType bt = new BuildingType(id, SettUtil.getAttrib(el, "display", id));
+				BuildingType bt = new BuildingType(id, getAttrib(el, "display", id));
 				bt.setModelName(SettUtil.getElement(el, "Model").getTextContent());
 				bt.setDescription(SettUtil.getElementText(el, "Description", bt.getDisplay()));
-				bt.setBuildingSize(BuildingSize.valueOf(SettUtil.getAttrib(el, "size", "none").toUpperCase()));
+				bt.setBuildingSize(BuildingSize.valueOf(getAttrib(el, "size", "none").toUpperCase()));
 				defs.put(bt.getName(), bt);
 			}
 		} catch (Exception e) {
@@ -197,17 +263,17 @@ public class Game {
 	}
 
 	private void loadModels(Document doc) throws DOMException, IOException {
-		for (Element el : SettUtil.getElements(doc.getDocumentElement(), "Model")) {
-			String id = SettUtil.getAttrib(el, "id");
+		for (Element el : getElements(doc.getDocumentElement(), "Model")) {
+			String id = getAttrib(el, "id");
 			if (models.containsKey(id))
 				throw new IllegalArgumentException("Model " + id + " already defined as: " + models.get(id) + ".  (Remember <Model>s are global across the entire game)");
-			int rot = parseRotation(SettUtil.getAttrib(el, "rotate", "0"));
+			int rot = parseRotation(getAttrib(el, "rotate", "0"));
 			VoxelModel vm = new VoxelModel(id, palette);
-			if (SettUtil.optElement(el, "FileName") != null) {
+			if (optElement(el, "FileName") != null) {
 				vm.fromStream(files.get(SettUtil.getElement(el, "FileName").getTextContent()), rot);
 			} else {
-				for (Element elframe : SettUtil.getElements(el, "Frame"))
-					vm.fromStream(files.get(SettUtil.getElement(elframe, "FileName").getTextContent()), rot, parseFrameTime(SettUtil.getAttrib(elframe, "time")));
+				for (Element elframe : getElements(el, "Frame"))
+					vm.fromStream(files.get(SettUtil.getElement(elframe, "FileName").getTextContent()), rot, parseFrameTime(getAttrib(elframe, "time")));
 			}
 			models.put(id, vm);
 		}
