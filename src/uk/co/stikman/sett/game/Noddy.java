@@ -5,6 +5,7 @@ import java.io.IOException;
 import uk.co.stikman.sett.Game;
 import uk.co.stikman.sett.SettInputStream;
 import uk.co.stikman.utils.math.Vector2;
+import uk.co.stikman.utils.math.Vector3;
 
 public class Noddy implements GameObject {
 
@@ -12,7 +13,7 @@ public class Noddy implements GameObject {
 	private int			id;
 	private Player		owner;
 	private NoddyType	type;
-	private Vector2		position	= new Vector2();
+	private Vector3		position	= new Vector3();
 
 	public Noddy(Game game) {
 		this.game = game;
@@ -35,14 +36,14 @@ public class Noddy implements GameObject {
 	public void toStream(SettOutputStream out) throws IOException {
 		out.writeInt(id);
 		out.writeString(type.getName());
-		out.writeVec2(position);
+		out.writeVec3(position);
 		out.writeObject(owner);
 	}
 
 	public void fromStream(SettInputStream str) throws IOException {
 		id = str.readInt();
 		type = getGame().getNoddyDef(str.readString());
-		str.readVec2(position);
+		str.readVec3(position);
 		owner = str.readObject(Player.class);
 	}
 
@@ -58,12 +59,12 @@ public class Noddy implements GameObject {
 		return game;
 	}
 
-	public Vector2 getPosition() {
+	public Vector3 getPosition() {
 		return position;
 	}
 
-	public void setPosition(Vector2 position) {
-		this.position.set(position);
+	public void setPosition(Vector3 position) {
+		this.position.copy(position);
 	}
 
 	public Player getOwner() {
@@ -74,8 +75,8 @@ public class Noddy implements GameObject {
 		this.owner = owner;
 	}
 
-	public void setPosition(int x, int y) {
-		position.set(x, y);
+	public void setPosition(int x, int y, int z) {
+		position.set(x, y, z);
 	}
 
 }

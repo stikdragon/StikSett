@@ -1,9 +1,6 @@
 package uk.co.stikman.sett.game;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
 
 import uk.co.stikman.sett.Game;
 import uk.co.stikman.sett.SettApp;

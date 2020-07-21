@@ -29,6 +29,7 @@ public class ClientGame extends Game {
 		OBJECT_CONSTRUCTORS.add(Rock.class, () -> new Rock(this));
 		OBJECT_CONSTRUCTORS.add(Tree.class, () -> new Tree(this));
 		OBJECT_CONSTRUCTORS.add(Player.class, () -> new Player(this));
+		OBJECT_CONSTRUCTORS.add(Noddy.class, () -> new Noddy(this));
 	}
 
 	public void fromStream(StikDataInputStream in) throws IOException, ResourceLoadError {

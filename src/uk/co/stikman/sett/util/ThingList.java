@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import uk.co.stikman.sett.game.GameObject;
+import uk.co.stikman.sett.game.Noddy;
 
 /**
  * List of objects that implement {@link GameObject}. provides rapid lookup

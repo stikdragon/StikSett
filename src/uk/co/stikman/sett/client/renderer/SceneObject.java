@@ -2,22 +2,22 @@ package uk.co.stikman.sett.client.renderer;
 
 import uk.co.stikman.sett.VoxelFrame;
 import uk.co.stikman.sett.VoxelModel;
-import uk.co.stikman.sett.game.IsNodeObject;
+import uk.co.stikman.sett.game.GameObject;
 
 public class SceneObject {
 
-	private IsNodeObject	gameObject;
-	private GameView		view;
-	private VoxelMesh		mesh;
-	private VoxelModel		model;
+	private GameObject	gameObject;
+	private GameView	view;
+	private VoxelMesh	mesh;
+	private VoxelModel	model;
 
-	private float			lastTime;
-	private float			time		= 0.0f;
-	private float			animTime;
-	private float[]			frameStarts;
-	private int				curFrame	= 0;
+	private float		lastTime;
+	private float		time		= 0.0f;
+	private float		animTime;
+	private float[]		frameStarts;
+	private int			curFrame	= 0;
 
-	public SceneObject(GameView view, IsNodeObject gameobj, VoxelModel mdl, VoxelMesh mesh) {
+	public SceneObject(GameView view, GameObject gameobj, VoxelModel mdl, VoxelMesh mesh) {
 		if (mesh == null)
 			throw new NullPointerException("Mesh is missing");
 		this.view = view;
@@ -37,7 +37,7 @@ public class SceneObject {
 		}
 	}
 
-	public IsNodeObject getGameObject() {
+	public GameObject getGameObject() {
 		return gameObject;
 	}
 

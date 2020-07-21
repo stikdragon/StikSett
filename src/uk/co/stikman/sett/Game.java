@@ -226,12 +226,14 @@ public class Game {
 
 			for (Element el : getElements(doc.getDocumentElement(), "Noddy")) {
 				String id = getAttrib(el, "id");
-				if (noddyDefs.find(name)!=null)
+				if (noddyDefs.find(name) != null)
 					throw new ResourceLoadError("<Noddy> " + id + " is already defined");
-				
+
 				NoddyType nt = new NoddyType(id);
-				nt.addSequence(getModels().get(getAttrib(el, "id")));
 				nt.setDescription(SettUtil.getElementText(el, "Description", id));
+				for (Element el2 : getElements(el, "Sequence"))
+					nt.addSequence(getAttrib(el2, "id"), getModels().get(getAttrib(el2, "id")));
+				noddyDefs.add(nt);
 			}
 
 		} catch (Exception e) {

@@ -20,6 +20,7 @@ import uk.co.stikman.sett.SettApp;
 import uk.co.stikman.sett.VoxelModel;
 import uk.co.stikman.sett.conn.ResponseHandler;
 import uk.co.stikman.sett.game.IsNodeObject;
+import uk.co.stikman.sett.game.Noddy;
 import uk.co.stikman.sett.game.PlayerObject;
 import uk.co.stikman.sett.game.Terrain;
 import uk.co.stikman.sett.game.World;
@@ -238,6 +239,32 @@ public class GameView extends BaseView {
 			}
 		}
 
+		Terrain terr = world.getTerrain();
+		for (Noddy n : world.getNoddies()) {
+			Vector3 pos = n.getPosition();
+			//			if (pos.x >= x0 && pos.x <= x1 && pos.y >= y0 && pos.y <= y1) {
+			SceneObject m = sceneObjects.get(n);
+			if (m == null)
+				sceneObjects.put(n, m = generateNoddySceneObject(n));
+			skew.multiply(n.getPosition(), tv1);
+
+			float fx = tv1.x % 1;
+			float fy = tv1.y % 1;
+			int x = (int) tv1.x;
+			int y = (int) tv1.y;
+			float h1 = terr.get(x, y).getHeight();
+			float h2 = terr.get(x + 1, y).getHeight();
+			float h3 = terr.get(x, y + 1).getHeight();
+			float h4 = terr.get(x + 1, y + 1).getHeight();
+			h1 = h1 + (h2 - h1) * fx;
+			h2 = h3 + (h4 - h3) * fx;
+
+			uoff.bindVec3(tv1.x, tv1.y, 0.15f + h1 + (h2 - h1) * fy);
+			uplaycol.bindVec3(n.getOwner().getColour());
+			m.render(time);
+			//			}
+		}
+
 		selectionMarker.render(objectShader, skew);
 
 		if (debugRay != null)
@@ -409,6 +436,15 @@ public class GameView extends BaseView {
 		SceneObject so = sceneObjects.get(obj);
 		if (so == null)
 			return generateSceneObject(obj);
+		return so;
+	}
+
+	private SceneObject generateNoddySceneObject(Noddy n) {
+		VoxelModel mdl = n.getType().getSequence("walking").getModel();
+		if (mdl == null)
+			throw new NoSuchElementException("No model found for Noddy: " + n);
+		SceneObject so = new SceneObject(this, n, mdl, getSceneMesh(mdl));
+		sceneObjects.put(n, so);
 		return so;
 	}
 

@@ -6,7 +6,7 @@ package uk.co.stikman.sett.game;
  * @author stikd
  *
  */
-public interface IsNodeObject extends IsSerializable {
+public interface IsNodeObject extends GameObject, IsSerializable {
 
 	String getModelName();
 

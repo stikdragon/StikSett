@@ -34,4 +34,8 @@ public class NoddyDefs {
 		return defs.keySet();
 	}
 
+	public void add(NoddyType nt) {
+		this.defs.put(nt.getName(), nt);
+	}
+
 }

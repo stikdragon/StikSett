@@ -2,6 +2,7 @@ package uk.co.stikman.sett.game;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import uk.co.stikman.sett.VoxelModel;
 
@@ -32,12 +33,19 @@ public class NoddyType {
 		this.description = description;
 	}
 
-	public void addSequence(VoxelModel model) {
-		this.sequences.add(new NoddySequence(model));
+	public void addSequence(String name, VoxelModel model) {
+		this.sequences.add(new NoddySequence(name, model));
 	}
 
 	public List<NoddySequence> getSequences() {
 		return sequences;
+	}
+
+	public NoddySequence getSequence(String name) {
+		for (NoddySequence s : sequences)
+			if (name.equals(s.getName()))
+				return s;
+		throw new NoSuchElementException(name);
 	}
 
 }
