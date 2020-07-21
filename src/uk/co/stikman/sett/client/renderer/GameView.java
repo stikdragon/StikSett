@@ -246,12 +246,10 @@ public class GameView extends BaseView {
 			SceneObject m = sceneObjects.get(n);
 			if (m == null)
 				sceneObjects.put(n, m = generateNoddySceneObject(n));
-			skew.multiply(n.getPosition(), tv1);
-
-			float fx = tv1.x % 1;
-			float fy = tv1.y % 1;
-			int x = (int) tv1.x;
-			int y = (int) tv1.y;
+			float fx = pos.x % 1;
+			float fy = pos.y % 1;
+			int x = (int) pos.x;
+			int y = (int) pos.y;
 			float h1 = terr.get(x, y).getHeight();
 			float h2 = terr.get(x + 1, y).getHeight();
 			float h3 = terr.get(x, y + 1).getHeight();
@@ -259,7 +257,8 @@ public class GameView extends BaseView {
 			h1 = h1 + (h2 - h1) * fx;
 			h2 = h3 + (h4 - h3) * fx;
 
-			uoff.bindVec3(tv1.x, tv1.y, 0.15f + h1 + (h2 - h1) * fy);
+			skew.multiply(n.getPosition(), tv1);
+			uoff.bindVec3(tv1.x, tv1.y, h1 + (h2 - h1) * fy);
 			uplaycol.bindVec3(n.getOwner().getColour());
 			m.render(time);
 			//			}

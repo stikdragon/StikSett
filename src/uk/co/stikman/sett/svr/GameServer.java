@@ -188,12 +188,17 @@ public class GameServer extends BaseGameServer {
 
 	private void randomNoddies(Game game) {
 		Random rng = new Random();
-		Noddy n = new Noddy(game, game.nextId());
-		n.setOwner(game.getPlayer("Stik"));
-		n.setPosition(4, 6, 10);
-		n.setType(game.getNoddyDef("carrier"));
-		game.getWorld().getNoddies().put(n);
+		Player[] ps = new Player[] {game.getPlayer("Stik"), game.getPlayer("Player2"), game.getPlayer("Player3")};
+		for (int j = 4; j < 14; ++j) {
+		for (int i = 4; i < 14; ++i) {
+			Noddy n = new Noddy(game, game.nextId());
+			n.setOwner(ps[rng.nextInt(3)]);
+			n.setPosition(i, j, 0);
+			n.setType(game.getNoddyDef("carrier"));
+			game.getWorld().getNoddies().put(n);
+		}		}
 	}
+
 	private void randomFlags(Game game) {
 		List<Player> players = game.getPlayers().values().stream().collect(Collectors.toList());
 		Random rng = new Random();
