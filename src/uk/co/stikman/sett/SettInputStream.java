@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import uk.co.stikman.sett.game.IsSerializable;
+import uk.co.stikman.sett.game.NoddyAim;
 import uk.co.stikman.utils.StikDataInputStream;
 import uk.co.stikman.utils.math.Vector2;
 import uk.co.stikman.utils.math.Vector2i;
@@ -118,6 +119,13 @@ public class SettInputStream extends StikDataInputStream {
 	public void readVec2(Vector2 v) throws IOException {
 		v.x = readFloat();
 		v.y = readFloat();
+	}
+
+	public <T extends IsSerializable> List<T> readList(Class<T> itemtyp, List<T> result) throws IOException {
+		int i = readInt();
+		while (i-- > 0)
+			result.add(readObject(itemtyp));
+		return result;
 	}
 
 }

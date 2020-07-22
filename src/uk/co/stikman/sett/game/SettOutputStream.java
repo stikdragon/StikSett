@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 
 import uk.co.stikman.utils.StikDataOutputStream;
@@ -67,5 +68,11 @@ public class SettOutputStream extends StikDataOutputStream {
 	public void writeVec2(Vector2 v) throws IOException {
 		writeFloat(v.x);
 		writeFloat(v.y);
+	}
+
+	public void writeList(List<? extends IsSerializable> lst) throws IOException {
+		writeInt(lst.size());
+		for (IsSerializable x : lst)
+			writeObject(x);
 	}
 }

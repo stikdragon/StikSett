@@ -102,6 +102,7 @@ public class GameView extends BaseView {
 	private Ray								tray				= new Ray();
 	private static final Plane				BASELINE_PLANE		= new Plane(new Vector3(0, 0, 1), new Vector3(0, 0, 0));
 	private static final boolean			FORCE_ALL_VISIBLE	= true;
+	private static final float				VOXEL_SCALE			= 0.035f;
 	private final ScanlineConverter			scanconverter		= new ScanlineConverter();
 	private boolean							FORCE_CHUNK_TEST	= true;
 	private CreateBuildingWindow			createBuildingWnd;
@@ -136,11 +137,11 @@ public class GameView extends BaseView {
 			shadowmapbuf = new FrameBufferNative(game.getWorld().getWidth() * scale, game.getWorld().getHeight() * scale, ColourModel.GRAYSCALE, true);
 			renderbuf = new FrameBufferNative(512, 512, ColourModel.RGBA_DEPTH, false);
 
-			VoxelMesh vm1 = new VoxelMesh(this, game.getModels().get(game.getScenaryDef("caret").getModelName()));
-			VoxelMesh vm2 = new VoxelMesh(this, game.getModels().get(game.getScenaryDef("caret-outer").getModelName()));
-			VoxelMesh vm3 = new VoxelMesh(this, game.getModels().get(game.getScenaryDef("caret-house1").getModelName()));
-			VoxelMesh vm4 = new VoxelMesh(this, game.getModels().get(game.getScenaryDef("caret-castle").getModelName()));
-			VoxelMesh vm5 = new VoxelMesh(this, game.getModels().get(game.getScenaryDef("caret-flag").getModelName()));
+			VoxelMesh vm1 = new VoxelMesh(this, game.getModels().get(game.getScenaryDef("caret").getModelName()), VOXEL_SCALE);
+			VoxelMesh vm2 = new VoxelMesh(this, game.getModels().get(game.getScenaryDef("caret-outer").getModelName()), VOXEL_SCALE);
+			VoxelMesh vm3 = new VoxelMesh(this, game.getModels().get(game.getScenaryDef("caret-house1").getModelName()), VOXEL_SCALE);
+			VoxelMesh vm4 = new VoxelMesh(this, game.getModels().get(game.getScenaryDef("caret-castle").getModelName()), VOXEL_SCALE);
+			VoxelMesh vm5 = new VoxelMesh(this, game.getModels().get(game.getScenaryDef("caret-flag").getModelName()), VOXEL_SCALE);
 			selectionMarker = new SelectionMarker(this, vm1, vm2, vm3, vm4, vm5);
 
 			//
@@ -463,7 +464,7 @@ public class GameView extends BaseView {
 	private VoxelMesh getSceneMesh(VoxelModel mdl) {
 		VoxelMesh mesh = voxelMeshes.get(mdl);
 		if (mesh == null)
-			voxelMeshes.put(mdl, mesh = new VoxelMesh(this, mdl, new AOSkySphere(50, 0.3f)));
+			voxelMeshes.put(mdl, mesh = new VoxelMesh(this, mdl, new AOSkySphere(50, 0.3f), VOXEL_SCALE));
 		return mesh;
 	}
 

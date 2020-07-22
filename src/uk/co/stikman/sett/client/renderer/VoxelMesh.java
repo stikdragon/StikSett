@@ -38,20 +38,22 @@ public class VoxelMesh {
 	private int[]					frameSizes;
 	private AOSkySphere				sky			= null;
 	private Vector2i				skyOffset	= new Vector2i();
+	private final float				scale;
 
 	private static final Vector3[]	NORMALS		= new Vector3[] { new Vector3(0, -1, 0), new Vector3(0, 1, 0), new Vector3(1, 0, 0), new Vector3(-1, 0, 0), new Vector3(0, 0, 1), new Vector3(0, 0, -1) };
 	private static final int		NUM_ATTRS	= 12;
 	private static final int		AO_SAMPLES	= 16;
 
-	public VoxelMesh(GameView gameView, VoxelModel voxmodel) {
-		this(gameView, voxmodel, null);
+	public VoxelMesh(GameView gameView, VoxelModel voxmodel, float scale) {
+		this(gameView, voxmodel, null, scale);
 	}
 
-	public VoxelMesh(GameView gameView, VoxelModel voxmodel, AOSkySphere sky) {
+	public VoxelMesh(GameView gameView, VoxelModel voxmodel, AOSkySphere sky, float scale) {
 		this.window = gameView.getWindow();
 		this.voxmodel = voxmodel;
 		this.palette = gameView.getGame().getVoxelPalette();
 		this.sky = sky;
+		this.scale = scale;
 		if (sky != null)
 			skyOffset.set(voxmodel.getSizeX() / 2, voxmodel.getSizeY() / 2);
 		generate();
@@ -80,7 +82,7 @@ public class VoxelMesh {
 						if (vox == 233 || vox == 234 || vox == 235)
 							ovr = 1;
 						Vector4 colour = palette.get(vox);
-						float occ = sky == null ? 1.0f : occlude(x, y, z);
+						float occ = sky == null ? 1.0f : occlude(x, y, z, f);
 						outputFace(voxmodel, f, 0, x, y, z, 0, -1, 0, colour, ovr, occ);
 						outputFace(voxmodel, f, 1, x, y, z, 0, 1, 0, colour, ovr, occ);
 						outputFace(voxmodel, f, 2, x, y, z, 1, 0, 0, colour, ovr, occ);
@@ -98,7 +100,7 @@ public class VoxelMesh {
 		float ox = voxmodel.getSizeX() / 2.0f;
 		float oy = voxmodel.getSizeY() / 2.0f;
 		offsetVerts(-ox, -oy, 0);
-		scaleVerts(0.05f);
+		scaleVerts(scale);
 		invalid = true;
 	}
 
@@ -199,7 +201,7 @@ public class VoxelMesh {
 		return n;
 	}
 
-	private float occlude(float x, float y, float z) {
+	private float occlude(float x, float y, float z, int frame) {
 		//
 		// work out the occlusion factor for this vert, cast rays to the sky sphere
 		// and see how many intersect with the model at some point
@@ -219,7 +221,7 @@ public class VoxelMesh {
 				fx *= 2.0f * 3.14159f;
 				a.set(sin(fy) * sin(fx) * rad + skyOffset.x, sin(fy) * cos(fx) * rad + skyOffset.y, cos(fy) * rad);
 				b.set(x, y, z);
-				Vector3 xsect = voxmodel.intersect(a, b, v, 0);
+				Vector3 xsect = voxmodel.intersect(a, b, v, frame);
 				if (xsect != null) // hit something else on the way to the sky
 					--cnt;
 			}
